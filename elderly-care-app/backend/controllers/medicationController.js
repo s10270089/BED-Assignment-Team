@@ -1,11 +1,9 @@
-const sql = require("mssql");
-const dbConfig = require("../db/dbConfig"); // you'll create this next
+const Medication = require("../models/medicationModel");
 
 exports.getAllMedications = async (req, res) => {
   try {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request().query("SELECT * FROM Medications");
-    res.json(result.recordset);
+    const meds = await Medication.getAll();
+    res.json(meds);
   } catch (err) {
     res.status(500).send("Error fetching medications");
   }
@@ -13,26 +11,16 @@ exports.getAllMedications = async (req, res) => {
 
 exports.getMedicationById = async (req, res) => {
   try {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-      .input("id", sql.Int, req.params.id)
-      .query("SELECT * FROM Medications WHERE id = @id");
-    res.json(result.recordset[0]);
+    const med = await Medication.getById(req.params.id);
+    res.json(med);
   } catch (err) {
-    res.status(500).send("Error getting medication");
+    res.status(500).send("Error retrieving medication");
   }
 };
 
 exports.createMedication = async (req, res) => {
-  const { name, dosage, time, frequency } = req.body;
   try {
-    const pool = await sql.connect(dbConfig);
-    await pool.request()
-      .input("name", sql.NVarChar, name)
-      .input("dosage", sql.NVarChar, dosage)
-      .input("time", sql.NVarChar, time)
-      .input("frequency", sql.NVarChar, frequency)
-      .query("INSERT INTO Medications (name, dosage, time, frequency) VALUES (@name, @dosage, @time, @frequency)");
+    await Medication.create(req.body);
     res.send("Medication created");
   } catch (err) {
     res.status(500).send("Error creating medication");
@@ -40,16 +28,8 @@ exports.createMedication = async (req, res) => {
 };
 
 exports.updateMedication = async (req, res) => {
-  const { name, dosage, time, frequency } = req.body;
   try {
-    const pool = await sql.connect(dbConfig);
-    await pool.request()
-      .input("id", sql.Int, req.params.id)
-      .input("name", sql.NVarChar, name)
-      .input("dosage", sql.NVarChar, dosage)
-      .input("time", sql.NVarChar, time)
-      .input("frequency", sql.NVarChar, frequency)
-      .query("UPDATE Medications SET name=@name, dosage=@dosage, time=@time, frequency=@frequency WHERE id=@id");
+    await Medication.update(req.params.id, req.body);
     res.send("Medication updated");
   } catch (err) {
     res.status(500).send("Error updating medication");
@@ -58,14 +38,9 @@ exports.updateMedication = async (req, res) => {
 
 exports.deleteMedication = async (req, res) => {
   try {
-    const pool = await sql.connect(dbConfig);
-    await pool.request()
-      .input("id", sql.Int, req.params.id)
-      .query("DELETE FROM Medications WHERE id = @id");
+    await Medication.delete(req.params.id);
     res.send("Medication deleted");
   } catch (err) {
     res.status(500).send("Error deleting medication");
   }
 };
-
-//test

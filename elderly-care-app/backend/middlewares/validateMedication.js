@@ -10,9 +10,10 @@ const schema = Joi.object({
 module.exports = (req, res, next) => {
   const { error } = schema.validate(req.body, { abortEarly: false });
   if (error) {
-    return res.status(400).json({ message: "Validation error", details: error.details });
+    return res.status(400).json({
+      message: "Validation failed",
+      details: error.details.map(e => e.message),
+    });
   }
   next();
 };
-
-//test

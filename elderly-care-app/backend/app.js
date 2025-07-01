@@ -1,68 +1,77 @@
 // ---------------------------------------------------
-// 1. Load Environment Variables
+// Load Environment Variables
 // ---------------------------------------------------
 require("dotenv").config();
 
 // ---------------------------------------------------
-// 2. Import Packages
+// Import Packages
 // ---------------------------------------------------
 const express = require("express");
-const path = require("path");
 const sql = require("mssql");
-const cors = require("cors"); 
+const path = require("path");
 
 // ---------------------------------------------------
-// 3. Initialize Express App
+// Create Express App
 // ---------------------------------------------------
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ---------------------------------------------------
-// 4. Middleware Setup
+// Middleware Setup
 // ---------------------------------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors()); // Optional for frontend-backend interaction
-app.use(express.static(path.join(__dirname, "../frontend"))); // Serve frontend files
-
-// Debug log
-console.log("Serving static frontend from:", path.join(__dirname, "../frontend"));
 
 // ---------------------------------------------------
-// 5. Database Connection Test (Optional)
+// SQL Server Connection
 // ---------------------------------------------------
-sql.connect(require("./db/dbConfig"))
+const dbConfig = require("./db/dbConfig");
+
+sql.connect(dbConfig)
   .then(() => console.log("Connected to SQL Server"))
-  .catch((err) => console.error("DB Connection Error:", err));
+  .catch((err) => console.error("Database connection failed:", err));
 
 // ---------------------------------------------------
-// 6. API Routes Setup
+// Feature Routes Setup
 // ---------------------------------------------------
 
-// Braden – Medication Manager Routes
+// 🔹 Braden – Medication Manager
 const medicationRoutes = require("./routes/medicationRoutes");
-app.use("/api/medications", medicationRoutes);
+app.use("/medications", medicationRoutes);
 
-// Louis – "Feature X" Routes
+// 🔹 Braden – User Login & Signup (Authentication)
+// const authRoutes = require("./routes/authRoutes");
+// app.use("/auth", authRoutes);
 
-// Lee Meng – "Feature Y" Routes
+// 🔹 Braden – Bus Arrival Info (LTA API Integration)
+// const busRoutes = require("./routes/busRoutes");
+// app.use("/bus", busRoutes);
 
-// Osmond – "Feature Y" Routes
+// 🔹 Osmond – Shopping List Manager
 
-// Yoshi – "Feature Y" Routes
+// 🔹 Osmond – Emergency Contact Quick Dial
+
+// 🔹 Osmond – Checklist Creator
+
+// 🔹 Yoshi – Event Planner
+
+// 🔹 Yoshi – Activity Calendar
+
+// 🔹 Louis – Overview Page / Dashboard
+
+// 🔹 Louis – Health Records
+
+// 🔹 Louis – Reminders
+
+// 🔹 Lee Meng – User Profile Manager
+
+// 🔹 Lee Meng – Workout Plan Organizer
+
+// 🔹 Lee Meng – Daily Log Tracker
 
 // ---------------------------------------------------
-// 7. Fallback Route (For Testing)
-// ---------------------------------------------------
-app.get("/api/health", (req, res) => {
-  res.send("CareConnect backend is running.");
-});
-
-// ---------------------------------------------------
-// 8. Start Server
+// Start Server
 // ---------------------------------------------------
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
-
-//test
