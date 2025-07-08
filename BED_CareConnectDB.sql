@@ -135,3 +135,13 @@ CREATE TABLE DailyLogs (
   reflection NVARCHAR(255),
   log_date DATE
 );
+
+/*Sample Data Insertions*/
+
+INSERT INTO Users (name, email, password_hash, birthday)
+VALUES (
+  'Lee Meng',
+  'lm@gmail.com',
+  '12345',
+  '2004-12-12'
+);
