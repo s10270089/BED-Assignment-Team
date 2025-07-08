@@ -43,6 +43,9 @@ app.use("/medications", medicationRoutes);
 const signupRoute = require("./backend/functions/signup/routes/signupRoutes");
 app.use("/signup", signupRoute);
 
+const loginRoute = require("./backend/functions/login/routes/loginRoutes");
+app.use("/login", loginRoute); // POST /login
+
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
 // const busRoutes = require("./routes/busRoutes");
 // app.use("/bus", busRoutes);
