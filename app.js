@@ -22,6 +22,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 // ---------------------------------------------------
 // SQL Server Connection
 // ---------------------------------------------------
@@ -65,6 +67,12 @@ app.use("/login", loginRoute); // POST /login
 // 🔹 Louis – Health Records
 
 // 🔹 Louis – Reminders
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
+const reminderRoutes = require('./backend/functions/reminder/routes/reminderRoutes');
+app.use('/reminders', reminderRoutes);
+
 
 // 🔹 Lee Meng – User Profile Manager
 
