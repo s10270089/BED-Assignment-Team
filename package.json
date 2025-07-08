@@ -1,0 +1,31 @@
+{
+  "name": "assignmenttesting",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.1.0",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^11.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s10270089/BED-Assignment-Team.git"
+  },
+  "bugs": {
+    "url": "https://github.com/s10270089/BED-Assignment-Team/issues"
+  },
+  "homepage": "https://github.com/s10270089/BED-Assignment-Team#readme",
+  "devDependencies": {
+    "@ljharb/tsconfig": "^0.3.2"
+  },
+  "description": ""
+}
