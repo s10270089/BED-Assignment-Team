@@ -40,8 +40,8 @@ const medicationRoutes = require("./backend/functions/medication/routes/medicati
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)
-//const authRoutes = require("./routes/authRoutes");
-//app.use("/auth", authRoutes);
+const signupRoute = require("./backend/functions/signup/routes/signupRoutes");
+app.use("/signup", signupRoute);
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
 // const busRoutes = require("./routes/busRoutes");
