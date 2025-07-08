@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // ---------------------------------------------------
 // SQL Server Connection
 // ---------------------------------------------------
-const dbConfig = require("./db/dbConfig");
+const dbConfig = require("./backend/db/dbConfig");
 
 sql.connect(dbConfig)
   .then(() => console.log("Connected to SQL Server"))
@@ -36,7 +36,7 @@ sql.connect(dbConfig)
 // ---------------------------------------------------
 
 // 🔹 Braden – Medication Manager
-const medicationRoutes = require("./medication/routes/medicationRoutes");
+const medicationRoutes = require("./backend/functions/medication/routes/medicationRoutes");
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)
