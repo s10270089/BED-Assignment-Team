@@ -8,7 +8,8 @@ CREATE TABLE Users (
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
-  birthday DATE
+  birthday DATE,
+  age INT
 );
 
 -- Medication Manager
