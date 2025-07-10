@@ -116,10 +116,10 @@ CREATE TABLE Reminders (
 CREATE TABLE UserProfiles (
   profile_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  age INT,
   activity_level NVARCHAR(50),
   profile_photo_url NVARCHAR(255)
 );
+
 
 -- Workout Plan Organizer
 -- (Lee Meng)
