@@ -8,7 +8,8 @@ CREATE TABLE Users (
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
-  birthday DATE
+  birthday DATE,
+  age INT
 );
 
 -- Medication Manager
@@ -143,12 +144,13 @@ CREATE TABLE DailyLogs (
 
 /*Sample Data Insertions*/
 
-INSERT INTO Users (name, email, password_hash, birthday)
+INSERT INTO Users (name, email, password_hash, birthday, age)
 VALUES (
   'Lee Meng',
   'lm@gmail.com',
-  '12345',
-  '2004-12-12'
+  '$2b$10$mZy32W7Ev9FCBDO4XrmNKOKLOyZ2zpg0krn1J5r3uOvM75el7lCEi', -- hashed '12345'
+  '2004-12-12',
+  21
 );
 
 INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
