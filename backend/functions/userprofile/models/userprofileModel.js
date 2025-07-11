@@ -186,7 +186,6 @@ async function getProfileWithRecommendations(id) {
 
 // Export all functions at once
 module.exports = {
-  syncUserProfiles,
   getAll,
   getById,
   create,
