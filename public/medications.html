@@ -2,150 +2,222 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Medications</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medication Manager</title>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #e3f2fd; margin: 0; padding: 0; }
-    header { background-color: white; display: flex; justify-content: space-between; align-items: center; padding: 1em 2em; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    header .nav-logo { font-weight: bold; }
-    nav a { margin-left: 20px; text-decoration: none; color: #333; }
-    main { padding: 2em; }
-    .medications { background-color: white; max-width: 600px; margin: auto; padding: 2em; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
-    th, td { border-bottom: 1px solid #ccc; padding: 0.5em; text-align: left; }
-    .add-medication-form input { margin: 0.5em 0; width: 100%; padding: 0.5em; }
-    .add-medication-form button { width: 100%; padding: 0.7em; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 2em; border-radius: 15px; width: 90%; max-width: 400px; }
-    .hidden { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .medication-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .medication-info {
+      flex-grow: 1;
+    }
+
+    .actions button {
+      margin-left: 10px;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-top: 40px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="nav-logo">CareConnect</div>
-    <nav>
-      <a href="#">My Medications</a>
-      <a href="#">My Health Appointments</a>
-      <a href="#">My Dashboard</a>
-    </nav>
+    <h1>Medication Manager</h1>
   </header>
 
-  <main>
-    <section class="medications">
-      <h2>My Medications</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Dosage</th>
-            <th>Frequency</th>
-            <th>Edits</th>
-          </tr>
-        </thead>
-        <tbody id="medications-table"></tbody>
-      </table>
+  <div class="container">
+    <div id="medications"></div>
 
-      <div class="add-medication-form">
-        <h3>Add New Medication</h3>
-        <input type="text" id="medName" placeholder="Medication Name" />
-        <input type="text" id="medDosage" placeholder="Dosage" />
-        <input type="text" id="medTime" placeholder="Time (eg: 8am)" />
-        <input type="text" id="medFrequency" placeholder="Frequency" />
-        <button onclick="addMedication()">Add Medication</button>
-      </div>
-    </section>
-  </main>
+    <form id="addForm">
+      <h2>Add New Medication</h2>
+      <label>Name: <input type="text" name="name" required /></label>
+      <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Time: <input type="text" name="time" required /></label>
+      <label>Frequency: <input type="text" name="frequency" required /></label>
+      <button type="submit">Add Medication</button>
+    </form>
+  </div>
 
-  <div id="update-modal" class="modal hidden">
+  <!-- Update Modal -->
+  <div class="modal" id="updateModal">
     <div class="modal-content">
-      <h2>Update Medication</h2>
-      <input type="text" id="updateName" placeholder="Medication Name" />
-      <input type="text" id="updateDosage" placeholder="Dosage" />
-      <input type="text" id="updateTime" placeholder="Time" />
-      <input type="text" id="updateFrequency" placeholder="Frequency" />
-      <button onclick="submitUpdate()">Update Medication</button>
-      <button onclick="hideUpdateForm()">Back</button>
+      <h2>Edit Medication</h2>
+      <form id="updateForm">
+        <input type="hidden" name="id" />
+        <label>Name: <input type="text" name="name" required /></label>
+        <label>Dosage: <input type="text" name="dosage" required /></label>
+        <label>Time: <input type="text" name="time" required /></label>
+        <label>Frequency: <input type="text" name="frequency" required /></label>
+        <button type="submit">Update</button>
+      </form>
     </div>
   </div>
 
   <script>
-    let currentUpdateId = null;
+    const API = '/medications';
 
-    async function loadMedications() {
-      const res = await fetch("/medications");
-      const data = await res.json();
-      const table = document.getElementById("medications-table");
-      table.innerHTML = "";
-      data.forEach(med => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${med.name}</td>
-          <td>${med.dosage}</td>
-          <td>${med.frequency}</td>
-          <td><button onclick="openUpdateForm(${med.id}, '${med.name}', '${med.dosage}', '${med.time}', '${med.frequency}')">Update</button></td>
-        `;
-        table.appendChild(row);
-      });
+    function loadMedications() {
+      fetch(API)
+        .then(response => response.json())
+        .then(meds => {
+          const container = document.getElementById('medications');
+          container.innerHTML = '';
+          meds.forEach(med => {
+            const card = document.createElement('div');
+            card.className = 'medication-card';
+            card.innerHTML =
+              '<div class=\"medication-info\">' +
+                '<strong>' + med.name + '</strong><br>' +
+                'Dosage: ' + med.dosage + '<br>' +
+                'Time: ' + med.time + '<br>' +
+                'Frequency: ' + med.frequency +
+              '</div>' +
+              '<div class=\"actions\">' +
+                '<button onclick=\"showEditModal(' + med.id + ', \'' + med.name + '\', \'' + med.dosage + '\', \'' + med.time + '\', \'' + med.frequency + '\')\">Edit</button>' +
+                '<button onclick=\"deleteMedication(' + med.id + ')\">Delete</button>' +
+              '</div>';
+            container.appendChild(card);
+          });
+        });
     }
 
-    async function addMedication() {
-      const payload = {
-        name: document.getElementById("medName").value,
-        dosage: document.getElementById("medDosage").value,
-        time: document.getElementById("medTime").value,
-        frequency: document.getElementById("medFrequency").value
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = {
+        name: form.name.value,
+        dosage: form.dosage.value,
+        time: form.time.value,
+        frequency: form.frequency.value
       };
-
-      const res = await fetch("/medications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(() => {
+        form.reset();
         loadMedications();
-        document.getElementById("medName").value = "";
-        document.getElementById("medDosage").value = "";
-        document.getElementById("medTime").value = "";
-        document.getElementById("medFrequency").value = "";
-      } else {
-        alert("Failed to add medication.");
-      }
+      });
+    });
+
+    function showEditModal(id, name, dosage, time, frequency) {
+      const modal = document.getElementById('updateModal');
+      const form = document.getElementById('updateForm');
+      form.id.value = id;
+      form.name.value = name;
+      form.dosage.value = dosage;
+      form.time.value = time;
+      form.frequency.value = frequency;
+      modal.style.display = 'block';
     }
 
-    function openUpdateForm(id, name, dosage, time, frequency) {
-      currentUpdateId = id;
-      document.getElementById("updateName").value = name;
-      document.getElementById("updateDosage").value = dosage;
-      document.getElementById("updateTime").value = time;
-      document.getElementById("updateFrequency").value = frequency;
-      document.getElementById("update-modal").classList.remove("hidden");
-    }
-
-    function hideUpdateForm() {
-      document.getElementById("update-modal").classList.add("hidden");
-      currentUpdateId = null;
-    }
-
-    async function submitUpdate() {
-      const payload = {
-        name: document.getElementById("updateName").value,
-        dosage: document.getElementById("updateDosage").value,
-        time: document.getElementById("updateTime").value,
-        frequency: document.getElementById("updateFrequency").value
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const id = form.id.value;
+      const body = {
+        name: form.name.value,
+        dosage: form.dosage.value,
+        time: form.time.value,
+        frequency: form.frequency.value
       };
-
-      const res = await fetch(`/medications/${currentUpdateId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        hideUpdateForm();
+      fetch(API + '/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(() => {
+        document.getElementById('updateModal').style.display = 'none';
         loadMedications();
-      } else {
-        alert("Failed to update medication.");
+      });
+    });
+
+    function deleteMedication(id) {
+      fetch(API + '/' + id, {
+        method: 'DELETE'
+      }).then(() => {
+        loadMedications();
+      });
+    }
+
+    window.onclick = function(e) {
+      const modal = document.getElementById('updateModal');
+      if (e.target == modal) {
+        modal.style.display = 'none';
       }
     }
 
