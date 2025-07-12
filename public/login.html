@@ -99,7 +99,7 @@
         }
 
         localStorage.setItem("token", data.token);
-        window.location.href = "medications.html";
+        window.location.replace("medications.html"); // <-- full reload
       } catch (err) {
         errorMsg.textContent = "Unable to connect to server.";
       }

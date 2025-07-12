@@ -16,6 +16,20 @@
       color: white;
       padding: 20px;
       text-align: center;
+      position: relative;
+    }
+
+    #logoutBtn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #ffffff;
+      color: #4a90e2;
+      border: 1px solid #ffffff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .container {
@@ -72,6 +86,7 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      margin-top: 20px;
     }
 
     .modal {
@@ -96,10 +111,11 @@
 <body>
   <header>
     <h1>Medication Manager</h1>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
   </header>
 
   <div class="container">
-    <div id="medications"></div>
+    <div id="medications">Loading...</div>
 
     <form id="addForm">
       <h2>Add New Medication</h2>
@@ -127,31 +143,50 @@
   </div>
 
   <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
     const API = '/medications';
 
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.replace("login.html"); // <-- cleaner memory reset
+    }
+
     function loadMedications() {
-      fetch(API)
-        .then(response => response.json())
-        .then(meds => {
-          const container = document.getElementById('medications');
-          container.innerHTML = '';
-          meds.forEach(med => {
-            const card = document.createElement('div');
-            card.className = 'medication-card';
-            card.innerHTML =
-              '<div class=\"medication-info\">' +
-                '<strong>' + med.name + '</strong><br>' +
-                'Dosage: ' + med.dosage + '<br>' +
-                'Time: ' + med.time + '<br>' +
-                'Frequency: ' + med.frequency +
-              '</div>' +
-              '<div class=\"actions\">' +
-                '<button onclick=\"showEditModal(' + med.id + ', \'' + med.name + '\', \'' + med.dosage + '\', \'' + med.time + '\', \'' + med.frequency + '\')\">Edit</button>' +
-                '<button onclick=\"deleteMedication(' + med.id + ')\">Delete</button>' +
-              '</div>';
-            container.appendChild(card);
-          });
+      const container = document.getElementById('medications');
+      container.innerHTML = 'Loading...'; // clear old state
+
+      fetch(API, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+      .then(response => response.json())
+      .then(meds => {
+        container.innerHTML = ''; // clear loading
+        if (meds.length === 0) {
+          container.innerHTML = '<p>No medications found.</p>';
+        }
+        meds.forEach(med => {
+          const card = document.createElement('div');
+          card.className = 'medication-card';
+          card.innerHTML =
+            '<div class="medication-info">' +
+              '<strong>' + med.name + '</strong><br>' +
+              'Dosage: ' + med.dosage + '<br>' +
+              'Time: ' + med.time + '<br>' +
+              'Frequency: ' + med.frequency +
+            '</div>' +
+            '<div class="actions">' +
+              '<button onclick="showEditModal(' + med.id + ', \'' + med.name + '\', \'' + med.dosage + '\', \'' + med.time + '\', \'' + med.frequency + '\')">Edit</button>' +
+              '<button onclick="deleteMedication(' + med.id + ')">Delete</button>' +
+            '</div>';
+          container.appendChild(card);
         });
+      });
     }
 
     document.getElementById('addForm').addEventListener('submit', function(e) {
@@ -165,7 +200,10 @@
       };
       fetch(API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
         body: JSON.stringify(body)
       })
       .then(() => {
@@ -197,7 +235,10 @@
       };
       fetch(API + '/' + id, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
         body: JSON.stringify(body)
       })
       .then(() => {
@@ -208,7 +249,10 @@
 
     function deleteMedication(id) {
       fetch(API + '/' + id, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          "Authorization": "Bearer " + token
+        }
       }).then(() => {
         loadMedications();
       });
@@ -221,6 +265,7 @@
       }
     }
 
+    // Run on load
     loadMedications();
   </script>
 </body>
