@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medication Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    #logoutBtn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: #ffffff;
+      color: #4a90e2;
+      border: 1px solid #ffffff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .medication-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .medication-info {
+      flex-grow: 1;
+    }
+
+    .actions button {
+      margin-left: 10px;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-top: 40px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Medication Manager</h1>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <div id="medications">Loading...</div>
+
+    <form id="addForm">
+      <h2>Add New Medication</h2>
+      <label>Name: <input type="text" name="name" required /></label>
+      <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Time: <input type="text" name="time" required /></label>
+      <label>Frequency: <input type="text" name="frequency" required /></label>
+      <button type="submit">Add Medication</button>
+    </form>
+  </div>
+
+  <!-- Update Modal -->
+  <div class="modal" id="updateModal">
+    <div class="modal-content">
+      <h2>Edit Medication</h2>
+      <form id="updateForm">
+        <input type="hidden" name="id" />
+        <label>Name: <input type="text" name="name" required /></label>
+        <label>Dosage: <input type="text" name="dosage" required /></label>
+        <label>Time: <input type="text" name="time" required /></label>
+        <label>Frequency: <input type="text" name="frequency" required /></label>
+        <button type="submit">Update</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    const API = '/medications';
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.replace("login.html"); // <-- cleaner memory reset
+    }
+
+    function loadMedications() {
+      const container = document.getElementById('medications');
+      container.innerHTML = 'Loading...'; // clear old state
+
+      fetch(API, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+      .then(response => response.json())
+      .then(meds => {
+        container.innerHTML = ''; // clear loading
+        if (meds.length === 0) {
+          container.innerHTML = '<p>No medications found.</p>';
+        }
+        meds.forEach(med => {
+          const card = document.createElement('div');
+          card.className = 'medication-card';
+          card.innerHTML =
+            '<div class="medication-info">' +
+              '<strong>' + med.name + '</strong><br>' +
+              'Dosage: ' + med.dosage + '<br>' +
+              'Time: ' + med.time + '<br>' +
+              'Frequency: ' + med.frequency +
+            '</div>' +
+            '<div class="actions">' +
+              '<button onclick="showEditModal(' + med.id + ', \'' + med.name + '\', \'' + med.dosage + '\', \'' + med.time + '\', \'' + med.frequency + '\')">Edit</button>' +
+              '<button onclick="deleteMedication(' + med.id + ')">Delete</button>' +
+            '</div>';
+          container.appendChild(card);
+        });
+      });
+    }
+
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = {
+        name: form.name.value,
+        dosage: form.dosage.value,
+        time: form.time.value,
+        frequency: form.frequency.value
+      };
+      fetch(API, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(body)
+      })
+      .then(() => {
+        form.reset();
+        loadMedications();
+      });
+    });
+
+    function showEditModal(id, name, dosage, time, frequency) {
+      const modal = document.getElementById('updateModal');
+      const form = document.getElementById('updateForm');
+      form.id.value = id;
+      form.name.value = name;
+      form.dosage.value = dosage;
+      form.time.value = time;
+      form.frequency.value = frequency;
+      modal.style.display = 'block';
+    }
+
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const id = form.id.value;
+      const body = {
+        name: form.name.value,
+        dosage: form.dosage.value,
+        time: form.time.value,
+        frequency: form.frequency.value
+      };
+      fetch(API + '/' + id, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(body)
+      })
+      .then(() => {
+        document.getElementById('updateModal').style.display = 'none';
+        loadMedications();
+      });
+    });
+
+    function deleteMedication(id) {
+      fetch(API + '/' + id, {
+        method: 'DELETE',
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }).then(() => {
+        loadMedications();
+      });
+    }
+
+    window.onclick = function(e) {
+      const modal = document.getElementById('updateModal');
+      if (e.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    // Run on load
+    loadMedications();
+  </script>
+</body>
+</html>

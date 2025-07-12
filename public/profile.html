@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .profile-container {
+      background-color: #ffffff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+      width: 320px;
+    }
+    .profile-container h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .profile-picture {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-style: dashed;
+      margin: 0 auto 1rem;
+      display: block;
+    }
+    .profile-info label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      font-weight: bold;
+    }
+    .profile-info input[type="text"],
+    .profile-info input[type="date"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .radio-group {
+      margin-top: 0.5rem;
+    }
+    .radio-group label {
+      font-weight: normal;
+      margin-right: 10px;
+    }
+    .submit-btn {
+      display: block;
+      margin: 1.5rem auto 0;
+      padding: 0.5rem 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <h2>Edit Profile</h2>
+    <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-picture" />
+    <form class="profile-info">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" value="John Doe" required />
+
+      <label for="birthday">Birthday:</label>
+      <input type="date" id="birthday" name="birthday" value="1990-01-01" required />
+
+      <label>Activity Level:</label>
+      <div class="radio-group">
+        <label><input type="radio" name="activity" value="Low" /> Low</label>
+        <label><input type="radio" name="activity" value="medium" checked /> Medium</label>
+        <label><input type="radio" name="activity" value="High" /> High</label>
+      </div>
+
+      <button type="submit" class="submit-btn">Save Changes</button>
+    </form>
+  </div>
+</body>
+</html>

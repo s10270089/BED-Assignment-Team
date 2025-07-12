@@ -73,8 +73,9 @@ app.use(methodOverride('_method'));
 const reminderRoutes = require('./backend/functions/reminder/routes/reminderRoutes');
 app.use('/reminders', reminderRoutes);
 
-
 // 🔹 Lee Meng – User Profile Manager
+const userprofileRoutes = require('./backend/functions/userprofile/routes/userprofileRoutes');
+app.use('/userprofiles', userprofileRoutes);
 
 // 🔹 Lee Meng – Workout Plan Organizer
 
