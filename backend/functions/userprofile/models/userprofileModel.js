@@ -2,6 +2,12 @@
 const sql = require("mssql");
 const dbConfig = require("../../../db/dbConfig.js");
 
+// Helper function to format date without time
+function formatDateOnly(date) {
+  if (!date) return null;
+  return new Date(date).toISOString().split('T')[0];
+}
+
 // Get all user profiles
 async function getAll() {
   const pool = await sql.connect(dbConfig);
@@ -9,7 +15,7 @@ async function getAll() {
     SELECT 
       up.profile_id,
       u.name,
-      u.birthday,
+      CAST(u.birthday AS DATE) as birthday,
       up.activity_level,
       up.profile_photo_url
     FROM UserProfiles up
@@ -28,14 +34,22 @@ async function getById(id) {
       SELECT 
         up.profile_id,
         u.name,
-        u.birthday,
+        CAST(u.birthday AS DATE) as birthday,
         up.activity_level,
         up.profile_photo_url
       FROM UserProfiles up
       JOIN Users u ON up.user_id = u.user_id
       WHERE up.profile_id = @id
     `);
-  return result.recordset[0];
+  
+  const profile = result.recordset[0];
+  
+  // Optional: Format birthday to remove time if needed
+  if (profile && profile.birthday) {
+    profile.birthday = formatDateOnly(profile.birthday);
+  }
+  
+  return profile;
 }
 
 
@@ -76,7 +90,7 @@ async function create(profile) {
 
 // Update user profile and Users age
 async function update(id, profile) {
-  const { user_id, birthday, activity_level, profile_photo_url } = profile;
+  const { user_id, name, birthday, activity_level, profile_photo_url } = profile;
 
   const pool = await sql.connect(dbConfig);
   const transaction = new sql.Transaction(pool);
@@ -100,15 +114,24 @@ async function update(id, profile) {
         WHERE profile_id = @id
       `);
 
-    // Update Users table — birthday only
-    await request
-      .input("birthday", sql.Date, birthday)
-      .input("user_id_ref", sql.Int, user_id)
-      .query(`
-        UPDATE Users 
-        SET birthday = @birthday 
-        WHERE user_id = @user_id_ref
-      `);
+    // Update Users table — name and birthday
+    let userUpdateQuery = "UPDATE Users SET ";
+    let updateFields = [];
+    
+    if (name) {
+      await request.input("name", sql.NVarChar(100), name);
+      updateFields.push("name = @name");
+    }
+    
+    if (birthday) {
+      await request.input("birthday", sql.Date, birthday);
+      updateFields.push("birthday = @birthday");
+    }
+    
+    if (updateFields.length > 0) {
+      userUpdateQuery += updateFields.join(", ") + " WHERE user_id = @user_id";
+      await request.query(userUpdateQuery);
+    }
 
     await transaction.commit();
     return { success: true };
