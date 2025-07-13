@@ -160,3 +160,8 @@ INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 (1, 'Call daughter to confirm weekend plans', '2025-06-07 11:00:00', 1),
 (1, 'Check blood sugar level', '2025-06-07 08:00:00', 0),
 (1, 'Refill prescription at pharmacy', '2025-06-09 10:00:00', 0);
+
+INSERT INTO UserProfiles (user_id, activity_level, profile_photo_url)
+VALUES 
+  (1, 'High', 'http://example.com/img3.jpg'),
+  (2, 'Low', 'http://example.com/img4.jpg');
