@@ -20,7 +20,7 @@ exports.createShoppingList = async (userId, title) => {
   return result.recordset[0];
 };
 
-// Delete list and its items
+// Delete list and its items gg 
 exports.deleteShoppingList = async (listId) => {
   const pool = await sql.connect(dbConfig);
   await pool.request()
