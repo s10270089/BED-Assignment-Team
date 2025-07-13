@@ -76,17 +76,17 @@ A multi-module web application built for seniors to manage daily tasks, medicati
 ### Install dependencies
 1. npm install
 2. Configure environment
-3. create your own at project root:
-PORT=3000
-DB_USER=<your_db_user>
-DB_PASSWORD=<your_db_password>
-DB_SERVER=<your_db_server>
-DB_PORT=1433
-DB_NAME=<your_db_name>
-JWT_SECRET=<your_jwt_secret>
+3. create your own at project root:  
+PORT=3000  
+DB_USER=<your_db_user>  
+DB_PASSWORD=<your_db_password>  
+DB_SERVER=<your_db_server>  
+DB_PORT=1433  
+DB_NAME=<your_db_name>  
+JWT_SECRET=<your_jwt_secret>  
 
 ## Database Setup
-In SSMS run:
+In SSMS run:  
 backend\db\BED_CareConnectDB.sql
 
 ## Running the App
