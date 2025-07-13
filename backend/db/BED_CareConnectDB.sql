@@ -153,6 +153,15 @@ VALUES (
   21
 );
 
+INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES
+(1, 'Panadol', '500mg', 'Morning', 'Once daily'),
+(1, 'Metformin', '850mg', 'After meals', 'Twice daily'),
+(1, 'Vitamin D', '1000 IU', 'Morning', 'Once daily'),
+(1, 'Lisinopril', '10mg', 'Evening', 'Once daily'),
+(1, 'Aspirin', '75mg', 'Night', 'Once daily'),
+(1, 'Amoxicillin', '500mg', 'Every 8 hours', '3 times daily'),
+(1, 'Calcium', '600mg', 'With lunch', 'Once daily');
+
 INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 (1, 'Take blood pressure medicine at 9AM', '2025-06-07 09:00:00', 0),
 (1, 'Doctor appointment at Bukit Batok Polyclinic', '2025-06-08 14:30:00', 0),
