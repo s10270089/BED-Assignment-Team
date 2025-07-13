@@ -153,6 +153,15 @@ VALUES (
   21
 );
 
+INSERT INTO Users (name, email, password_hash, birthday, age)
+VALUES 
+('Tan Ah Kow', 'tan.ah.kow@example.com', '$2b$10$ABC123placeholder1', '1950-03-12', 75),
+('Lim Bee Hwa', 'lim.bee.hwa@example.com', '$2b$10$ABC123placeholder2', '1948-08-25', 76),
+('Goh Soon Chye', 'goh.soon.chye@example.com', '$2b$10$ABC123placeholder3', '1955-01-15', 70),
+('Chong Mei Lin', 'chong.mei.lin@example.com', '$2b$10$ABC123placeholder4', '1952-06-07', 73),
+('Wong Ah Ma', 'wong.ah.ma@example.com', '$2b$10$ABC123placeholder5', '1945-10-30', 79);
+
+
 INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES
 (1, 'Panadol', '500mg', 'Morning', 'Once daily'),
 (1, 'Metformin', '850mg', 'After meals', 'Twice daily'),
@@ -174,3 +183,17 @@ INSERT INTO UserProfiles (user_id, activity_level, profile_photo_url)
 VALUES 
   (1, 'High', 'http://example.com/img3.jpg'),
   (2, 'Low', 'http://example.com/img4.jpg');
+
+INSERT INTO Events (user_id, title, description, location, event_time, invitees)
+VALUES
+(1, 'Morning Tai Chi', 'Gentle tai chi session for seniors', 'Community Park Pavilion', '2025-07-15 07:30:00', '2,3,4'),
+(2, 'Health Talk', 'A doctor-led talk on managing arthritis', 'Senior Activity Centre Hall A', '2025-07-18 10:00:00', '1,3,5'),
+(3, 'Craft Workshop', 'Learn to make handmade greeting cards', 'Tampines Community Club', '2025-07-20 14:00:00', '2,4,6'),
+(4, 'Gardening Club Meetup', 'Monthly meeting for garden lovers', 'Bukit Timah Allotment Garden', '2025-07-22 09:00:00', '1,2,3'),
+(5, 'Classic Movie Screening', 'Watch and discuss a classic film together', 'Golden Years Centre AV Room', '2025-07-25 15:30:00', '3,4,6'),
+(1, 'Baking for Beginners', 'Basic baking class with a community chef', 'Bedok Senior Centre Kitchen', '2025-07-28 11:00:00', '2,5'),
+(2, 'Memory Games Hour', 'Engage in memory-boosting puzzles and games', 'Jurong West Elderly Hub', '2025-07-30 13:00:00', '1,3,4'),
+(3, 'Walking Club', 'Gentle group walk around the reservoir', 'MacRitchie Reservoir Entrance', '2025-08-01 07:00:00', '1,2,6'),
+(4, 'Karaoke Afternoon', 'Sing your favourite oldies with friends', 'Senior Karaoke Room, Hougang CC', '2025-08-03 16:00:00', '2,3,5'),
+(5, 'Storytelling Circle', 'Share life stories and wisdom with peers', 'Library@HarbourFront - Activity Room', '2025-08-06 10:30:00', '1,4,6');
+
