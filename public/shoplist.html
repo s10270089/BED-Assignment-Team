@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shopping Lists</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    #logoutBtn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background-color: white;
+      color: #4a90e2;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    form input {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    form button {
+      padding: 8px 16px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .list-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .list-card h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .items {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .item input {
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      flex: 1;
+    }
+
+    .item button {
+      padding: 5px 10px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .item button.delete {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Shopping List Manager</h1>
+  <button id="logoutBtn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+  <form id="newListForm">
+    <input type="text" id="newListTitle" placeholder="New list title..." required />
+    <button type="submit">Add List</button>
+  </form>
+
+  <div id="listsContainer">Loading lists...</div>
+</div>
+
+<script>
+  const token = localStorage.getItem("token");
+  if (!token) window.location.href = "login.html";
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  };
+
+  document.getElementById("newListForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = document.getElementById("newListTitle").value.trim();
+    if (!title) return;
+
+    await fetch("/shopping-lists", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ title })
+    });
+
+    document.getElementById("newListForm").reset();
+    loadLists();
+  });
+
+  async function loadLists() {
+    const container = document.getElementById("listsContainer");
+    container.innerHTML = "";
+
+    const res = await fetch("/shopping-lists", { headers });
+    const lists = await res.json();
+
+    if (!lists.length) {
+      container.innerHTML = "<p>No lists found.</p>";
+      return;
+    }
+
+    for (const list of lists) {
+      const div = document.createElement("div");
+      div.className = "list-card";
+      div.innerHTML = `
+        <h3>
+          ${list.title}
+          <button onclick="deleteList(${list.list_id})" class="delete">Delete</button>
+        </h3>
+        <div class="items" id="items-${list.list_id}">Loading items...</div>
+        <form onsubmit="addItem(event, ${list.list_id})">
+          <input name="item_name" placeholder="Item name" required />
+          <input name="quantity" type="number" placeholder="Qty" required />
+          <input name="notes" placeholder="Notes" />
+          <button type="submit">Add</button>
+        </form>
+      `;
+      container.appendChild(div);
+      loadItems(list.list_id);
+    }
+  }
+
+  async function loadItems(listId) {
+    const itemDiv = document.getElementById("items-" + listId);
+    const res = await fetch(`/shopping-lists/${listId}/items`, { headers });
+    const items = await res.json();
+
+    itemDiv.innerHTML = "";
+
+    for (const item of items) {
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <input value="${item.item_name}" data-id="${item.item_id}" data-field="item_name" />
+        <input type="number" value="${item.quantity}" data-field="quantity" />
+        <input value="${item.notes}" data-field="notes" />
+        <button onclick="updateItem(${item.item_id}, this)">Update</button>
+        <button class="delete" onclick="deleteItem(${item.item_id})">Delete</button>
+      `;
+      itemDiv.appendChild(row);
+    }
+  }
+
+  async function addItem(e, listId) {
+    e.preventDefault();
+    const form = e.target;
+    const item = {
+      item_name: form.item_name.value,
+      quantity: parseInt(form.quantity.value),
+      notes: form.notes.value
+    };
+
+    await fetch(`/shopping-lists/${listId}/items`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(item)
+    });
+
+    form.reset();
+    loadItems(listId);
+  }
+
+  async function updateItem(itemId, btn) {
+    const row = btn.parentElement;
+    const inputs = row.querySelectorAll("input");
+    const data = {};
+    inputs.forEach(input => {
+      data[input.dataset.field] = input.value;
+    });
+
+    await fetch(`/shopping-lists/items/${itemId}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(data)
+    });
+
+    loadLists();
+  }
+
+  async function deleteItem(itemId) {
+    await fetch(`/shopping-lists/items/${itemId}`, {
+      method: "DELETE",
+      headers
+    });
+    loadLists();
+  }
+
+  async function deleteList(listId) {
+    await fetch(`/shopping-lists/${listId}`, {
+      method: "DELETE",
+      headers
+    });
+    loadLists();
+  }
+
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
+
+  loadLists();
+</script>
+
+</body>
+</html>
