@@ -60,6 +60,32 @@ app.use("/login", loginRoute); // POST /login
 
 // 🔹 Yoshi – Event Planner
 
+// Assuming you have an array to hold your events
+const events = [
+  {
+  },
+  // ... more event objects
+];
+
+app.get("/events", async (req, res) => {
+  try {
+    const pool = await sql.connect(); // assumes config is already passed in elsewhere
+    const result = await pool.request().query("SELECT * FROM Events");  
+    
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "No events found." });
+    }
+
+    res.status(200).json({
+      message: "Events retrieved successfully.",
+      events: result.recordset
+    });
+  } catch (err) {
+    console.error("Error retrieving events:", err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
 // 🔹 Yoshi – Activity Calendar
 
 // 🔹 Louis – Overview Page / Dashboard
