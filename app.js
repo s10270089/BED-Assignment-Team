@@ -70,8 +70,8 @@ const events = [
 app.get("/events", async (req, res) => {
   try {
     const pool = await sql.connect(); // assumes config is already passed in elsewhere
-    const result = await pool.request().query("SELECT * FROM Events");
-
+    const result = await pool.request().query("SELECT * FROM Events");  
+    
     if (result.recordset.length === 0) {
       return res.status(404).json({ message: "No events found." });
     }
