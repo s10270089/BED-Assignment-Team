@@ -16,10 +16,11 @@ CREATE TABLE Users (
 -- (Braden)
 CREATE TABLE Medications (
   id INT PRIMARY KEY IDENTITY(1,1),
-  name NVARCHAR(100),
-  dosage NVARCHAR(100),
-  time NVARCHAR(100),
-  frequency NVARCHAR(100)
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
+  name NVARCHAR(100) NOT NULL,
+  dosage NVARCHAR(100) NOT NULL,
+  time NVARCHAR(100) NOT NULL,
+  frequency NVARCHAR(100) NOT NULL
 );
 
 -- Live Bus Tracker
