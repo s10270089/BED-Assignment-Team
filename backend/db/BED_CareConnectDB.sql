@@ -116,8 +116,11 @@ CREATE TABLE Reminders (
 CREATE TABLE UserProfiles (
   profile_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
+<<<<<<< Updated upstream
   age INT,
   activity_level NVARCHAR(50),
+=======
+>>>>>>> Stashed changes
   profile_photo_url NVARCHAR(255)
 );
 
@@ -128,7 +131,8 @@ CREATE TABLE WorkoutPlans (
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
   exercise_name NVARCHAR(100),
   frequency NVARCHAR(50),
-  duration_minutes INT
+  duration_minutes INT,
+  activity_level NVARCHAR(50)
 );
 
 -- Daily Log Tracker
