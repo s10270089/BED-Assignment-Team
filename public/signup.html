@@ -77,9 +77,6 @@
       <label>Birthday:</label>
       <input type="date" name="birthday" required />
 
-      <label>Age:</label>
-      <input type="number" name="age" required min="1" max="130" />
-
       <button type="submit">Sign Up</button>
       <div class="error" id="signupError"></div>
     </form>
@@ -98,7 +95,6 @@
         email: form.email.value,
         password: form.password.value,
         birthday: form.birthday.value,
-        age: parseInt(form.age.value)
       };
 
       try {

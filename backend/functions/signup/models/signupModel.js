@@ -1,6 +1,6 @@
 const sql = require("mssql");
 
-exports.insertUser = async ({ name, email, hashedPassword, birthday, age }) => {
+exports.insertUser = async ({ name, email, hashedPassword, birthday}) => {
   const pool = await sql.connect();
 
   return pool.request()
@@ -8,9 +8,8 @@ exports.insertUser = async ({ name, email, hashedPassword, birthday, age }) => {
     .input("email", sql.NVarChar, email)
     .input("password_hash", sql.NVarChar, hashedPassword)
     .input("birthday", sql.Date, birthday)
-    .input("age", sql.Int, age)
     .query(`
-      INSERT INTO Users (name, email, password_hash, birthday, age)
-      VALUES (@name, @email, @password_hash, @birthday, @age)
+      INSERT INTO Users (name, email, password_hash, birthday)
+      VALUES (@name, @email, @password_hash, @birthday)
     `);
 };
