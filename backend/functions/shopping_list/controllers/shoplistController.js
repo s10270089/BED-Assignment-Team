@@ -1,4 +1,4 @@
-const model = require("../models/shoppingListModel");
+const model = require("../models/shoplistModel");
 
 // Get all lists for a user
 exports.getLists = async (req, res) => {

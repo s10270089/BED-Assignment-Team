@@ -53,7 +53,8 @@ app.use("/login", loginRoute); // POST /login
 // app.use("/bus", busRoutes);
 
 // 🔹 Osmond – Shopping List Manager
-
+const shoplistRoutes = require("./backend/functions/shopping_list/routes/shoplistRoutes");
+app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
 
 // 🔹 Osmond – Checklist Creator
