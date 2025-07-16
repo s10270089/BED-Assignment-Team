@@ -27,8 +27,16 @@ CREATE TABLE Medications (
 CREATE TABLE BusSearchHistory (
   search_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  bus_stop_code NVARCHAR(20),
+  bus_stop_code NVARCHAR(20) NOT NULL,
   searched_at DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE BusSearchResults (
+  result_id INT PRIMARY KEY IDENTITY,
+  search_id INT FOREIGN KEY REFERENCES BusSearchHistory(search_id),
+  service_no NVARCHAR(10) NOT NULL,
+  estimated_arrival DATETIME NOT NULL,
+  load NVARCHAR(10) NOT NULL  -- SEA, SDA, LSD
 );
 
 -- Shopping List Manager
