@@ -116,11 +116,6 @@ CREATE TABLE Reminders (
 CREATE TABLE UserProfiles (
   profile_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-<<<<<<< Updated upstream
-  age INT,
-  activity_level NVARCHAR(50),
-=======
->>>>>>> Stashed changes
   profile_photo_url NVARCHAR(255)
 );
 
