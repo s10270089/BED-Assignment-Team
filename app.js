@@ -49,8 +49,8 @@ const loginRoute = require("./backend/functions/login/routes/loginRoutes");
 app.use("/login", loginRoute); // POST /login
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
-// const busRoutes = require("./routes/busRoutes");
-// app.use("/bus", busRoutes);
+const busRoutes = require("./backend/functions/bus/routes/busRoutes");
+app.use("/bus", busRoutes);
 
 // 🔹 Osmond – Shopping List Manager
 const shoplistRoutes = require("./backend/functions/shopping_list/routes/shoplistRoutes");
