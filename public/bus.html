@@ -61,20 +61,28 @@
           return;
         }
 
-        data.forEach(bus => {
-          const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
-            hour: "2-digit", minute: "2-digit"
-          });
-          const load = bus.NextBus.Load;
+        const services = data.services;
 
-          const row = document.createElement("tr");
-          row.innerHTML = `
+        if (!services || services.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='3'>No buses arriving soon.</td></tr>";
+        return;
+        }
+
+        services.forEach(bus => {
+        const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
+            hour: "2-digit", minute: "2-digit"
+        });
+        const load = bus.NextBus.Load;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
             <td>${bus.ServiceNo}</td>
             <td>${arrival}</td>
             <td>${load}</td>
-          `;
-          tbody.appendChild(row);
+        `;
+        tbody.appendChild(row);
         });
+
 
       } catch (err) {
         alert("Error: " + err.message);
