@@ -8,8 +8,7 @@ CREATE TABLE Users (
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
-  birthday DATE,
-  age INT
+  birthday DATE
 );
 
 -- Medication Manager
@@ -145,32 +144,55 @@ CREATE TABLE DailyLogs (
 
 /*Sample Data Insertions*/
 
-INSERT INTO Users (name, email, password_hash, birthday, age)
-VALUES (
-  'Lee Meng',
-  'lm@gmail.com',
-  '$2b$10$mZy32W7Ev9FCBDO4XrmNKOKLOyZ2zpg0krn1J5r3uOvM75el7lCEi', -- hashed '12345'
-  '2004-12-12',
-  21
-);
-
-INSERT INTO Users (name, email, password_hash, birthday, age)
+INSERT INTO Users (name, email, password_hash, birthday)
 VALUES 
-('Tan Ah Kow', 'tan.ah.kow@example.com', '$2b$10$ABC123placeholder1', '1950-03-12', 75),
-('Lim Bee Hwa', 'lim.bee.hwa@example.com', '$2b$10$ABC123placeholder2', '1948-08-25', 76),
-('Goh Soon Chye', 'goh.soon.chye@example.com', '$2b$10$ABC123placeholder3', '1955-01-15', 70),
-('Chong Mei Lin', 'chong.mei.lin@example.com', '$2b$10$ABC123placeholder4', '1952-06-07', 73),
-('Wong Ah Ma', 'wong.ah.ma@example.com', '$2b$10$ABC123placeholder5', '1945-10-30', 79);
+('Henry Neo', 'henryneo@example.com',
+ '$2b$10$OeBEXYx1V3xMUMY6Euvg0OBmYMWDL4kKfeZTLPyItPCMWNi8rSSry', -- password: 12345
+ '2005-04-23'),
 
+('Tan Ah Kow', 'tan.kow@example.com',
+ '$2b$10$SZ37cVFRdSePPi4EsyA18O0.68FYzAMdzyhTR1OXA5/BMsMa5rkWu', -- password: 67890
+ '1950-03-12'),
+
+('Lim Bee Hwa', 'lim.bee@example.com',
+ '$2b$10$UkzDojbPT2v1ANZz1m20ieQl.tDLa6x6ZyKcGeUXc3VZ3GBTC3WRK', -- password: password1
+ '1948-08-25'),
+
+('Goh Soon Chye', 'goh.chye@example.com',
+ '$2b$10$2mBOFpyUxtLhSkMEmBoYseBCs2FRUZvlb8DxxDnxZ4IdKkeH4zWbS', -- password: test123
+ '1955-01-15'),
+
+('Chong Mei Lin', 'mei.lin@example.com',
+ '$2b$10$8YLBZrKf3TwMfrwrJcMPduFvUnuvVboDOW2keS7k6QEkTtPyC7ZC6', -- password: hello321
+ '1952-06-07'),
+
+('Wong Ah Ma', 'ah.ma@example.com',
+ '$2b$10$BPVX9O0N4H7rmi34WlSDQuZ9I/P2ejb0kzhLSGCxuJJKX.1r95oqq', -- password: s3nior$afe
+ '1945-10-30');
+
+
+/* MEDICATIONS (frequency = how many times per day, time = time slots separated by commas) */
 
 INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES
-(1, 'Panadol', '500mg', 'Morning', 'Once daily'),
-(1, 'Metformin', '850mg', 'After meals', 'Twice daily'),
-(1, 'Vitamin D', '1000 IU', 'Morning', 'Once daily'),
-(1, 'Lisinopril', '10mg', 'Evening', 'Once daily'),
-(1, 'Aspirin', '75mg', 'Night', 'Once daily'),
-(1, 'Amoxicillin', '500mg', 'Every 8 hours', '3 times daily'),
-(1, 'Calcium', '600mg', 'With lunch', 'Once daily');
+(1, 'Panadol', '500mg', '8am, 8pm', '2'),           -- Henry Neo
+(1, 'Vitamin D', '1000 IU', '9am', '1'),
+(1, 'Metformin', '850mg', '8am, 2pm, 8pm', '3'),
+(1, 'Aspirin', '75mg', '7am', '1'),
+(1, 'Amoxicillin', '500mg', '7am, 1pm, 7pm', '3'),
+
+(2, 'Lisinopril', '10mg', '9am', '1'),              -- Tan Ah Kow
+(2, 'Atorvastatin', '20mg', '9pm', '1'),
+
+(3, 'Glucosamine', '500mg', '8am, 8pm', '2'),        -- Lim Bee Hwa
+(3, 'Calcium', '600mg', '12pm', '1'),
+
+(4, 'Paracetamol', '500mg', '10am, 10pm', '2'),      -- Goh Soon Chye
+
+(5, 'Omeprazole', '20mg', '7am', '1'),               -- Chong Mei Lin
+
+(6, 'Multivitamins', '1 tablet', '8am', '1'),        -- Wong Ah Ma
+(6, 'Iron Supplement', '325mg', '9am, 9pm', '2');
+
 
 INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 (1, 'Take blood pressure medicine at 9AM', '2025-06-07 09:00:00', 0),
