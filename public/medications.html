@@ -121,8 +121,11 @@
       <h2>Add New Medication</h2>
       <label>Name: <input type="text" name="name" required /></label>
       <label>Dosage: <input type="text" name="dosage" required /></label>
-      <label>Time: <input type="text" name="time" required /></label>
-      <label>Frequency: <input type="text" name="frequency" required /></label>
+      <label>Frequency:
+        <input type="text" name="frequency" id="frequency" required />
+      </label>
+      <!-- Dynamic time fields will go here -->
+      <div id="timeInputs"></div>
       <button type="submit">Add Medication</button>
     </form>
   </div>
@@ -130,13 +133,23 @@
   <!-- Update Modal -->
   <div class="modal" id="updateModal">
     <div class="modal-content">
-      <h2>Edit Medication</h2>
-      <form id="updateForm">
+        <span id="closeUpdateModal" style="
+          float: right;
+          font-size: 24px;
+          font-weight: bold;
+          cursor: pointer;
+        ">&times;</span>
+
+        <h2>Edit Medication</h2>
+        <form id="updateForm">
+
         <input type="hidden" name="id" />
         <label>Name: <input type="text" name="name" required /></label>
         <label>Dosage: <input type="text" name="dosage" required /></label>
-        <label>Time: <input type="text" name="time" required /></label>
-        <label>Frequency: <input type="text" name="frequency" required /></label>
+        <label>Frequency:
+          <input type="text" name="frequency" id="update-frequency" required />
+        </label>
+        <div id="update-time-inputs"></div>
         <button type="submit">Update</button>
       </form>
     </div>
@@ -192,12 +205,18 @@
     document.getElementById('addForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
+      const times = [];
+      [...form.querySelectorAll('[name^="time"]')].forEach(input => {
+        times.push(input.value);
+      });
+
       const body = {
         name: form.name.value,
         dosage: form.dosage.value,
-        time: form.time.value,
-        frequency: form.frequency.value
+        frequency: form.frequency.value,
+        time: times.join(", ")
       };
+
       fetch(API, {
         method: 'POST',
         headers: {
@@ -207,8 +226,9 @@
         body: JSON.stringify(body)
       })
       .then(() => {
-        form.reset();
-        loadMedications();
+      form.reset();
+      timeInputsDiv.innerHTML = ""; // 🔁 clear generated time inputs
+      loadMedications();
       });
     });
 
@@ -218,21 +238,45 @@
       form.id.value = id;
       form.name.value = name;
       form.dosage.value = dosage;
-      form.time.value = time;
       form.frequency.value = frequency;
+
+      updateTimeInputsDiv.innerHTML = ""; // clear old ones
+
+      const count = parseInt(frequency);
+      const times = time.split(",").map(t => t.trim());
+
+      for (let i = 0; i < count; i++) {
+        const label = document.createElement('label');
+        label.innerText = `Time ${i + 1}:`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `time${i + 1}`;
+        input.required = true;
+        input.value = times[i] || "";
+        label.appendChild(input);
+        updateTimeInputsDiv.appendChild(label);
+      }
+
       modal.style.display = 'block';
     }
+
 
     document.getElementById('updateForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
       const id = form.id.value;
+      const times = [];
+      [...form.querySelectorAll('[name^="time"]')].forEach(input => {
+        times.push(input.value);
+      });
+
       const body = {
         name: form.name.value,
         dosage: form.dosage.value,
-        time: form.time.value,
-        frequency: form.frequency.value
+        frequency: form.frequency.value,
+        time: times.join(", ")
       };
+
       fetch(API + '/' + id, {
         method: 'PUT',
         headers: {
@@ -265,8 +309,57 @@
       }
     }
 
+    const freqInput = document.getElementById('frequency');
+    const timeInputsDiv = document.getElementById('timeInputs');
+
+    freqInput.addEventListener('input', () => {
+      const count = parseInt(freqInput.value);
+      timeInputsDiv.innerHTML = ''; // Clear previous time inputs
+
+      if (!isNaN(count) && count > 0) {
+        for (let i = 1; i <= count; i++) {
+          const label = document.createElement('label');
+          label.innerText = `Time ${i}:`;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `time${i}`;
+          input.required = true;
+          label.appendChild(input);
+          timeInputsDiv.appendChild(label);
+        }
+      }
+    });
+
+    document.getElementById('closeUpdateModal').addEventListener('click', () => {
+    document.getElementById('updateForm').reset();
+    updateTimeInputsDiv.innerHTML = "";
+    document.getElementById('updateModal').style.display = 'none';
+  });
+
     // Run on load
     loadMedications();
+
+    const updateFreqInput = document.getElementById('update-frequency');
+    const updateTimeInputsDiv = document.getElementById('update-time-inputs');
+
+    updateFreqInput.addEventListener('input', () => {
+      const count = parseInt(updateFreqInput.value);
+      updateTimeInputsDiv.innerHTML = "";
+
+      if (!isNaN(count) && count > 0) {
+        for (let i = 1; i <= count; i++) {
+          const label = document.createElement('label');
+          label.innerText = `Time ${i}:`;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `time${i}`;
+          input.required = true;
+          label.appendChild(input);
+          updateTimeInputsDiv.appendChild(label);
+        }
+      }
+    });
+
   </script>
 </body>
 </html>
