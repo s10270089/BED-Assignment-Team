@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Bus Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f8ff; margin: 0; padding: 2em; }
+    h1 { color: #1e88e5; }
+    input, button { padding: 0.5em; font-size: 1em; }
+    button { background-color: #1e88e5; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; background: white; }
+    th, td { border: 1px solid #ccc; padding: 0.75em; text-align: center; }
+    th { background-color: #e3f2fd; }
+    .form-row { margin-bottom: 1em; }
+  </style>
+</head>
+<body>
+
+  <h1>Live Bus Tracker</h1>
+
+  <div class="form-row">
+    <input type="text" id="busStopCode" placeholder="Enter Bus Stop Code" />
+    <button onclick="searchBus()">Check Buses</button>
+  </div>
+
+  <table id="resultsTable">
+    <thead>
+      <tr>
+        <th>Service Number</th>
+        <th>Estimated Arrival</th>
+        <th>Load</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
+
+  <script>
+    async function searchBus() {
+      const code = document.getElementById("busStopCode").value.trim();
+      const token = localStorage.getItem("token"); // assumes JWT is stored here
+
+      if (!code) {
+        alert("Please enter a bus stop code.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/bus/${code}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch bus data");
+
+        const data = await res.json();
+        const tbody = document.getElementById("resultsBody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='3'>No buses arriving soon.</td></tr>";
+          return;
+        }
+
+        data.forEach(bus => {
+          const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
+            hour: "2-digit", minute: "2-digit"
+          });
+          const load = bus.NextBus.Load;
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${bus.ServiceNo}</td>
+            <td>${arrival}</td>
+            <td>${load}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
