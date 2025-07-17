@@ -2,26 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <title>Live Bus Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f0f4f8;
-      padding: 40px;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #d3dce6;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
     }
 
     h2 {
       color: #4a90e2;
+      margin-bottom: 20px;
     }
 
-    input, button {
+    input {
       padding: 10px;
       font-size: 16px;
+      width: 250px;
+      margin-bottom: 10px;
+      margin-right: 8px;
     }
 
     button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
       cursor: pointer;
-      margin-left: 5px;
     }
 
     .error {
@@ -62,24 +91,61 @@
   </style>
 </head>
 <body>
-  <h2>Live Bus Tracker</h2>
+  <header>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./overview.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-  <label for="busStop">Enter Bus Stop Code:</label>
-  <input type="text" id="busStop" placeholder="e.g. 83139" />
-  <button onclick="searchBus()">Search</button>
+  <div class="container">
+    <h2>Live Bus Tracker</h2>
 
-  <div class="error" id="errorMsg"></div>
+    <label for="busStop">Enter Bus Stop Code:</label><br />
+    <input type="text" id="busStop" placeholder="e.g. 83139" />
+    <button onclick="searchBus()">Search</button>
 
-  <table id="resultsTable" style="display: none;">
-    <thead>
-      <tr>
-        <th>Service No</th>
-        <th>Estimated Arrival</th>
-        <th>Crowd Level</th>
-      </tr>
-    </thead>
-    <tbody id="resultsBody"></tbody>
-  </table>
+    <div class="error" id="errorMsg"></div>
+
+    <table id="resultsTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>Service No</th>
+          <th>Estimated Arrival</th>
+          <th>Crowd Level</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
 
   <script>
     async function searchBus() {
