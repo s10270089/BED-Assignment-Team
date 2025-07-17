@@ -1,24 +1,22 @@
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
 
-exports.saveSearchHistory = async (userId, busStopCode) => {
-  const pool = await sql.connect(dbConfig);
-  const result = await pool.request()
-    .input("user_id", sql.Int, userId)
-    .input("bus_stop_code", sql.NVarChar, busStopCode)
-    .query(`INSERT INTO BusSearchHistory (user_id, bus_stop_code)
-            OUTPUT INSERTED.search_id
-            VALUES (@user_id, @bus_stop_code)`);
+async function insertBusSearch(userId, busStopCode) {
+  const result = await sql.query`
+    INSERT INTO BusSearchHistory (user_id, bus_stop_code)
+    OUTPUT INSERTED.search_id
+    VALUES (${userId}, ${busStopCode})
+  `;
   return result.recordset[0].search_id;
-};
+}
 
-exports.saveSearchResult = async (searchId, serviceNo, arrivalTime, load) => {
-  const pool = await sql.connect(dbConfig);
-  await pool.request()
-    .input("search_id", sql.Int, searchId)
-    .input("service_number", sql.NVarChar, serviceNo)
-    .input("estimated_arrival", sql.DateTime, arrivalTime)
-    .input("load", sql.NVarChar, load)
-    .query(`INSERT INTO BusSearchResults (search_id, service_number, estimated_arrival, load)
-            VALUES (@search_id, @service_number, @estimated_arrival, @load)`);
+async function insertBusResult(searchId, serviceNo, estimatedArrival, load) {
+  await sql.query`
+    INSERT INTO BusSearchResults (search_id, service_no, estimated_arrival, load)
+    VALUES (${searchId}, ${serviceNo}, ${estimatedArrival}, ${load})
+  `;
+}
+
+module.exports = {
+  insertBusSearch,
+  insertBusResult
 };
