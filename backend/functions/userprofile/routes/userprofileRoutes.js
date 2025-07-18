@@ -8,7 +8,6 @@ router.get('/', userprofileController.getAllUserProfiles);
 // Get user profile by ID
 router.get('/:id', userprofileController.getUserProfileById);
 
-
 // Update user profile
 router.put('/:id', validateUserProfile, userprofileController.updateUserProfile);
 

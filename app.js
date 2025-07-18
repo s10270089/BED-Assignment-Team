@@ -22,6 +22,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// CORS configuration
+const cors = require("cors");
+app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 // ---------------------------------------------------
@@ -77,6 +87,101 @@ app.use('/reminders', reminderRoutes);
 // 🔹 Lee Meng – User Profile Manager
 const userprofileRoutes = require('./backend/functions/userprofile/routes/userprofileRoutes');
 app.use('/userprofiles', userprofileRoutes);
+const nodemailer = require("nodemailer");
+
+// Cloudinary configuration
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: "dgtx0alyb",
+  api_key: "931192727676242", 
+  api_secret: "c4Oz6VJ_NriJVNoaz0B0hUU9E5g",
+});
+
+// Upload image function
+const uploadImage = (image) => {
+  const opts = {
+    overwrite: true,
+    invalidate: true,
+    resource_type: 'auto',
+  };
+  
+  return new Promise((resolve, reject) => {
+    console.log("Starting Cloudinary upload...");
+    cloudinary.uploader.upload(image, opts, (error, result) => {
+      if (error) {
+        console.error("Cloudinary error:", error);
+        return reject({ message: error.message || "Cloudinary upload failed" });
+      }
+      
+      if (result && result.secure_url) {
+        console.log("Image uploaded successfully:", result.secure_url);
+        return resolve(result.secure_url);
+      }
+      
+      console.error("No result or secure_url from Cloudinary");
+      return reject({ message: "No secure URL returned from Cloudinary" }); 
+    });
+  });
+};
+
+//const port = 3000;
+
+app.post("/upload-image", async (req, res) => {
+  try {
+    console.log("Upload request received");
+    const { image } = req.body;
+    
+    if (!image) {
+      console.log("No image data provided");
+      return res.status(400).json({ error: "No image data provided" });
+    }
+    
+    console.log("Image data preview:", image.substring(0, 100) + "...");
+    console.log("Image data length:", image.length);
+    
+    console.log("Attempting to upload to Cloudinary...");
+    const url = await uploadImage(image);
+    console.log("Upload successful:", url);
+    res.json({ url });
+  } catch (err) {
+    console.error("Upload error details:", err);
+    res.status(500).json({ error: err.message || "Upload failed" });
+  }
+});
+
+// Test route to verify Cloudinary config
+app.get("/test-cloudinary", (req, res) => {
+  console.log("Cloudinary config:", {
+    cloud_name: cloudinary.config().cloud_name,
+    api_key: cloudinary.config().api_key,
+    api_secret: cloudinary.config().api_secret ? "***configured***" : "not configured"
+  });
+  res.json({
+    message: "Cloudinary config logged to console",
+    config: {
+      cloud_name: cloudinary.config().cloud_name,
+      api_key: cloudinary.config().api_key,
+      api_secret: cloudinary.config().api_secret ? "***configured***" : "not configured"
+    }
+  });
+});
+
+// Test route with a small test image
+app.get("/test-upload", async (req, res) => {
+  try {
+    // A tiny 1x1 pixel red PNG in base64
+    const testImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAHGLo6TqQAAAABJRU5ErkJggg==";
+    
+    console.log("Testing upload with tiny test image...");
+    const url = await uploadImage(testImage);
+    console.log("Test upload successful:", url);
+    res.json({ success: true, url });
+  } catch (err) {
+    console.error("Test upload failed:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 // 🔹 Lee Meng – Workout Plan Organizer
 
 // 🔹 Lee Meng – Daily Log Tracker
