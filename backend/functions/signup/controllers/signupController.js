@@ -2,11 +2,11 @@ const bcrypt = require("bcrypt");
 const { insertUser } = require("../models/signupModel");
 
 exports.registerUser = async (req, res) => {
-  const { name, email, password, birthday, age } = req.body;
+  const { name, email, password, birthday} = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    await insertUser({ name, email, hashedPassword, birthday, age });
+    await insertUser({ name, email, hashedPassword, birthday});
 
     res.status(201).json({ message: "Registration successful." });
   } catch (err) {

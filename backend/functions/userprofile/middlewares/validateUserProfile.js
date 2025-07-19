@@ -2,8 +2,9 @@
 const Joi = require("joi");
 
 const schema = Joi.object({
-  name: Joi.string().max(100).required(),
-  birthday: Joi.date().less('now').iso().required(),
+  user_id: Joi.number().integer().positive().required(),
+  name: Joi.string().max(100).optional(),
+  birthday: Joi.date().less('now').iso().optional(),
   activity_level: Joi.string().valid('low', 'medium', 'high').required(),
   profile_photo_url: Joi.string().uri().allow('').optional(),
 });

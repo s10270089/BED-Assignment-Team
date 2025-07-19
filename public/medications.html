@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Medication Manager</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,23 +14,21 @@
     }
 
     header {
-      background-color: #4a90e2;
+      background-color: #d3dce6;
       color: white;
-      padding: 20px;
-      text-align: center;
-      position: relative;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    #logoutBtn {
-      position: absolute;
-      right: 20px;
-      top: 20px;
-      background-color: #ffffff;
-      color: #4a90e2;
-      border: 1px solid #ffffff;
-      padding: 8px 16px;
-      border-radius: 6px;
+    .logout-btn {
+      background-color: #e74c3c;
+      padding: 8px 12px;
+      color: white;
       font-weight: bold;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
     }
 
@@ -109,39 +109,81 @@
   </style>
 </head>
 <body>
+
+  <!-- 🔹 HEADER from index.html -->
   <header>
-    <h1>Medication Manager</h1>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./overview.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
     <button id="logoutBtn" onclick="logout()">Logout</button>
   </header>
 
+  <!-- 🔹 Main App -->
   <div class="container">
+    <h1>Medication Manager</h1>
+
     <div id="medications">Loading...</div>
 
     <form id="addForm">
       <h2>Add New Medication</h2>
       <label>Name: <input type="text" name="name" required /></label>
       <label>Dosage: <input type="text" name="dosage" required /></label>
-      <label>Time: <input type="text" name="time" required /></label>
-      <label>Frequency: <input type="text" name="frequency" required /></label>
+      <label>Frequency:
+        <input type="text" name="frequency" id="frequency" required />
+      </label>
+      <div id="timeInputs"></div>
       <button type="submit">Add Medication</button>
     </form>
   </div>
 
-  <!-- Update Modal -->
+  <!-- 🔹 Edit Modal -->
   <div class="modal" id="updateModal">
     <div class="modal-content">
+      <span id="closeUpdateModal" style="float: right; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
       <h2>Edit Medication</h2>
       <form id="updateForm">
         <input type="hidden" name="id" />
         <label>Name: <input type="text" name="name" required /></label>
         <label>Dosage: <input type="text" name="dosage" required /></label>
-        <label>Time: <input type="text" name="time" required /></label>
-        <label>Frequency: <input type="text" name="frequency" required /></label>
+        <label>Frequency:
+          <input type="text" name="frequency" id="update-frequency" required />
+        </label>
+        <div id="update-time-inputs"></div>
         <button type="submit">Update</button>
       </form>
     </div>
   </div>
 
+  <!-- 🔹 JS Script (unchanged from your original) -->
   <script>
     const token = localStorage.getItem("token");
     if (!token) {
@@ -152,12 +194,12 @@
 
     function logout() {
       localStorage.removeItem("token");
-      window.location.replace("login.html"); // <-- cleaner memory reset
+      window.location.replace("login.html");
     }
 
     function loadMedications() {
       const container = document.getElementById('medications');
-      container.innerHTML = 'Loading...'; // clear old state
+      container.innerHTML = 'Loading...';
 
       fetch(API, {
         headers: {
@@ -166,7 +208,7 @@
       })
       .then(response => response.json())
       .then(meds => {
-        container.innerHTML = ''; // clear loading
+        container.innerHTML = '';
         if (meds.length === 0) {
           container.innerHTML = '<p>No medications found.</p>';
         }
@@ -192,12 +234,18 @@
     document.getElementById('addForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
+      const times = [];
+      [...form.querySelectorAll('[name^="time"]')].forEach(input => {
+        times.push(input.value);
+      });
+
       const body = {
         name: form.name.value,
         dosage: form.dosage.value,
-        time: form.time.value,
-        frequency: form.frequency.value
+        frequency: form.frequency.value,
+        time: times.join(", ")
       };
+
       fetch(API, {
         method: 'POST',
         headers: {
@@ -208,6 +256,7 @@
       })
       .then(() => {
         form.reset();
+        timeInputsDiv.innerHTML = "";
         loadMedications();
       });
     });
@@ -218,8 +267,25 @@
       form.id.value = id;
       form.name.value = name;
       form.dosage.value = dosage;
-      form.time.value = time;
       form.frequency.value = frequency;
+
+      updateTimeInputsDiv.innerHTML = "";
+
+      const count = parseInt(frequency);
+      const times = time.split(",").map(t => t.trim());
+
+      for (let i = 0; i < count; i++) {
+        const label = document.createElement('label');
+        label.innerText = `Time ${i + 1}:`;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = `time${i + 1}`;
+        input.required = true;
+        input.value = times[i] || "";
+        label.appendChild(input);
+        updateTimeInputsDiv.appendChild(label);
+      }
+
       modal.style.display = 'block';
     }
 
@@ -227,12 +293,18 @@
       e.preventDefault();
       const form = e.target;
       const id = form.id.value;
+      const times = [];
+      [...form.querySelectorAll('[name^="time"]')].forEach(input => {
+        times.push(input.value);
+      });
+
       const body = {
         name: form.name.value,
         dosage: form.dosage.value,
-        time: form.time.value,
-        frequency: form.frequency.value
+        frequency: form.frequency.value,
+        time: times.join(", ")
       };
+
       fetch(API + '/' + id, {
         method: 'PUT',
         headers: {
@@ -265,7 +337,55 @@
       }
     }
 
-    // Run on load
+    const freqInput = document.getElementById('frequency');
+    const timeInputsDiv = document.getElementById('timeInputs');
+
+    freqInput.addEventListener('input', () => {
+      const count = parseInt(freqInput.value);
+      timeInputsDiv.innerHTML = '';
+
+      if (!isNaN(count) && count > 0) {
+        for (let i = 1; i <= count; i++) {
+          const label = document.createElement('label');
+          label.innerText = `Time ${i}:`;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `time${i}`;
+          input.required = true;
+          label.appendChild(input);
+          timeInputsDiv.appendChild(label);
+        }
+      }
+    });
+
+    document.getElementById('closeUpdateModal').addEventListener('click', () => {
+      document.getElementById('updateForm').reset();
+      updateTimeInputsDiv.innerHTML = "";
+      document.getElementById('updateModal').style.display = 'none';
+    });
+
+    const updateFreqInput = document.getElementById('update-frequency');
+    const updateTimeInputsDiv = document.getElementById('update-time-inputs');
+
+    updateFreqInput.addEventListener('input', () => {
+      const count = parseInt(updateFreqInput.value);
+      updateTimeInputsDiv.innerHTML = "";
+
+      if (!isNaN(count) && count > 0) {
+        for (let i = 1; i <= count; i++) {
+          const label = document.createElement('label');
+          label.innerText = `Time ${i}:`;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `time${i}`;
+          input.required = true;
+          label.appendChild(input);
+          updateTimeInputsDiv.appendChild(label);
+        }
+      }
+    });
+
+    // Init
     loadMedications();
   </script>
 </body>
