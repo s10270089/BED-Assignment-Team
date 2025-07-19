@@ -36,8 +36,7 @@ router.post('/', async (req, res) => {
       .input('message', sql.NVarChar(255), message)
       .input('reminder_time', sql.DateTime, reminderDate)
       .query(`INSERT INTO Reminders (user_id, message, reminder_time) VALUES (@user_id, @message, @reminder_time)`);
-
-    res.json({ success: true });
+      res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -62,8 +61,6 @@ router.post('/:id/update', async (req, res) => {
       .input('reminder_time', sql.DateTime, reminder_time)
       .input('is_completed', sql.Bit, is_completed ? 1 : 0)
       .query(`UPDATE Reminders SET message = @message, reminder_time = @reminder_time, is_completed = @is_completed WHERE reminder_id = @reminder_id`);
-
-      res.json({ success: true });
       res.status(200).json({ success: true });
 
   } catch (err) {
@@ -81,7 +78,6 @@ router.post('/:id/delete', async (req, res) => {
       .input('reminder_id', sql.Int, reminder_id)
       .query(`DELETE FROM Reminders WHERE reminder_id = @reminder_id`);
       res.status(200).json({ success: true });
-      res.json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
