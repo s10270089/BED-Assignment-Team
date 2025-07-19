@@ -5,7 +5,6 @@ const validateSignupSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   birthday: Joi.date().required(),
-  age: Joi.number().integer().min(1).max(130).required()
 });
 
 module.exports = (req, res, next) => {

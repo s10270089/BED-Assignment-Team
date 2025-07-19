@@ -19,6 +19,9 @@ const PORT = process.env.PORT || 3000;
 // ---------------------------------------------------
 // Middleware Setup
 // ---------------------------------------------------
+const cors = require("cors");
+app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -49,16 +52,43 @@ const loginRoute = require("./backend/functions/login/routes/loginRoutes");
 app.use("/login", loginRoute); // POST /login
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
-// const busRoutes = require("./routes/busRoutes");
-// app.use("/bus", busRoutes);
+const busRoutes = require("./backend/functions/bus/routes/busRoutes");
+app.use("/bus", busRoutes);
 
 // 🔹 Osmond – Shopping List Manager
-
+const shoplistRoutes = require("./backend/functions/shopping_list/routes/shoplistRoutes");
+app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
 
 // 🔹 Osmond – Checklist Creator
 
 // 🔹 Yoshi – Event Planner
+
+// Assuming you have an array to hold your events
+const events = [
+  {
+  },
+  // ... more event objects
+];
+
+app.get("/events", async (req, res) => {
+  try {
+    const pool = await sql.connect(); // assumes config is already passed in elsewhere
+    const result = await pool.request().query("SELECT * FROM Events");  
+    
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: "No events found." });
+    }
+
+    res.status(200).json({
+      message: "Events retrieved successfully.",
+      events: result.recordset
+    });
+  } catch (err) {
+    console.error("Error retrieving events:", err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
 
 // 🔹 Yoshi – Activity Calendar
 
