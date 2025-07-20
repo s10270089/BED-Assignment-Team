@@ -59,9 +59,8 @@ app.use("/bus", busRoutes);
 const shoplistRoutes = require("./backend/functions/shopping_list/routes/shoplistRoutes");
 app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
-
-// 🔹 Osmond – Checklist Creator
-
+const emergencyRoutes = require('./backend/functions/emergency_contact/routes/emergencyRoutes');
+app.use('/emergency-contacts', emergencyRoutes);
 // 🔹 Yoshi – Event Planner
 
 // Assuming you have an array to hold your events
