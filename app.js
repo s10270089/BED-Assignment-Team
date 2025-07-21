@@ -19,6 +19,9 @@ const PORT = process.env.PORT || 3000;
 // ---------------------------------------------------
 // Middleware Setup
 // ---------------------------------------------------
+const cors = require("cors");
+app.use(cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -49,15 +52,15 @@ const loginRoute = require("./backend/functions/login/routes/loginRoutes");
 app.use("/login", loginRoute); // POST /login
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
-// const busRoutes = require("./routes/busRoutes");
-// app.use("/bus", busRoutes);
+const busRoutes = require("./backend/functions/bus/routes/busRoutes");
+app.use("/bus", busRoutes);
 
 // 🔹 Osmond – Shopping List Manager
-
+const shoplistRoutes = require("./backend/functions/shopping_list/routes/shoplistRoutes");
+app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
-
-// 🔹 Osmond – Checklist Creator
-
+const emergencyRoutes = require('./backend/functions/emergency_contact/routes/emergencyRoutes');
+app.use('/emergency-contacts', emergencyRoutes);
 // 🔹 Yoshi – Event Planner
 
 // Assuming you have an array to hold your events

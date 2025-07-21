@@ -45,6 +45,7 @@ A multi-module web application built for seniors to manage daily tasks, medicati
 - **Authentication**: `bcrypt` + `jsonwebtoken` (JWT)  
 - **Validation**: `joi`  
 - **Front-end**: static HTML/CSS/JS (served from `/public`)  
+- **FullCalendar javascript API** : Interactive drag & drop calendar interface for reminders
 
 ---
 
