@@ -1,7 +1,7 @@
 // controllers/userprofileController.js
 const sql = require("mssql");
-const dbConfig = require('../../../db/dbConfig'); // Update path if needed
-const UserProfile = require("../models/userprofileModel");
+const dbConfig = require('../dbConfig'); // Update path if needed
+const UserProfile = require("../functions/userprofile/models/userprofileModel");
 
 // Unified update logic
 exports.updateUserProfile = async (req, res) => {

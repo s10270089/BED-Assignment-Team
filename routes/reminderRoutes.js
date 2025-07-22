@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
-const dbConfig = require('../../../db/dbConfig');
+const dbConfig = require('../dbConfig');
 
 // Get all reminders
 router.get('/', async (req, res) => {
