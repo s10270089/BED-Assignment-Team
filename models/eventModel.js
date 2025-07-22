@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
+const dbConfig = require("../dbConfig");
 
 //get event (by id and etc)
 exports.getAll = async () => {

@@ -1,6 +1,6 @@
 // models/medicationModel.js
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
+const dbConfig = require("../dbConfig");
 
 exports.getAll = async (user_id) => {
   const pool = await sql.connect(dbConfig);
