@@ -150,6 +150,18 @@ CREATE TABLE DailyLogs (
   log_date DATE
 );
 
+-- Friends list
+CREATE TABLE Friendships (
+    friendship_id INT PRIMARY KEY IDENTITY(1,1),
+    sender_id INT NOT NULL, -- the user who sent the request
+    receiver_id INT NOT NULL, -- the user who receives the request
+    status NVARCHAR(20) NOT NULL CHECK (status IN ('pending', 'accepted', 'rejected')),
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (sender_id) REFERENCES Users(user_id),
+    FOREIGN KEY (receiver_id) REFERENCES Users(user_id)
+);
+
+
 /*Sample Data Insertions*/
 
 INSERT INTO Users (name, email, password_hash, birthday)
@@ -228,3 +240,9 @@ VALUES
 (4, 'Karaoke Afternoon', 'Sing your favourite oldies with friends', 'Senior Karaoke Room, Hougang CC', '2025-08-03 16:00:00', '2,3,5'),
 (5, 'Storytelling Circle', 'Share life stories and wisdom with peers', 'Library@HarbourFront - Activity Room', '2025-08-06 10:30:00', '1,4,6');
 
+INSERT INTO Friendships (sender_id, receiver_id, status) VALUES
+(1, 3, 'pending'),  -- Henry Neo → Lim Bee Hwa
+(4, 1, 'pending'),  -- Goh Soon Chye → Henry Neo
+(2, 6, 'accepted'), -- Tan Ah Kow ↔ Wong Ah Ma
+(5, 1, 'accepted'), -- Chong Mei Lin ↔ Henry Neo
+(5, 3, 'accepted'); -- Chong Mei Lin ↔ Lim Bee Hwa 
