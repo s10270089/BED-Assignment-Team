@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/medicationController");
 const validate = require("../middlewares/validateMedication");
-const authenticate = require("../middlewares/authenticate"); // ✅ your local one
+const authenticate = require("../middlewares/authenticate");
 
-router.use(authenticate); // 🔒 protect all routes
+router.use(authenticate);
 
 router.get("/", controller.getAllMedications);
 router.get("/:id", controller.getMedicationById);
