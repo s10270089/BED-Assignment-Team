@@ -12,9 +12,44 @@ const uploadPhotoBtn = document.getElementById("upload-photo-btn");
 const photoUploadOverlay = document.getElementById("photo-upload-overlay");
 const apiBaseUrl = "http://localhost:3000";
 
-// Configuration
-const profileId = 1; // Replace with real dynamic ID if needed
-const userId = 1; // This should come from authentication/session
+// Configuration - Dynamic from session storage
+function getCurrentUser() {
+  try {
+    // Try to get from sessionStorage first (more secure)
+    const userJson = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+    if (userJson) {
+      return JSON.parse(userJson);
+    }
+    
+    // Fallback to individual stored values
+    return {
+      id: sessionStorage.getItem('userId') || localStorage.getItem('userId'),
+      profileId: sessionStorage.getItem('profileId') || localStorage.getItem('profileId')
+    };
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+}
+
+const currentUser = getCurrentUser();
+
+if (!currentUser || !currentUser.id) {
+  console.error('No authenticated user found. Redirecting to login...');
+  if (messageDiv) {
+    messageDiv.textContent = 'Authentication required. Redirecting to login...';
+    messageDiv.className = 'message error';
+  }
+  setTimeout(() => {
+    window.location.href = '/login.html';
+  }, 2000);
+  throw new Error('Authentication required');
+}
+
+const userId = parseInt(currentUser.id);
+const profileId = parseInt(currentUser.profileId || currentUser.id); // Use profileId or fallback to userId
+
+console.log('Using dynamic user IDs:', { userId, profileId });
 
 // Function to show loading state on button
 function setLoadingState(isLoading) {

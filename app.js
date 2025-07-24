@@ -87,15 +87,13 @@ app.use('/reminders', reminderRoutes);
 // 🔹 Lee Meng – User Profile Manager
 const userprofileRoutes = require('./backend/functions/userprofile/routes/userprofileRoutes');
 app.use('/userprofiles', userprofileRoutes);
-const nodemailer = require("nodemailer");
-
 // Cloudinary configuration
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
-  cloud_name: "dgtx0alyb",
-  api_key: "931192727676242", 
-  api_secret: "c4Oz6VJ_NriJVNoaz0B0hUU9E5g",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Upload image function
