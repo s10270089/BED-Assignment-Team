@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/shoplistController");
-const authenticate = require("../../shopping_list/middlewares/authenticate");
+const authenticate = require("../middlewares/authenticateShoppingList");
 const { validateList, validateItem } = require("../middlewares/validateShoplist");
 
 
