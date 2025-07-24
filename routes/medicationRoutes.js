@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/medicationController");
+const controller = require("../controllers/medicationController");
 const validate = require("../middlewares/validateMedication");
 const authenticate = require("../middlewares/authenticate"); // ✅ your local one
 
