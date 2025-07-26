@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
+  <title>Shopping List Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header matches medications.html */
+    header {
+      background-color: #d3dce6;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .header-container {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .header-container img.logo {
+      height: 48px;
+      margin-right: 24px;
+    }
+    nav ul.nav-list {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    nav ul.nav-list li {
+      position: relative;
+    }
+    nav ul.nav-list > li > a {
+      text-decoration: none;
+      color: #232760;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: color 0.1s;
+      color: #232760;
+      background: transparent;
+    }
+    nav ul.nav-list > li > a:hover {
+      color: #0074d9;
+    }
+    nav ul.nav-list li.dropdown:hover .dropdown-menu {
+      display: block;
+    }
+    nav ul.dropdown-menu {
+      display: none;
+      position: absolute;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      list-style: none;
+      margin: 0;
+      padding: 8px 0;
+      top: 140%;
+      left: 0;
+      min-width: 220px;
+      border-radius: 10px;
+      z-index: 100;
+    }
+    nav ul.dropdown-menu li {
+      padding: 6px 24px;
+    }
+    nav ul.dropdown-menu li a {
+      color: #232760;
+      font-size: 1rem;
+      text-decoration: none;
+      display: block;
+    }
+    nav ul.dropdown-menu li a:hover {
+      color: #0074d9;
+      background: #f5faff;
+      border-radius: 6px;
+    }
+    .material-symbols-outlined {
+      font-size: 28px;
+      vertical-align: middle;
+      margin-left: 3px;
+    }
+    #logoutBtn {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.1s;
+      margin-left: 30px;
+    }
+    #logoutBtn:hover {
+      background-color: #216ac8;
+    }
+    /* Main content */
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 32px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      margin-bottom: 32px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 2.2rem;
+      color: #232760;
+    }
+    #itemsTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+    }
+    #itemsTable th, #itemsTable td {
+      border-bottom: 1px solid #eee;
+      padding: 10px;
+      text-align: left;
+    }
+    #itemsTable th {
+      background: #f3f3f3;
+    }
+    .item-actions button {
+      margin-right: 8px;
+      font-size: 13px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #eee;
+      transition: background 0.15s;
+    }
+    .item-actions .edit {
+      background: #1976d2;
+      color: #fff;
+    }
+    .item-actions .delete {
+      background: #e53935;
+      color: #fff;
+    }
+    .inline-form {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .inline-form input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      flex: 1;
+    }
+    .inline-form button {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 4px;
+      transition: background 0.15s;
+    }
+    .inline-form button:hover,
+    .item-actions button:hover {
+      opacity: 0.93;
+    }
+    .no-items {
+      color: #888;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align:center;
+      padding: 20px 0 12px 0;
+      color: #888;
+      background: #f3f3f3;
+      font-size: 1rem;
+      margin-top: auto;
+      width: 100%;
+    }
+    @media (max-width: 800px) {
+      .container {
+        max-width: 98vw;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 0;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 10px;
+      }
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0;
+      }
+      #logoutBtn {
+        margin-left: 0;
+        margin-top: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./overview.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+  </header>
+  <div class="container">
+    <h1>Shopping List Manager</h1>
+    <form id="addItemForm" class="inline-form">
+      <input type="text" id="itemName" placeholder="Name" required />
+      <select id="itemType" required>
+        <option value="">Select Type</option>
+        <option value="Oils and sauces">Oils and sauces</option>
+        <option value="Proteins">Proteins</option>
+        <option value="Carbohydrates">Carbohydrates</option>
+        <option value="Vegetables & Fruits">Vegetables & Fruits</option>
+        <option value="Dairy & Eggs">Dairy & Eggs</option>
+      </select>
+      <input type="number" id="itemAmountValue" placeholder="Amount" min="0" step="any" style="max-width:80px;" required />
+      <select id="itemAmountUnit" required style="max-width:80px;">
+        <option value="g">g</option>
+        <option value="Kg">Kg</option>
+        <option value="L">L</option>
+      </select>
+      <input type="text" id="itemNotes" placeholder="Notes" />
+      <button type="submit" id="addItemBtn">Add Item</button>
+    </form>
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Item Type</th>
+          <th>Amount</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="itemsTbody">
+        <!-- JS-generated rows go here -->
+      </tbody>
+    </table>
+    <div class="no-items" id="noItemsMsg">No items found.</div>
+  </div>
+  <footer>
+    &copy; 2025 CareConnect | All Rights Reserved
+  </footer>
+  <script>
+    // Demo data storage (replace this with fetch/POST calls for backend integration)
+    let items = [];
+
+    // Helpers
+    function renderItems() {
+      const tbody = document.getElementById('itemsTbody');
+      tbody.innerHTML = '';
+      if (items.length === 0) {
+        document.getElementById('noItemsMsg').style.display = '';
+        return;
+      }
+      document.getElementById('noItemsMsg').style.display = 'none';
+      items.forEach((item, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.type}</td>
+          <td>${item.amount}</td>
+          <td>${item.notes || ''}</td>
+          <td class="item-actions">
+            <button class="edit" onclick="editItem(${idx})">Edit</button>
+            <button class="delete" onclick="deleteItem(${idx})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    document.getElementById('addItemForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('itemName').value.trim();
+    const type = document.getElementById('itemType').value;
+    const amountValue = document.getElementById('itemAmountValue').value.trim();
+    const amountUnit = document.getElementById('itemAmountUnit').value;
+    const amount = amountValue + ' ' + amountUnit;
+    const notes = document.getElementById('itemNotes').value.trim();
+
+    if (name && type && amountValue) {
+      items.push({ name, type, amount, notes });
+      renderItems();
+      this.reset();
+    }
+  });
+
+    window.editItem = function(idx) {
+      const item = items[idx];
+      document.getElementById('itemName').value = item.name;
+      document.getElementById('itemType').value = item.type;
+      document.getElementById('itemAmount').value = item.amount;
+      document.getElementById('itemNotes').value = item.notes;
+      // Remove item so editing will "replace" on next submit
+      items.splice(idx, 1);
+      renderItems();
+      document.getElementById('itemName').focus();
+    };
+
+    window.deleteItem = function(idx) {
+      if (confirm("Delete this item?")) {
+        items.splice(idx, 1);
+        renderItems();
+      }
+    };
+
+    // Logout for header button
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    // Initialize display
+    renderItems();
+  </script>
+</body>
+</html>

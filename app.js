@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ---------------------------------------------------
 // SQL Server Connection
 // ---------------------------------------------------
-const dbConfig = require("./backend/db/dbConfig.js");
+const dbConfig = require("./dbConfig.js");
 
 sql.connect(dbConfig)
   .then(() => console.log("Connected to SQL Server"))
@@ -48,28 +48,32 @@ sql.connect(dbConfig)
 // ---------------------------------------------------
 
 // 🔹 Braden – Medication Manager
-const medicationRoutes = require("./backend/functions/medication/routes/medicationRoutes");
+const medicationRoutes = require("./routes/medicationRoutes");
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)
-const signupRoute = require("./backend/functions/signup/routes/signupRoutes");
+const signupRoute = require("./routes/signupRoutes");
 app.use("/signup", signupRoute);
 
-const loginRoute = require("./backend/functions/login/routes/loginRoutes");
+const loginRoute = require("./routes/loginRoutes");
 app.use("/login", loginRoute); // POST /login
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
-// const busRoutes = require("./routes/busRoutes");
-// app.use("/bus", busRoutes);
-
+const busRoutes = require("./routes/busRoutes");
+app.use("/bus", busRoutes);
+/*
 // 🔹 Osmond – Shopping List Manager
-
+const shoplistRoutes = require("./routes/shoplistRoutes");
+app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
-
-// 🔹 Osmond – Checklist Creator
-
+const emergencyRoutes = require('./routes/emergencyRoutes');
+app.use('/emergency-contacts', emergencyRoutes);*/
 // 🔹 Yoshi – Event Planner
-
+/*
+// Assuming you have an array to hold your events
+const eventRoutes = require("./routes/eventRoutes");
+app.use("/events", eventRoutes);
+*/
 // 🔹 Yoshi – Activity Calendar
 
 // 🔹 Louis – Overview Page / Dashboard
@@ -80,21 +84,12 @@ app.use("/login", loginRoute); // POST /login
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
-const reminderRoutes = require('./backend/functions/reminder/routes/reminderRoutes');
+const reminderRoutes = require('./routes/reminderRoutes');
 app.use('/reminders', reminderRoutes);
 
-
 // 🔹 Lee Meng – User Profile Manager
-const userprofileRoutes = require('./backend/functions/userprofile/routes/userprofileRoutes');
+const userprofileRoutes = require('./routes/userprofileRoutes.js');
 app.use('/userprofiles', userprofileRoutes);
-// Cloudinary configuration
-const cloudinary = require('cloudinary').v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 // Upload image function
 const uploadImage = (image) => {
