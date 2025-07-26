@@ -11,30 +11,46 @@ const photoInput = document.getElementById("photo-input");
 const uploadPhotoBtn = document.getElementById("upload-photo-btn");
 const photoUploadOverlay = document.getElementById("photo-upload-overlay");
 const apiBaseUrl = "http://localhost:3000";
-
-// Configuration - Dynamic from session storage
-function getCurrentUser() {
+/*
+// Configuration
+const profileId = 1; // Replace with real dynamic ID if needed
+const userId = 1; // This should come from authentication/session
+*/
+// In profile.js - get user data from stored token
+function getCurrentUserFromToken() {
   try {
-    // Try to get from sessionStorage first (more secure)
-    const userJson = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
-    if (userJson) {
-      return JSON.parse(userJson);
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (!token) {
+      return null;
     }
     
-    // Fallback to individual stored values
+    // Decode the token payload (client-side decoding for display only)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    
+    // Check if token is expired
+    if (payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      return null;
+    }
+    
     return {
-      id: sessionStorage.getItem('userId') || localStorage.getItem('userId'),
-      profileId: sessionStorage.getItem('profileId') || localStorage.getItem('profileId')
+      userId: payload.user_id, // Fixed: should be user_id not userId
+      email: payload.email,
+      profileId: payload.user_id // Fixed: should be user_id not userId
     };
   } catch (error) {
-    console.error('Error getting current user:', error);
+    console.error('Error decoding token:', error);
     return null;
   }
 }
 
-const currentUser = getCurrentUser();
+// Initialize user data from token
+const currentUser = getCurrentUserFromToken();
 
-if (!currentUser || !currentUser.id) {
+// Check if user is authenticated
+if (!currentUser) {
   console.error('No authenticated user found. Redirecting to login...');
   if (messageDiv) {
     messageDiv.textContent = 'Authentication required. Redirecting to login...';
@@ -46,10 +62,11 @@ if (!currentUser || !currentUser.id) {
   throw new Error('Authentication required');
 }
 
-const userId = parseInt(currentUser.id);
-const profileId = parseInt(currentUser.profileId || currentUser.id); // Use profileId or fallback to userId
+// Set global variables for use throughout the file
+const userId = currentUser.userId;
+const profileId = currentUser.profileId;
 
-console.log('Using dynamic user IDs:', { userId, profileId });
+console.log('Using user IDs from token:', { userId, profileId });
 
 // Function to show loading state on button
 function setLoadingState(isLoading) {
@@ -302,8 +319,16 @@ async function preloadProfileData() {
       messageDiv.className = "message loading";
     }
 
-    // Make a GET request to your API endpoint
-    const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`);
+    // Get token for authorization
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    // Make a GET request to your API endpoint with token
+    const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
@@ -574,6 +599,8 @@ async function deleteProfile() {
   }
 }
 
+
+
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   // Load profile data when page loads
@@ -594,6 +621,16 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteBtn.addEventListener("click", deleteProfile);
   } else {
     console.error("Delete button not found!");
+  }
+
+  // Add back button event listener
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      window.location.href = "/index.html";
+    });
+  } else {
+    console.error("Back button not found!");
   }
 
   // Add photo input change event listener

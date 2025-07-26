@@ -30,6 +30,38 @@
       margin-bottom: 1rem;
       color: #333;
     }
+    
+    /* Back button styles */
+    .back-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .back-btn:hover {
+      background-color: #5a6268;
+    }
+    .back-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .back-btn::before {
+      content: "←";
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
     .profile-picture {
       width: 100px;
       height: 100px;
@@ -215,11 +247,22 @@
         flex-direction: column;
         gap: 10px;
       }
+      
+      /* Adjust button positions on mobile */
+      .back-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+      .delete-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="profile-container">
+    <button type="button" class="back-btn" id="back-btn">Back</button>
     <button type="button" class="delete-btn" id="delete-btn">Delete Profile</button>
     <h2>Edit Profile</h2>
     <div id="message" class="message"></div>
@@ -245,438 +288,5 @@
     </form>
   </div>
   <script src="profile.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Profile</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .profile-container {
-      background-color: #ffffff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-    .profile-container h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-      color: #333;
-    }
-    .profile-picture {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border: 2px dashed #ccc;
-      border-radius: 50%;
-      margin: 0 auto 1rem;
-      display: block;
-    }
-    .profile-info label {
-      display: block;
-      margin: 1rem 0 0.5rem;
-      font-weight: bold;
-      color: #555;
-    }
-    .profile-info input[type="text"],
-    .profile-info input[type="date"] {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    .profile-info input[type="text"]:focus,
-    .profile-info input[type="date"]:focus {
-      outline: none;
-      border-color: #4CAF50;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-    }
-    .radio-group {
-      margin-top: 0.5rem;
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-    .radio-group label {
-      font-weight: normal;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-    }
-    .radio-group input[type="radio"] {
-      margin: 0;
-    }
-    .submit-btn {
-      display: block;
-      margin: 1.5rem auto 0;
-      padding: 0.75rem 1rem;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 16px;
-      font-weight: bold;
-      transition: background-color 0.3s;
-    }
-    .submit-btn:hover {
-      background-color: #45a049;
-    }
-    .submit-btn:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    
-    /* Message styles */
-    .message {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
-      display: none;
-      text-align: center;
-      font-weight: bold;
-    }
-    .message.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-      display: block;
-    }
-    .message.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-      display: block;
-    }
-    .message.loading {
-      background-color: #d1ecf1;
-      color: #0c5460;
-      border: 1px solid #bee5eb;
-      display: block;
-    }
-    
-    /* Responsive design */
-    @media (max-width: 480px) {
-      .profile-container {
-        padding: 1rem;
-      }
-      .radio-group {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="profile-container">
-    <h2>Edit Profile</h2>
-    <div id="message" class="message"></div>
-    <img src="https://via.placeholder.com/100" alt="Profile Picture" class="profile-picture" />
-    <form class="profile-info">
-      <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required />
-
-      <label for="birthday">Birthday:</label>
-      <input type="date" id="birthday" name="birthday" required />
-
-      <label>Activity Level:</label>
-      <div class="radio-group">
-        <label><input type="radio" name="activity" value="low" /> Low</label>
-        <label><input type="radio" name="activity" value="medium" /> Medium</label>
-        <label><input type="radio" name="activity" value="high" /> High</label>
-      </div>
-
-      <button type="submit" class="submit-btn">Save Changes</button>
-    </form>
-  </div>
-
-  <script>
-    // Get references to the HTML elements you'll interact with
-    const nameInput = document.getElementById("name");
-    const birthdayInput = document.getElementById("birthday");
-    const profilePicture = document.querySelector(".profile-picture");
-    const profileForm = document.querySelector(".profile-info");
-    const messageDiv = document.getElementById("message");
-    const submitBtn = document.querySelector(".submit-btn");
-    const apiBaseUrl = "http://localhost:3000";
-
-    // Configuration
-    const profileId = 1; // Replace with real dynamic ID if needed
-    const userId = 1; // This should come from authentication/session
-
-    // Function to show loading state on button
-    function setLoadingState(isLoading) {
-      if (submitBtn) {
-        submitBtn.disabled = isLoading;
-        submitBtn.textContent = isLoading ? "Saving..." : "Save Changes";
-      }
-    }
-
-    // Function to fetch and prefill profile data
-    async function preloadProfileData() {
-      try {
-        // Show loading state
-        if (messageDiv) {
-          messageDiv.textContent = "Loading profile...";
-          messageDiv.className = "message loading";
-        }
-
-        // Make a GET request to your API endpoint
-        const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`);
-
-        if (!response.ok) {
-          // Handle HTTP errors (e.g., 404, 500)
-          const errorBody = response.headers
-            .get("content-type")
-            ?.includes("application/json")
-            ? await response.json()
-            : { message: response.statusText };
-          throw new Error(
-            `HTTP error! status: ${response.status}, message: ${errorBody.message || errorBody.error}`
-          );
-        }
-
-        // Parse the JSON response
-        const data = await response.json();
-
-        // Prefill form fields
-        fillFormWithData(data);
-
-        // Clear loading message and show success
-        if (messageDiv) {
-          messageDiv.textContent = "Profile loaded successfully!";
-          messageDiv.className = "message success";
-          setTimeout(() => {
-            messageDiv.textContent = "";
-            messageDiv.className = "";
-          }, 3000);
-        }
-
-      } catch (error) {
-        console.error("Error loading profile:", error);
-        
-        // Show error message
-        if (messageDiv) {
-          messageDiv.textContent = `Failed to load profile: ${error.message}`;
-          messageDiv.className = "message error";
-        }
-        
-        // Don't show alert if messageDiv exists
-        if (!messageDiv) {
-          alert(`Failed to load profile: ${error.message}`);
-        }
-      }
-    }
-
-    // Function to fill form with fetched data
-    function fillFormWithData(data) {
-      try {
-        // Fill name field (now available from Users table join)
-        if (nameInput && data.name) {
-          nameInput.value = data.name;
-        }
-
-        // Fill birthday field (now available from Users table join)
-        if (birthdayInput && data.birthday) {
-          const formattedDate = data.birthday.split("T")[0];
-          birthdayInput.value = formattedDate;
-        }
-
-        // Set activity level radio button
-        if (data.activity_level) {
-          const activityRadios = document.querySelectorAll('input[name="activity"]');
-          activityRadios.forEach((radio) => {
-            if (radio.value.toLowerCase() === data.activity_level.toLowerCase()) {
-              radio.checked = true;
-            }
-          });
-        }
-
-        // Set profile picture if available
-        if (profilePicture && data.profile_photo_url) {
-          profilePicture.src = data.profile_photo_url;
-        }
-
-      } catch (error) {
-        console.error("Error filling form with data:", error);
-        throw new Error("Failed to populate form fields");
-      }
-    }
-
-    // Function to handle profile update
-    async function updateProfile(profileData) {
-      try {
-        // Show loading state
-        setLoadingState(true);
-        if (messageDiv) {
-          messageDiv.textContent = "Updating profile...";
-          messageDiv.className = "message loading";
-        }
-
-        // Make PUT request to update profile
-        const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(profileData)
-        });
-
-        if (!response.ok) {
-          // Handle HTTP errors
-          const errorBody = response.headers
-            .get("content-type")
-            ?.includes("application/json")
-            ? await response.json()
-            : { message: response.statusText };
-          throw new Error(
-            `HTTP error! status: ${response.status}, message: ${errorBody.message || errorBody.error}`
-          );
-        }
-
-        // Handle successful response
-        const result = await response.text(); // Your backend returns text, not JSON
-        
-        // Show success message
-        if (messageDiv) {
-          messageDiv.textContent = "Profile updated successfully!";
-          messageDiv.className = "message success";
-          setTimeout(() => {
-            messageDiv.textContent = "";
-            messageDiv.className = "";
-          }, 5000);
-        }
-
-        console.log("Profile updated:", result);
-        return result;
-
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        
-        // Show error message
-        if (messageDiv) {
-          messageDiv.textContent = `Update failed: ${error.message}`;
-          messageDiv.className = "message error";
-        }
-        
-        throw error; // Re-throw to be handled by form submit handler
-      } finally {
-        // Always restore button state
-        setLoadingState(false);
-      }
-    }
-
-    // Function to handle form submission
-    async function handleFormSubmit(event) {
-      event.preventDefault();
-
-      try {
-        // Validate form data
-        const formData = getFormData();
-        validateFormData(formData);
-
-        // Update profile
-        await updateProfile(formData);
-
-      } catch (error) {
-        console.error("Form submission error:", error);
-        // Error message is already shown by updateProfile function
-        // Just log here for debugging
-        
-        // Make sure button is not stuck in loading state
-        setLoadingState(false);
-      }
-    }
-
-    // Function to extract form data
-    function getFormData() {
-      const name = nameInput?.value.trim() || "";
-      const birthday = birthdayInput?.value || "";
-      const activityLevel = document.querySelector('input[name="activity"]:checked')?.value || "";
-      const profilePhotoUrl = profilePicture?.src || "";
-
-      return {
-        user_id: userId, // Required by backend
-        name: name, // Send name for Users table update
-        birthday: birthday, // Send birthday for Users table update
-        activity_level: activityLevel,
-        profile_photo_url: profilePhotoUrl !== "https://via.placeholder.com/100" ? profilePhotoUrl : ""
-      };
-    }
-
-    // Function to validate form data
-    function validateFormData(data) {
-      const errors = [];
-
-      if (!data.user_id) {
-        errors.push("User ID is required");
-      }
-
-      if (!data.name || data.name.trim() === "") {
-        errors.push("Name is required");
-      }
-
-      if (!data.birthday) {
-        errors.push("Birthday is required");
-      }
-
-      if (!data.activity_level) {
-        errors.push("Activity level is required");
-      }
-
-      if (errors.length > 0) {
-        if (messageDiv) {
-          messageDiv.textContent = `Validation Error: ${errors.join(", ")}`;
-          messageDiv.className = "message error";
-        }
-        throw new Error(errors.join(", "));
-      }
-    }
-
-    // Initialize the application when DOM is loaded
-    document.addEventListener("DOMContentLoaded", () => {
-      // Load profile data when page loads
-      preloadProfileData();
-
-      // Add form submit event listener
-      if (profileForm) {
-        profileForm.addEventListener("submit", handleFormSubmit);
-      } else {
-        console.error("Profile form not found!");
-      }
-    });
-
-    // Optional: Add helper function to refresh profile data
-    function refreshProfile() {
-      preloadProfileData();
-    }
-
-    // Optional: Export functions for testing or external use
-    window.profileManager = {
-      preloadProfileData,
-      updateProfile,
-      refreshProfile
-    };
-  </script>
 </body>
 </html>
