@@ -246,3 +246,8 @@ INSERT INTO Friendships (sender_id, receiver_id, status) VALUES
 (2, 6, 'accepted'), -- Tan Ah Kow ↔ Wong Ah Ma
 (5, 1, 'accepted'), -- Chong Mei Lin ↔ Henry Neo
 (5, 3, 'accepted'); -- Chong Mei Lin ↔ Lim Bee Hwa 
+
+INSERT INTO HealthRecords (user_id, allergies, diagnosis, doctor_contact, emergency_contact, last_updated) VALUES
+  (1, 'Penicillin', 'Hypertension', '61234567', '81234567', '2024-07-01 10:30:00'),
+  (1, 'Latex', 'Asthma', '64567890', '87776665', '2024-07-06 11:45:00'),
+  (1, 'None', 'High Cholesterol', '61239876', '81231234', '2024-07-11 09:00:00');

@@ -1,6 +1,6 @@
 // userprofileModel.js
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig.js");
+const dbConfig = require("../dbConfig.js");
 
 // Helper function to format date without time
 function formatDateOnly(date) {

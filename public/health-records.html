@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Health Records</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      padding: 20px;
+    }
+    h1 {
+      color: #2a5d84;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #2a5d84;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #2a5d84;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #1d4566;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Health Records</h1>
+  <table id="recordsTable">
+    <thead>
+      <tr>
+        <th>Condition</th>
+        <th>Notes</th>
+        <th>Date Recorded</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Records will be dynamically inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/health-records')
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector('#recordsTable tbody');
+          data.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${record.condition}</td>
+              <td>${record.notes}</td>
+              <td>${new Date(record.dateRecorded).toLocaleDateString()}</td>
+            `;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching health records:', error);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
+const dbConfig = require("../dbConfig.js");
 
 // Get all lists for a user
 exports.getShoppingListsByUser = async (userId) => {

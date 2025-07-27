@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/shoplistController");
-const authenticate = require("../../shopping_list/middlewares/authenticate");
-const { validateList, validateItem } = require("../middlewares/validateShoplist");
+const controller = require("../controller/shoplistController");
+const authenticate = require("../middleware/authenticate");
+const { validateList, validateItem } = require("../middleware/validateShoplist");
 
 
 // All routes require authentication
