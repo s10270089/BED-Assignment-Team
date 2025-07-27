@@ -1,13 +1,6 @@
 const sql = require('mssql');
 const dbConfig = require('../dbConfig');
-const getUserId = require('../utils/getUserId');
-
-await pool.request()
-  .input('userId', sql.Int, 1)  // Hardcoded user ID
-  .input('condition', sql.NVarChar, condition)
-  .input('notes', sql.NVarChar, notes)
-  .input('dateRecorded', sql.DateTime, dateRecorded)
-  .query('INSERT INTO HealthRecords (userId, condition, notes, dateRecorded) VALUES (@userId, @condition, @notes, @dateRecorded)');
+const getUserId = require('../utils/getUserId.js'); // You must create this helper
 
 exports.getAllHealthRecords = async (req, res) => {
   try {

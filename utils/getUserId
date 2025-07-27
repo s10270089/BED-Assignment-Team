@@ -1,4 +1,0 @@
-// utils/getUserId.js
-module.exports = (req) => {
-  return 1;
-};

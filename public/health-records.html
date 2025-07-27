@@ -63,22 +63,27 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       fetch('/health-records')
-        .then(response => response.json())
-        .then(data => {
-          const tbody = document.querySelector('#recordsTable tbody');
-          data.forEach(record => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${record.condition}</td>
-              <td>${record.notes}</td>
-              <td>${new Date(record.dateRecorded).toLocaleDateString()}</td>
-            `;
-            tbody.appendChild(row);
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching health records:', error);
+      .then(response => response.json())
+      .then(data => {
+        if (!Array.isArray(data)) {
+          console.error('Expected array, got:', data);
+          return;
+        }
+
+        const tbody = document.querySelector('#recordsTable tbody');
+        data.forEach(record => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${record.condition}</td>
+            <td>${record.notes}</td>
+            <td>${new Date(record.dateRecorded).toLocaleDateString()}</td>
+          `;
+          tbody.appendChild(row);
         });
+      })
+      .catch(error => {
+        console.error('Error fetching health records:', error);
+      });
     });
   </script>
 </body>

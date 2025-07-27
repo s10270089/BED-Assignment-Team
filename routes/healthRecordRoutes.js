@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const healthRecordController = require('../controllers/healthRecordController');
+const healthRecordController = require('../controller/healthRecordController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Protected routes
