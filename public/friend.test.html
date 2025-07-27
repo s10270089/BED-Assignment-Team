@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Friend System Tester</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, button { margin: 5px; }
+    section { margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Friend System Frontend Tester</h1>
+
+<section>
+  <h2>1. View Friends</h2>
+  <input id="userIdView" placeholder="Enter User ID" />
+  <button onclick="getFriends()">Get Friends</button>
+  <pre id="friendsResult"></pre>
+</section>
+
+<section>
+  <h2>2. View Incoming Requests</h2>
+  <input id="userIdIncoming" placeholder="Enter User ID" />
+  <button onclick="getIncoming()">Get Incoming</button>
+  <pre id="incomingResult"></pre>
+</section>
+
+<section>
+  <h2>3. View Outgoing Requests</h2>
+  <input id="userIdOutgoing" placeholder="Enter User ID" />
+  <button onclick="getOutgoing()">Get Outgoing</button>
+  <pre id="outgoingResult"></pre>
+</section>
+
+<section>
+  <h2>4. Send Friend Request</h2>
+  <input id="senderId" placeholder="Sender ID" />
+  <input id="receiverId" placeholder="Receiver ID" />
+  <button onclick="sendRequest()">Send Request</button>
+  <pre id="sendResult"></pre>
+</section>
+
+<section>
+  <h2>5. Update Friend Request Status</h2>
+  <input id="friendshipId" placeholder="Friendship ID" />
+  <select id="newStatus">
+    <option value="accepted">Accept</option>
+    <option value="rejected">Reject</option>
+  </select>
+  <button onclick="updateStatus()">Update Status</button>
+  <pre id="updateResult"></pre>
+</section>
+
+<script>
+  const baseUrl = "http://localhost:3000"; // Change if different port
+
+  async function getFriends() {
+    const userId = document.getElementById("userIdView").value;
+    const res = await fetch(`${baseUrl}/friends/${userId}`);
+    const data = await res.json();
+    document.getElementById("friendsResult").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function getIncoming() {
+    const userId = document.getElementById("userIdIncoming").value;
+    const res = await fetch(`${baseUrl}/requests/incoming/${userId}`);
+    const data = await res.json();
+    document.getElementById("incomingResult").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function getOutgoing() {
+    const userId = document.getElementById("userIdOutgoing").value;
+    const res = await fetch(`${baseUrl}/requests/outgoing/${userId}`);
+    const data = await res.json();
+    document.getElementById("outgoingResult").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function sendRequest() {
+    const senderId = document.getElementById("senderId").value;
+    const receiverId = document.getElementById("receiverId").value;
+
+    const res = await fetch(`${baseUrl}/requests`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ senderId: parseInt(senderId), receiverId: parseInt(receiverId) })
+    });
+
+    const data = await res.json();
+    document.getElementById("sendResult").textContent = JSON.stringify(data, null, 2);
+  }
+
+  async function updateStatus() {
+    const friendshipId = document.getElementById("friendshipId").value;
+    const status = document.getElementById("newStatus").value;
+
+    const res = await fetch(`${baseUrl}/requests/${friendshipId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    const data = await res.json();
+    document.getElementById("updateResult").textContent = JSON.stringify(data, null, 2);
+  }
+</script>
+
+</body>
+</html>
