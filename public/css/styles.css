@@ -317,48 +317,155 @@ footer {
   .delete-btn {
     background-color: #f44336;
   }
-  .reminders-page {
+/* Main Layout */
+.reminders-page {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 1.5rem;
-  padding: 2rem 0;
+  gap: 2rem;
+  padding: 2rem;
+  background: #f5f8fa;
 }
 
+/* Tasks Panel Styling */
 .tasks-panel {
-  background: #fff;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .tasks-panel h2 {
-  margin-bottom: 1rem;
   font-size: 1.5rem;
-  color: #4a90e2;
-}
-
-.task-form .form-group {
+  color: #111;
   margin-bottom: 1rem;
 }
 
-.form-group-inline {
+/* Task Sections */
+.task-section {
+  margin-bottom: 2rem;
+}
+
+.task-section h3 {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+/* Task Card */
+.task-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s ease;
 }
 
-.task-form label {
-  display: block;
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
+.task-item:hover {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.task-form input {
-  width: 100%;
-  padding: 0.5rem;
+.task-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-title {
+  font-weight: bold;
+  color: #333;
+}
+
+.task-meta {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Status Tag (Time, Labels, etc) */
+.task-tag {
+  background: #e0e0e0;
+  color: #333;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* Calendar Panel */
+.calendar-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* FullCalendar overrides */
+.fc-event {
+  border-radius: 6px !important;
+  padding: 2px 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: none !important;
+}
+
+.fc-event-title {
+  white-space: normal !important;
+}
+
+.fc .fc-timegrid-slot {
+  height: 2.5rem !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Add task input */
+.task-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.task-input input {
+  padding: 0.6rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 0.95rem;
 }
+
+.task-input button {
+  background-color: #4a90e2;
+  color: white;
+  padding: 0.6rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.task-input button:hover {
+  background-color: #3b7dd8;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+  color: #888;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reminders-page {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .btn.add-reminder {
   background: #4a90e2;
@@ -375,6 +482,7 @@ footer {
   margin-top: 1.5rem;
   max-height: 500px;
   overflow-y: auto;
+  padding-left: 1rem;
 }
 
 .task-list li {
@@ -397,6 +505,20 @@ footer {
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.task-list.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+
+.toggle-header {
+  cursor: pointer;
+  user-select: none;
 }
 
 /* Responsive */

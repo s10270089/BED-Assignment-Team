@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - Ngee Ann Polytechnic</title>
+    <link rel="stylesheet" href="./events.css">
+</head>
+<body>
+
+
+
+    <header>
+        <h1>Upcoming Activities</h1>
+        <p><span id="day"></span></p>
+    </header>
+
+
+    <script>
+        // JavaScript to get today's day
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const months = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+    ];
+        const today = new Date();
+        const day = today.getDate(); // Day of the month
+        const month = today.getMonth(); // Month (0-indexed, so add 1)
+        document.getElementById("day").textContent = days[today.getDay()] + ", " + day + " " + months[month];
+    </script>
+
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="timetable.html">Timetable</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="tdl.html">To-do List</a>
+    </nav>
+        <!-- <button class="l-arrow-button">prev</button>    
+        <button class="r-arrow-button">next</button> -->
+
+
+    <div class="date-selector">  
+        <button onclick="updateActive(this); updateSchedule(0)">Mon </button>
+        <button onclick="updateActive(this); updateSchedule(1)">Tue </button>
+        <button onclick="updateActive(this); updateSchedule(2)">Wed </button>
+        <button onclick="updateActive(this); updateSchedule(3)">Thu </button>
+        <button onclick="updateActive(this); updateSchedule(4)">Fri </button>
+        <button onclick="updateActive(this); updateSchedule(5)">Sat </button>
+        <button onclick="updateActive(this); updateSchedule(6)">Sun </button>
+    </div>
+
+
+    <script> 
+        const dow = (today.getDay()+6)%7;
+        const buttons = document.querySelectorAll('.date-selector button');
+        buttons[dow].className = "active";
+    </script>
+    
+
+    <div class="schedule" id="schedule">
+        <!-- The timetable will dynamically update here -->
+    </div>
+
+    <div class="bottom-nav">
+        <a href="index.html"><span>🏠</span>Home</a>
+        <a href="attendance.html"><span>🗂️</span>Attendance</a>
+        <a href="timetable.html"><span>📅</span>Timetable</a>
+        <a href="tdl.html"><span>📝</span>To-do List</a>
+    </div>
+    <script>
+        const schedules = {
+            // 0 = mon 1 = tue ...
+            0: [
+                { time: "9:00 AM - 10:00 AM", event: "Mahjong", location: "BLK 21 #03-05", attendees: "a b" },
+                { time: "10:00 AM - 12:00 PM", event: "Shopping", location: "BLK 27 #04-02", attendees: "b a" },
+            ],
+            1: [
+                { time: "11:00 AM - 1:00 PM",   event: "Exercise", location: "BLK 25 #02-01", attendees: "a c" },
+            ],
+            2: [
+                { time: "1:00 PM - 3:00 PM", event: "shop", location: "BLK 19 #01-01", attendees: "v a" },
+                { time: "3:00 PM - 5:00 PM", event: "shop", location: "BLK 19 #01-01", attendees: "b a" },
+                
+            ],
+            3: [
+                { time: "2:00 PM - 4:00 PM", event: "meet friends", location: "BLK 27 #04-02", attendees: "c a" },
+            ],
+            4: [
+                { time: "9:00 AM - 11:00 AM", event: "walk around", location: "BLK 22 #02-03", attendees: "a c" },
+            ],
+        };
+
+        function updateActive(button) {
+            const buttons = document.querySelectorAll('.date-selector button');
+            buttons.forEach(btn => btn.classList.remove('active')); // Remove active class from all buttons
+            button.classList.add('active'); // Add active class to the clicked button
+        }
+
+        function updateSchedule(day) {
+            const scheduleDiv = document.getElementById("schedule");
+            scheduleDiv.innerHTML = ""; // Clear existing schedule
+            if (schedules[day]) {
+                schedules[day].forEach(item => {
+                    const scheduleItem = `
+                        <div class="schedule-item">
+                            <h3>${item.time}</h3>
+                            <p>${item.event}</p>
+                            <p>Location: ${item.location}</p>
+                            <p>Attendees: ${item.attendees}</p>
+                        </div>`;
+                    scheduleDiv.innerHTML += scheduleItem;
+                });
+            } else {
+                scheduleDiv.innerHTML = "<p>No schedule available for this day.</p>";
+            }
+        }
+
+        updateSchedule(dow);
+    </script>
+
+
+</body>
+</html>
