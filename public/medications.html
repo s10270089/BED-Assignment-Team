@@ -7,10 +7,12 @@
   <link rel="stylesheet" href="./css/styles.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    html, body {
+      height: 100%;
       margin: 0;
-      background: #f9f9f9;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #e6f2ff, #f9f9f9);
     }
 
     header {
@@ -20,6 +22,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .logout-btn {
@@ -33,60 +37,78 @@
     }
 
     .container {
-      max-width: 1000px;
-      margin: 30px auto;
+      max-width: 900px;
+      margin: 50px auto;
       padding: 0 20px;
+      animation: fadeIn 0.5s ease;
     }
 
-    .medication-card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .medication-info {
-      flex-grow: 1;
-    }
-
-    .actions button {
-      margin-left: 10px;
+    h1 {
+      text-align: center;
+      color: #34495e;
+      font-size: 32px;
     }
 
     form {
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
       margin-top: 40px;
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
+      font-size: 16px;
     }
 
-    input {
+    input, select {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      padding: 10px;
+      margin-top: 6px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 16px;
     }
 
     button {
       background-color: #4a90e2;
       color: white;
       border: none;
-      padding: 10px 16px;
+      padding: 12px 20px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
       margin-top: 20px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #3a78c2;
+      transform: scale(1.02);
+    }
+
+    .medication-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .medication-info {
+      flex-grow: 1;
+      font-size: 18px;
+    }
+
+    .actions button {
+      margin-left: 10px;
+      padding: 8px 12px;
     }
 
     .modal {
@@ -101,11 +123,18 @@
     .modal-content {
       background: white;
       margin: 10% auto;
-      padding: 20px;
+      padding: 30px;
       width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
   </style>
 </head>
 <body>
@@ -156,10 +185,20 @@
     <form id="addForm">
       <h2>Add New Medication</h2>
       <label>Name: <input type="text" name="name" required /></label>
-      <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" name="dosageValue" required style="flex: 1;" />
+          <select name="dosageUnit" required style="width: 100px;">
+            <option value="mg">mg</option>
+            <option value="IU">IU</option>
+            <option value="mL">mL</option>
+            <option value="tablet">tablet</option>
+            <option value="capsule">capsule</option>
+          </select>
+        </div>
       <label>Frequency:
         <input type="text" name="frequency" id="frequency" required />
-      </label>
+
       <div id="timeInputs"></div>
       <button type="submit">Add Medication</button>
     </form>
@@ -173,7 +212,17 @@
       <form id="updateForm">
         <input type="hidden" name="id" />
         <label>Name: <input type="text" name="name" required /></label>
-        <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" name="dosageValue" required style="flex: 1;" />
+        <select name="dosageUnit" required style="width: 100px;">
+          <option value="mg">mg</option>
+          <option value="IU">IU</option>
+          <option value="mL">mL</option>
+          <option value="tablet">tablet</option>
+          <option value="capsule">capsule</option>
+        </select>
+      </div>
         <label>Frequency:
           <input type="text" name="frequency" id="update-frequency" required />
         </label>
@@ -241,7 +290,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -266,7 +315,9 @@
       const form = document.getElementById('updateForm');
       form.id.value = id;
       form.name.value = name;
-      form.dosage.value = dosage;
+      const [value, unit] = dosage.split(" ");
+      form.dosageValue.value = value || "";
+      form.dosageUnit.value = unit || "mg";
       form.frequency.value = frequency;
 
       updateTimeInputsDiv.innerHTML = "";
@@ -278,7 +329,7 @@
         const label = document.createElement('label');
         label.innerText = `Time ${i + 1}:`;
         const input = document.createElement('input');
-        input.type = 'text';
+        input.type = 'time';
         input.name = `time${i + 1}`;
         input.required = true;
         input.value = times[i] || "";
@@ -300,7 +351,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -349,7 +400,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -376,7 +427,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -384,6 +435,76 @@
         }
       }
     });
+
+    // Input validation for dosage (add)
+    const dosageInput = document.querySelector('input[name="dosageValue"]');
+    dosageInput.addEventListener('input', () => {
+      const value = dosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        dosageInput.value = value.replace(/[^0-9]/g, ""); // Remove invalid characters
+      }
+    });
+
+    // Input validation for dosage (update)
+    const updateDosageInput = document.querySelector('#updateForm input[name="dosageValue"]');
+
+    updateDosageInput.addEventListener('input', () => {
+      const value = updateDosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        updateDosageInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateDosageInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (add)
+    const frequencyInput = document.getElementById('frequency');
+
+    frequencyInput.addEventListener('input', () => {
+      const value = frequencyInput.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        frequencyInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    frequencyInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (update)
+    const updateFreqInputField = document.getElementById('update-frequency');
+
+    updateFreqInputField.addEventListener('input', () => {
+      const value = updateFreqInputField.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        updateFreqInputField.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateFreqInputField.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
 
     // Init
     loadMedications();
