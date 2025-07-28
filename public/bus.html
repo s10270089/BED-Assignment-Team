@@ -8,9 +8,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(to bottom right, #e6f2ff, #f9f9f9);
       margin: 0;
       padding: 0;
+      min-height: 100vh;
     }
 
     header {
@@ -24,73 +25,126 @@
       box-sizing: border-box;
     }
 
+    .header-container {
+      background: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0;
+    }
+
+    .logout-btn {
+      background-color: #e74c3c;
+      padding: 8px 12px;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .container {
       max-width: 1000px;
       margin: 40px auto;
-      padding: 0 20px;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
     h2 {
-      color: #4a90e2;
+      color: #317ac1;
+      font-size: 26px;
       margin-bottom: 20px;
+      text-align: center;
     }
 
-    input {
-      padding: 10px;
-      font-size: 16px;
-      width: 250px;
-      margin-bottom: 10px;
-      margin-right: 8px;
+    label {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      padding: 12px;
+      font-size: 18px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 10px 16px;
-      font-size: 16px;
+      padding: 12px 24px;
+      font-size: 18px;
       background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
     }
 
     .error {
       color: red;
       margin-top: 10px;
+      font-size: 16px;
     }
 
     table {
-      margin-top: 20px;
+      margin-top: 30px;
       width: 100%;
       border-collapse: collapse;
+      font-size: 18px;
     }
 
     th, td {
-      padding: 12px;
+      padding: 16px;
       border: 1px solid #ccc;
       text-align: center;
     }
 
     th {
-      background-color: #e8f1fc;
+      background-color: #dff0ff;
+      color: #333;
     }
 
-    .green {
-      color: green;
-      font-weight: bold;
+    .green { color: green; font-weight: bold; }
+    .orange { color: orange; font-weight: bold; }
+    .red { color: red; font-weight: bold; }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
     }
 
-    .orange {
-      color: orange;
-      font-weight: bold;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .red {
-      color: red;
-      font-weight: bold;
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      input, button, table {
+        font-size: 16px;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- 🔹 HEADER (from medications.html) -->
   <header>
     <div class="container header-container">
       <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
@@ -124,13 +178,20 @@
         </ul>
       </nav>
     </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
+  <!-- 🔵 MAIN -->
   <div class="container">
     <h2>Live Bus Tracker</h2>
 
-    <label for="busStop">Enter Bus Stop Code:</label><br />
+    <label for="busStop">Enter Bus Stop Code:</label>
     <input type="text" id="busStop" placeholder="e.g. 83139" />
+
+<label for="recentStops">Select Recent Stop:</label>
+<select id="recentStops"></select>
+
+
     <button onclick="searchBus()">Search</button>
 
     <div class="error" id="errorMsg"></div>
@@ -147,82 +208,185 @@
     </table>
   </div>
 
-  <script>
-    async function searchBus() {
-      const busStopCode = document.getElementById('busStop').value.trim();
-      const token = localStorage.getItem("token");
-      const errorMsg = document.getElementById("errorMsg");
-      const resultsTable = document.getElementById("resultsTable");
-      const tbody = document.getElementById("resultsBody");
+  <!-- 🔚 End of body content -->
+<script>
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
 
-      errorMsg.textContent = "";
-      resultsTable.style.display = "none";
-      tbody.innerHTML = "";
+  function saveRecent(code) {
+    let recent = JSON.parse(localStorage.getItem("recentBusStops")) || [];
+    if (!recent.includes(code)) {
+      recent.unshift(code);
+      if (recent.length > 5) recent = recent.slice(0, 5);
+      localStorage.setItem("recentBusStops", JSON.stringify(recent));
+    }
+  }
 
-      if (!token) {
-        errorMsg.textContent = "You must be logged in.";
+  async function loadRecentStops() {
+    const dropdown = document.getElementById("recentStops");
+    dropdown.innerHTML = '<option value="">Recent Bus Stops</option>';
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/bus/recent", {
+  headers: { "Authorization": `Bearer ${token}` }
+});
+
+
+      const data = await res.json();
+
+      if (res.ok && data.stops) {
+        data.stops.forEach(code => {
+          const opt = document.createElement("option");
+          opt.value = code;
+          opt.textContent = code;
+          dropdown.appendChild(opt);
+        });
+
+        dropdown.addEventListener("change", () => {
+          if (dropdown.value) {
+            document.getElementById("busStop").value = dropdown.value;
+          }
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load recent stops:", err);
+    }
+  }
+
+  async function searchBus() {
+    const busStopCode = document.getElementById('busStop').value.trim();
+    const token = localStorage.getItem("token");
+    const errorMsg = document.getElementById("errorMsg");
+    const resultsTable = document.getElementById("resultsTable");
+    const tbody = document.getElementById("resultsBody");
+
+    errorMsg.textContent = "";
+    resultsTable.style.display = "none";
+    tbody.innerHTML = "";
+
+    if (!token) {
+      errorMsg.textContent = "You must be logged in.";
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/bus/search", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ busStopCode })
+});
+
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorMsg.textContent = data.error || "Something went wrong.";
         return;
       }
 
-      try {
-        const res = await fetch("/bus/search", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ busStopCode })
+      saveRecent(busStopCode);
+
+      data.results.forEach(bus => {
+        const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
+          hour: "2-digit",
+          minute: "2-digit"
         });
 
-        const data = await res.json();
+        let crowdLevel = "";
+        let crowdClass = "";
 
-        if (!res.ok) {
-          errorMsg.textContent = data.error || "Something went wrong.";
-          return;
+        switch (bus.NextBus.Load) {
+          case "SEA":
+            crowdLevel = "🟢 Seats Available";
+            crowdClass = "green";
+            break;
+          case "SDA":
+            crowdLevel = "🟡 Standing Available";
+            crowdClass = "orange";
+            break;
+          case "LSD":
+            crowdLevel = "🔴 Limited Standing";
+            crowdClass = "red";
+            break;
+          default:
+            crowdLevel = "❓ Unknown";
+            crowdClass = "";
         }
 
-        data.results.forEach(bus => {
-          const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
+        const row = document.createElement("tr");
+        row.className = "fade-in";
+        row.innerHTML = `
+          <td>${bus.ServiceNo}</td>
+          <td>${arrival}</td>
+          <td class="${crowdClass}">${crowdLevel}</td>
+        `;
+        tbody.appendChild(row);
+      });
 
-          let crowdLevel = "";
-          let crowdClass = "";
-
-          switch (bus.NextBus.Load) {
-            case "SEA":
-              crowdLevel = "🟢 Seats Available";
-              crowdClass = "green";
-              break;
-            case "SDA":
-              crowdLevel = "🟡 Standing Available";
-              crowdClass = "orange";
-              break;
-            case "LSD":
-              crowdLevel = "🔴 Limited Standing";
-              crowdClass = "red";
-              break;
-            default:
-              crowdLevel = "❓ Unknown";
-              crowdClass = "";
-          }
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${bus.ServiceNo}</td>
-            <td>${arrival}</td>
-            <td class="${crowdClass}">${crowdLevel}</td>
-          `;
-          tbody.appendChild(row);
-        });
-
-        resultsTable.style.display = "table";
-      } catch (err) {
-        console.error("Fetch failed:", err);
-        errorMsg.textContent = "Failed to fetch bus data.";
-      }
+      resultsTable.style.display = "table";
+    } catch (err) {
+      console.error("Fetch failed:", err);
+      errorMsg.textContent = "Failed to fetch bus data.";
     }
-  </script>
+  }
+
+  async function showHistory() {
+    const token = localStorage.getItem("token");
+    const historyDiv = document.getElementById("historyContainer");
+    historyDiv.innerHTML = ""; // Clear previous content
+
+    try {
+      const res = await fetch("/bus/recent", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        historyDiv.innerHTML = `<p style="color:red;">${data.error || "Failed to load history."}</p>`;
+        return;
+      }
+
+      if (data.stops.length === 0) {
+        historyDiv.innerHTML = "<p>No recent bus stop searches found.</p>";
+        return;
+      }
+
+      const list = document.createElement("ul");
+      list.style.fontSize = "18px";
+
+      data.stops.forEach(code => {
+        const li = document.createElement("li");
+        li.textContent = code;
+        li.style.cursor = "pointer";
+        li.style.color = "#317ac1";
+        li.style.marginBottom = "6px";
+        li.onclick = () => {
+          document.getElementById("busStop").value = code;
+        };
+        list.appendChild(li);
+      });
+
+      historyDiv.innerHTML = "<strong>Your Recent Searches:</strong>";
+      historyDiv.appendChild(list);
+
+    } catch (err) {
+      historyDiv.innerHTML = "<p style='color:red;'>Error fetching history.</p>";
+    }
+  }
+
+  // 🔹 INIT (Load dropdown on page load)
+  window.onload = () => {
+    loadRecentStops();
+  };
+</script>
+
 </body>
 </html>

@@ -28,5 +28,6 @@ const validateBusSearch = require("../middlewares/validateBusSearch");
  *         description: No results
  */
 router.post("/search", authenticate, validateBusSearch, busController.searchBusArrivals);
+router.get("/recent", authenticate, busController.getRecentBusStops);
 
 module.exports = router;

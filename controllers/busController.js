@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { insertBusSearch, insertBusResult } = require("../models/busModel");
+const sql = require("mssql");
 
 async function searchBusArrivals(req, res) {
   const { busStopCode } = req.body;
@@ -30,10 +31,9 @@ async function searchBusArrivals(req, res) {
         await insertBusResult(
           searchId,
           service.ServiceNo,
-          estimatedDate, 
+          estimatedDate,
           bus.Load || "N/A"
         );
-
       }
     }
 
@@ -49,4 +49,25 @@ async function searchBusArrivals(req, res) {
   }
 }
 
-module.exports = { searchBusArrivals };
+async function getRecentBusStops(req, res) {
+  const userId = req.user.user_id;
+
+  try {
+    const result = await sql.query`
+      SELECT TOP 5 bus_stop_code 
+      FROM BusSearchHistory 
+      WHERE user_id = ${userId}
+      ORDER BY searched_at DESC
+    `;
+    const stops = result.recordset.map(r => r.bus_stop_code);
+    res.json({ stops });
+  } catch (err) {
+    console.error("Error fetching recent bus stops:", err);
+    res.status(500).json({ error: "Failed to retrieve recent stops." });
+  }
+}
+
+module.exports = {
+  searchBusArrivals,
+  getRecentBusStops,
+};
