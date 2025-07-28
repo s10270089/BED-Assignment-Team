@@ -2,10 +2,25 @@ const Joi = require("joi");
 
 const schema = Joi.object({
   name: Joi.string().min(2).required(),
-  dosage: Joi.string().required(),
+
+  dosage: Joi.string()
+    .pattern(/^\d+\s*(mg|IU|mL|tablet|capsule)$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Dosage must be a number followed by a valid unit (e.g. 500 mg)"
+    }),
+
   time: Joi.string().required(),
-  frequency: Joi.string().required(),
+
+  frequency: Joi.number().integer().min(1).required(),
+
+  start_date: Joi.date().required(),
+  end_date: Joi.date().greater(Joi.ref('start_date')).required()
+    .messages({
+      "date.greater": "End Date must be after Start Date"
+    })
 });
+
 
 module.exports = (req, res, next) => {
   const { error } = schema.validate(req.body, { abortEarly: false });

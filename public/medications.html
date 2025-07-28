@@ -156,10 +156,20 @@
     <form id="addForm">
       <h2>Add New Medication</h2>
       <label>Name: <input type="text" name="name" required /></label>
-      <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" name="dosageValue" required style="flex: 1;" />
+          <select name="dosageUnit" required style="width: 100px;">
+            <option value="mg">mg</option>
+            <option value="IU">IU</option>
+            <option value="mL">mL</option>
+            <option value="tablet">tablet</option>
+            <option value="capsule">capsule</option>
+          </select>
+        </div>
       <label>Frequency:
         <input type="text" name="frequency" id="frequency" required />
-      </label>
+
       <div id="timeInputs"></div>
       <button type="submit">Add Medication</button>
     </form>
@@ -173,7 +183,17 @@
       <form id="updateForm">
         <input type="hidden" name="id" />
         <label>Name: <input type="text" name="name" required /></label>
-        <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" name="dosageValue" required style="flex: 1;" />
+        <select name="dosageUnit" required style="width: 100px;">
+          <option value="mg">mg</option>
+          <option value="IU">IU</option>
+          <option value="mL">mL</option>
+          <option value="tablet">tablet</option>
+          <option value="capsule">capsule</option>
+        </select>
+      </div>
         <label>Frequency:
           <input type="text" name="frequency" id="update-frequency" required />
         </label>
@@ -241,7 +261,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -266,7 +286,9 @@
       const form = document.getElementById('updateForm');
       form.id.value = id;
       form.name.value = name;
-      form.dosage.value = dosage;
+      const [value, unit] = dosage.split(" ");
+      form.dosageValue.value = value || "";
+      form.dosageUnit.value = unit || "mg";
       form.frequency.value = frequency;
 
       updateTimeInputsDiv.innerHTML = "";
@@ -278,7 +300,7 @@
         const label = document.createElement('label');
         label.innerText = `Time ${i + 1}:`;
         const input = document.createElement('input');
-        input.type = 'text';
+        input.type = 'time';
         input.name = `time${i + 1}`;
         input.required = true;
         input.value = times[i] || "";
@@ -300,7 +322,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -349,7 +371,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -376,7 +398,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -384,6 +406,76 @@
         }
       }
     });
+
+    // Input validation for dosage (add)
+    const dosageInput = document.querySelector('input[name="dosageValue"]');
+    dosageInput.addEventListener('input', () => {
+      const value = dosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        dosageInput.value = value.replace(/[^0-9]/g, ""); // Remove invalid characters
+      }
+    });
+
+    // Input validation for dosage (update)
+    const updateDosageInput = document.querySelector('#updateForm input[name="dosageValue"]');
+
+    updateDosageInput.addEventListener('input', () => {
+      const value = updateDosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        updateDosageInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateDosageInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (add)
+    const frequencyInput = document.getElementById('frequency');
+
+    frequencyInput.addEventListener('input', () => {
+      const value = frequencyInput.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        frequencyInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    frequencyInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (update)
+    const updateFreqInputField = document.getElementById('update-frequency');
+
+    updateFreqInputField.addEventListener('input', () => {
+      const value = updateFreqInputField.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        updateFreqInputField.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateFreqInputField.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
 
     // Init
     loadMedications();
