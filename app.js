@@ -72,8 +72,6 @@ app.use("/events", eventRoutes);
 // 🔹 Louis – Overview Page / Dashboard
 
 // 🔹 Louis – Health Records
-const authMiddleware = require('./middleware/authMiddleware.js');
-app.use(authMiddleware);
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 app.use('/health-records', healthRecordRoutes);
 

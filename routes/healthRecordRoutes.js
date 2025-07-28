@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const healthRecordController = require('../controller/healthRecordController');
-const authMiddleware = require('../middleware/authMiddleware');
+const authenticate = require("../middleware/authenticate"); // Only this needed
 
-// Protected routes
-router.get('/', authMiddleware, healthRecordController.getAllHealthRecords);
-router.get('/:id', authMiddleware, healthRecordController.getHealthRecordById);
-router.post('/', authMiddleware, healthRecordController.createHealthRecord);
-router.put('/:id', authMiddleware, healthRecordController.updateHealthRecord);
-router.delete('/:id', authMiddleware, healthRecordController.deleteHealthRecord);
+// Use only `authenticate` for protected routes
+router.get('/', authenticate, healthRecordController.getAllHealthRecords);
+router.get('/:id', authenticate, healthRecordController.getHealthRecordById);
+router.post('/', authenticate, healthRecordController.createHealthRecord);
+router.put('/:id', authenticate, healthRecordController.updateHealthRecord);
+router.delete('/:id', authenticate, healthRecordController.deleteHealthRecord);
 
 module.exports = router;
