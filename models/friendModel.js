@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
+const dbConfig = require("../dbConfig");
 
 exports.getFriends = async (userId) => {
   const pool = await sql.connect(dbConfig);

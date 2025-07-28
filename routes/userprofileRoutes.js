@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const userprofileController = require('../controller/userprofileController');
-const validateUserProfile = require('../middleware/validateUserProfile');
+const userprofileController = require('../controllers/userprofileController');
+const validateUserProfile = require('../middlewares/validateUserProfile');
 
 router.get('/', userprofileController.getAllUserProfiles);
 
