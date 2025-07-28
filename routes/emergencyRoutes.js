@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/emergencyController");
-const authenticate = require("../middlewares/authenticateEmergency"); // adjust path if needed
-const { validateContact } = require("../middlewares/validateEmergency");
+const controller = require("../controller/emergencyController");
+const authenticate = require("../middleware/authenticate"); // adjust path if needed
+const { validateContact } = require("../middleware/validateEmergency");
 
 // All routes require authentication
 router.use(authenticate);
