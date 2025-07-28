@@ -236,6 +236,14 @@ async function uploadPhoto() {
 
     // Update profile with new image URL
     showMessage('Updating profile...', 'loading');
+
+    // Get token for authorization
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('No authentication token found. Please log in again.');
+    }
+
     const updateData = {
       user_id: userId,
       profile_photo_url: imageUrl
@@ -244,7 +252,8 @@ async function uploadPhoto() {
     const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Add this line
       },
       body: JSON.stringify(updateData)
     });
@@ -409,17 +418,24 @@ async function updateProfile(profileData) {
       messageDiv.className = "message loading";
     }
 
+    // Get token for authorization
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No authentication token found. Please log in again.');
+    }
+
     // Make PUT request to update profile
     const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // 🔹 ADD THIS LINE
       },
       body: JSON.stringify(profileData)
     });
 
     if (!response.ok) {
-      // Handle HTTP errors
       const errorBody = response.headers
         .get("content-type")
         ?.includes("application/json")
@@ -430,8 +446,7 @@ async function updateProfile(profileData) {
       );
     }
 
-    // Handle successful response
-    const result = await response.text(); // Your backend returns text, not JSON
+    const result = await response.json();
     
     // Show success message
     if (messageDiv) {
@@ -443,21 +458,18 @@ async function updateProfile(profileData) {
       }, 5000);
     }
 
-    console.log("Profile updated:", result);
     return result;
 
   } catch (error) {
     console.error("Error updating profile:", error);
     
-    // Show error message
     if (messageDiv) {
       messageDiv.textContent = `Update failed: ${error.message}`;
       messageDiv.className = "message error";
     }
     
-    throw error; // Re-throw to be handled by form submit handler
+    throw error;
   } finally {
-    // Always restore button state
     setLoadingState(false);
   }
 }
@@ -555,9 +567,19 @@ async function deleteProfile() {
       messageDiv.className = "message loading";
     }
 
+    // Get token for authorization
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (!token) {
+      throw new Error('No authentication token found. Please log in again.');
+    }
+
     // Make DELETE request
     const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}` // 🔹 ADD THIS LINE
+      }
     });
 
     if (!response.ok) {
@@ -577,7 +599,7 @@ async function deleteProfile() {
       messageDiv.className = "message success";
     }
 
-    // Redirect after successful deletion (you can change this URL)
+    // Redirect after successful deletion
     setTimeout(() => {
       window.location.href = "/"; // Redirect to home page or user list
     }, 2000);
