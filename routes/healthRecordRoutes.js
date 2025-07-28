@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const healthRecordController = require('../controller/healthRecordController');
-const authenticate = require("../middleware/authenticate"); // Only this needed
+const healthRecordController = require('../controllers/healthRecordController');
+const authenticate = require("../middlewares/authenticate"); // Only this needed
 
 // Use only `authenticate` for protected routes
 router.get('/', authenticate, healthRecordController.getAllHealthRecords);

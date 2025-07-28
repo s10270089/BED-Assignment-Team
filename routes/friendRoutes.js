@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("./friendController");
+const controller = require("../controllers/friendController");
 
 // Routes
 router.get("/friends/:userId", controller.getFriends);
