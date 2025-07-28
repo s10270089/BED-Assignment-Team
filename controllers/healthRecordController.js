@@ -16,7 +16,7 @@ exports.getAllHealthRecords = async (req, res) => {
 
 exports.getHealthRecordById = async (req, res) => {
   try {
-    const record = await Record.getById(req.params.id, req.user.user_id);
+    const record = await HealthRecord.getById(req.params.id, req.user.user_id);
     if (!record) return res.status(404).send('Health record not found');
     res.json(record);
   } catch (err) {
@@ -26,25 +26,47 @@ exports.getHealthRecordById = async (req, res) => {
 
 exports.createHealthRecord = async (req, res) => {
   try {
-    await Record.create({ ...req.body, user_id: req.user.user_id });
-    res.send('Health record created');
+    const { allergies, diagnosis, doctor_contact, emergency_contact, last_updated } = req.body;
+    console.log("Received data:", req.body); // Log incoming request body
+
+    await HealthRecord.create({
+      allergies,
+      diagnosis,
+      doctor_contact,
+      emergency_contact,
+      last_updated,
+      user_id: req.user.user_id
+    });
+
+    res.status(201).send('Health record created');
   } catch (err) {
+    console.error("Create Controller Error:", err); // Log the specific error
     res.status(500).send('Error creating health record');
   }
-}
+};
 
 exports.updateHealthRecord = async (req, res) => {
   try {
-    await Record.update(req.params.id, req.body, req.user.user_id);
-    res.send('Health record updated');
+    console.log("Updating record with ID:", req.params.id); // Log the record ID
+    console.log("Received data:", req.body); // Log the data being sent for update
+
+    const updatedRows = await HealthRecord.update(req.params.id, req.body, req.user.user_id);
+
+    if (updatedRows === 0) {
+      console.log("No record found to update"); // If no rows were affected, log that
+      return res.status(404).send("Health record not found or not owned by user");
+    }
+
+    res.status(200).send("Health record updated");
   } catch (err) {
-    res.status(500).send('Error updating health record');
+    console.error("Edit Controller Error:", err); // Log the error
+    res.status(500).send("Error updating health record");
   }
-}
+};
 
 exports.deleteHealthRecord = async (req, res) => {
   try {
-    await Record.delete(req.params.id, req.user.user_id);
+    await HealthRecord.delete(req.params.id, req.user.user_id);
     res.send('Health record deleted');
   } catch (err) {
     res.status(500).send('Error deleting health record');
