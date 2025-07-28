@@ -9,6 +9,8 @@ require("dotenv").config();
 const express = require("express");
 const sql = require("mssql");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./swagger-output.json");
 
 // ---------------------------------------------------
 // Create Express App
@@ -91,8 +93,17 @@ app.use('/userprofiles', userprofileRoutes);
 // 🔹 Lee Meng – Daily Log Tracker
 
 // ---------------------------------------------------
+// Swagger API Documentation
+// ---------------------------------------------------
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+// ---------------------------------------------------
 // Start Server
 // ---------------------------------------------------
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

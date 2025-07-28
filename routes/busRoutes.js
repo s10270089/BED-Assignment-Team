@@ -5,6 +5,28 @@ const busController = require("../controller/busController");
 const authenticate = require("../middleware/authenticate");
 const validateBusSearch = require("../middleware/validateBusSearch");
 
+/**
+ * @swagger
+ * /bus/search:
+ *   post:
+ *     summary: Search bus arrival timings for a stop
+ *     tags: [Bus]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               busStopCode: { type: string }
+ *     responses:
+ *       200:
+ *         description: Bus arrival data
+ *       404:
+ *         description: No results
+ */
 router.post("/search", authenticate, validateBusSearch, busController.searchBusArrivals);
 
 module.exports = router;

@@ -47,3 +47,20 @@ exports.updateStatus = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.updateFriendRequestStatus = async (req, res) => {
+  const { friendshipId } = req.params;
+  const { status } = req.body;
+
+  if (!['accepted', 'rejected'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+
+  try {
+    await friendModel.updateRequestStatus(friendshipId, status);
+    res.status(200).json({ message: `Friend request ${status}` });
+  } catch (error) {
+    console.error('Error updating request status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

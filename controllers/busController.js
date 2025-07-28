@@ -30,7 +30,7 @@ async function searchBusArrivals(req, res) {
         await insertBusResult(
           searchId,
           service.ServiceNo,
-          estimatedDate, // ✅ now a proper JS Date object
+          estimatedDate, 
           bus.Load || "N/A"
         );
 
