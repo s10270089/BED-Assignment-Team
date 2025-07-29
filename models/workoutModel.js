@@ -1,149 +1,156 @@
-//workoutmodel.js
-const sql = require("mssql");
-const dbConfig = require("../dbConfig.js");
-const OpenAI = require("openai"); // Use require instead of import
+const sql = require('mssql');
+const dbConfig = require('../dbConfig');
 
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY // You need to set this environment variable
-});
+// WorkoutTypes functions
+async function getAllWorkoutTypes() {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT * FROM WorkoutTypes`;
+    const request = connection.request();
+    const result = await request.query(sqlQuery);
+    connection.close();
+    return result.recordset;
+}
 
-// Example function to use OpenAI
-async function generateWorkoutSuggestion() {
-    try {
-        const response = await client.chat.completions.create({
-            model: "gpt-4",
-            messages: [
-                {
-                    role: "user",
-                    content: "Make a workout plan that is low level activity and for strength training for seniors."
-                }
-            ]
-        });
-        return response.choices[0].message.content;
-    } catch (error) {
-        console.error("OpenAI API error:", error);
-        throw error;
+async function getWorkoutTypeByExerciseType(exercise_type) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT * FROM WorkoutTypes WHERE exercise_type = @exercise_type`;
+    const request = connection.request();
+    request.input('exercise_type', exercise_type);
+    const result = await request.query(sqlQuery);
+    connection.close();
+    return result.recordset[0] || null;
+}
+
+async function getWorkoutTypeByExerciseName(exercise_name) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT * FROM WorkoutTypes WHERE exercise_name = @exercise_name`;
+    const request = connection.request();
+    request.input('exercise_name', exercise_name);
+    const result = await request.query(sqlQuery);
+    connection.close();
+    return result.recordset[0] || null;
+}
+
+async function getWorkoutTypesByActivityLevel(activity_level) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT * FROM WorkoutTypes WHERE activity_level = @activity_level`;
+    const request = connection.request();
+    request.input('activity_level', activity_level);
+    const result = await request.query(sqlQuery);
+    connection.close();
+    return result.recordset;
+}
+
+// WorkoutPlans functions
+async function createWorkoutPlan(user_id, exercise_name) {
+    // First check if user already has this workout in their plan
+    const existingPlan = await checkExistingWorkoutPlan(user_id, exercise_name);
+    if (existingPlan) {
+        throw new Error('Workout already exists in your plan');
     }
+
+    const workoutType = await getWorkoutTypeByExerciseName(exercise_name);
+    if (!workoutType) {
+        throw new Error('Workout not found');
+    }
+
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `
+        INSERT INTO WorkoutPlans (user_id, exercise_type, exercise_name, frequency, activity_level, image_url, reps, sets, duration_minutes, instructions)
+        VALUES (@user_id, @exercise_type, @exercise_name, @frequency, @activity_level, @image_url, @reps, @sets, @duration_minutes, @instructions)
+    `;
+    const request = connection.request();
+    request.input('user_id', user_id);
+    request.input('exercise_type', workoutType.exercise_type);
+    request.input('exercise_name', workoutType.exercise_name);
+    request.input('frequency', workoutType.frequency);
+    request.input('activity_level', workoutType.activity_level);
+    request.input('image_url', workoutType.image_url);
+    request.input('reps', workoutType.reps);
+    request.input('sets', workoutType.sets);
+    request.input('duration_minutes', workoutType.duration_minutes);
+    request.input('instructions', workoutType.instructions);
+    
+    await request.query(sqlQuery);
+    connection.close();
+    return workoutType;
 }
 
-// Get all workouts (default + user's personal workouts)
-async function getAllForUser(userId) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("user_id", sql.Int, userId)
-        .query(`
-            SELECT * FROM WorkoutPlans 
-            WHERE is_default = 1 OR user_id = @user_id
-            ORDER BY is_default DESC, plan_id DESC
-        `);
+// Add helper function to check for existing workout plans
+async function checkExistingWorkoutPlan(user_id, exercise_name) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT COUNT(*) as count FROM WorkoutPlans WHERE user_id = @user_id AND exercise_name = @exercise_name`;
+    const request = connection.request();
+    request.input('user_id', user_id);
+    request.input('exercise_name', exercise_name);
+    const result = await request.query(sqlQuery);
+    connection.close();
+    return result.recordset[0].count > 0;
+}
+
+async function getUserWorkoutPlans(user_id) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `SELECT * FROM WorkoutPlans WHERE user_id = @user_id`;
+    const request = connection.request();
+    request.input('user_id', user_id);
+    const result = await request.query(sqlQuery);
+    connection.close();
     return result.recordset;
 }
 
-// Get only default workouts
-async function getDefaultWorkouts() {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request().query(`
-        SELECT * FROM WorkoutPlans WHERE is_default = 1
-        ORDER BY plan_id
-    `);
-    return result.recordset;
-}
-
-// Get workout by ID
-async function getById(id) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("id", sql.Int, id)
-        .query(`
-            SELECT * FROM WorkoutPlans WHERE plan_id = @id
-        `);
-    return result.recordset[0];
-}
-
-// Create new personal workout plan
-async function create(workoutData) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("user_id", sql.Int, workoutData.user_id)
-        .input("exercise_name", sql.NVarChar(100), workoutData.exercise_name)
-        .input("frequency", sql.NVarChar(50), workoutData.frequency)
-        .input("duration_minutes", sql.Int, workoutData.duration_minutes)
-        .input("activity_level", sql.NVarChar(50), workoutData.activity_level)
-        .input("reps", sql.Int, workoutData.reps)
-        .input("sets", sql.Int, workoutData.sets)
-        .input("image_url", sql.NVarChar(255), workoutData.image_url)
-        .input("instructions", sql.NVarChar(sql.MAX), workoutData.instructions)
-        .input("is_default", sql.Bit, 0) // Personal workout, not default
-        .query(`
-            INSERT INTO WorkoutPlans (user_id, exercise_name, frequency, duration_minutes, activity_level, reps, sets, image_url, instructions, is_default)
-            VALUES (@user_id, @exercise_name, @frequency, @duration_minutes, @activity_level, @reps, @sets, @image_url, @instructions, @is_default);
-            SELECT SCOPE_IDENTITY() AS plan_id;
-        `);
-    return result.recordset[0];
-}
-
-// Get only user's personal workouts
-async function getByUserId(userId) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("user_id", sql.Int, userId)
-        .query(`
-            SELECT * FROM WorkoutPlans 
-            WHERE user_id = @user_id AND is_default = 0
-            ORDER BY plan_id DESC
-        `);
-    return result.recordset;
-}
-
-// Update workout (only allow updating personal workouts, not defaults)
-async function update(id, workoutData, userId) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("plan_id", sql.Int, id)
-        .input("user_id", sql.Int, userId)
-        .input("exercise_name", sql.NVarChar(100), workoutData.exercise_name)
-        .input("frequency", sql.NVarChar(50), workoutData.frequency)
-        .input("duration_minutes", sql.Int, workoutData.duration_minutes)
-        .input("activity_level", sql.NVarChar(50), workoutData.activity_level)
-        .input("reps", sql.Int, workoutData.reps)
-        .input("sets", sql.Int, workoutData.sets)
-        .input("image_url", sql.NVarChar(255), workoutData.image_url)
-        .input("instructions", sql.NVarChar(sql.MAX), workoutData.instructions)
-        .query(`
-            UPDATE WorkoutPlans 
-            SET exercise_name = @exercise_name, 
-                frequency = @frequency, 
-                duration_minutes = @duration_minutes, 
-                activity_level = @activity_level,
-                reps = @reps,
-                sets = @sets,
-                image_url = @image_url,
-                instructions = @instructions
-            WHERE plan_id = @plan_id AND user_id = @user_id AND is_default = 0
-        `);
+async function removeWorkoutFromPlan(user_id, exercise_name) {
+    const connection = await sql.connect(dbConfig);
+    const sqlQuery = `DELETE FROM WorkoutPlans WHERE user_id = @user_id AND exercise_name = @exercise_name`;
+    const request = connection.request();
+    request.input('user_id', user_id);
+    request.input('exercise_name', exercise_name);
+    const result = await request.query(sqlQuery);
+    connection.close();
     return result.rowsAffected[0] > 0;
 }
 
-// Delete workout (only allow deleting personal workouts, not defaults)
-async function deleteById(id, userId) {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-        .input("plan_id", sql.Int, id)
-        .input("user_id", sql.Int, userId)
-        .query(`
-            DELETE FROM WorkoutPlans 
-            WHERE plan_id = @plan_id AND user_id = @user_id AND is_default = 0
-        `);
+async function updateWorkoutPlan(user_id, exercise_name, updates) {
+    const connection = await sql.connect(dbConfig);
+    let sqlQuery = `UPDATE WorkoutPlans SET `;
+    const updateFields = [];
+    const request = connection.request();
+    
+    request.input('user_id', user_id);
+    request.input('exercise_name', exercise_name);
+
+    if (updates.reps !== undefined) {
+        updateFields.push('reps = @reps');
+        request.input('reps', updates.reps);
+    }
+    if (updates.sets !== undefined) {
+        updateFields.push('sets = @sets');
+        request.input('sets', updates.sets);
+    }
+    if (updates.duration_minutes !== undefined) {
+        updateFields.push('duration_minutes = @duration_minutes');
+        request.input('duration_minutes', updates.duration_minutes);
+    }
+    if (updates.frequency !== undefined) {
+        updateFields.push('frequency = @frequency');
+        request.input('frequency', updates.frequency);
+    }
+
+    sqlQuery += updateFields.join(', ');
+    sqlQuery += ` WHERE user_id = @user_id AND exercise_name = @exercise_name`;
+    
+    const result = await request.query(sqlQuery);
+    connection.close();
     return result.rowsAffected[0] > 0;
 }
 
 module.exports = {
-    getAllForUser,
-    getDefaultWorkouts,
-    getByUserId,
-    getById,
-    create,
-    update,
-    deleteById,
-    generateWorkoutSuggestion
+    getAllWorkoutTypes,
+    getWorkoutTypeByExerciseType, // Keep for backwards compatibility
+    getWorkoutTypeByExerciseName, // New function
+    getWorkoutTypesByActivityLevel,
+    createWorkoutPlan,
+    getUserWorkoutPlans,
+    removeWorkoutFromPlan,
+    updateWorkoutPlan,
+    checkExistingWorkoutPlan
 };

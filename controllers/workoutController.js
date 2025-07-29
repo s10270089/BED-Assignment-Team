@@ -1,147 +1,197 @@
-const Workout = require("../models/workoutModel");
+const workoutModel = require('../models/workoutModel');
 
-// Get only default workouts
-const getDefaultWorkouts = async (req, res) => {
+// WorkoutTypes Controllers
+async function getAllWorkoutTypesController(req, res) {
     try {
-        const workouts = await Workout.getDefaultWorkouts();
-        res.json(workouts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving default workout plans" });
-    }
-};
-
-// Get only user's personal workouts
-const getUserWorkouts = async (req, res) => {
-    const userId = req.user?.user_id || 1; // You'll need proper user session management
-    
-    try {
-        const workouts = await Workout.getByUserId(userId);
-        res.json(workouts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving user workout plans" });
-    }
-};
-
-// Get all workouts for a user (default + personal)
-const getAllWorkoutsForUser = async (req, res) => {
-    const userId = req.user?.user_id || 1;
-    
-    try {
-        const workouts = await Workout.getAllForUser(userId);
-        res.json(workouts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving workout plans" });
-    }
-};
-
-// Get workout by ID
-const getWorkoutById = async (req, res) => {
-    const id = parseInt(req.params.id);
-    
-    try {
-        const workout = await Workout.getById(id);
-        if (!workout) {
-            return res.status(404).json({ message: "Workout plan not found" });
-        }
-        res.json(workout);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error retrieving workout plan" });
-    }
-};
-
-// Create new personal workout plan
-const createWorkout = async (req, res) => {
-    const { exercise_name, activity_level, reps, sets, duration_minutes, image_url, instructions } = req.body;
-    const userId = req.user?.user_id || 1; // Get from session/token
-    
-    try {
-        const newWorkout = await Workout.create({
-            user_id: userId,
-            exercise_name,
-            activity_level,
-            reps,
-            sets,
-            duration_minutes,
-            image_url,
-            instructions
+        const workoutTypes = await workoutModel.getAllWorkoutTypes();
+        res.status(200).json({
+            success: true,
+            message: 'Workout types retrieved successfully',
+            data: workoutTypes
         });
-        
-        res.status(201).json(newWorkout);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error creating workout plan" });
+        console.error('Error fetching workout types:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
     }
-};
+}
 
-// Update personal workout plan
-const updateWorkout = async (req, res) => {
-    const id = parseInt(req.params.id);
-    const { exercise_name, frequency, duration_minutes, activity_level, reps, sets, image_url, instructions } = req.body;
-    const userId = req.user?.user_id || 1;
-    
+async function getWorkoutTypeByExerciseTypeController(req, res) {
     try {
-        const updated = await Workout.update(id, {
-            exercise_name,
-            activity_level,
-            reps,
-            sets,
-            duration_minutes,
-            image_url,
-            instructions
-        }, userId);
-        
-        if (!updated) {
-            return res.status(404).json({ message: "Workout plan not found or not authorized" });
+        const { exercise_type } = req.params;
+        const workoutType = await workoutModel.getWorkoutTypeByExerciseType(exercise_type);
+
+        if (!workoutType) {
+            return res.status(404).json({
+                success: false,
+                message: 'Workout type not found'
+            });
         }
-        
-        res.json({ message: "Workout plan updated successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error updating workout plan" });
-    }
-};
 
-// Delete personal workout plan
-const deleteWorkout = async (req, res) => {
-    const id = parseInt(req.params.id);
-    const userId = req.user?.user_id || 1;
-    
+        res.status(200).json({
+            success: true,
+            message: 'Workout type retrieved successfully',
+            data: workoutType
+        });
+    } catch (error) {
+        console.error('Error fetching workout type:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+async function getWorkoutTypesByActivityLevelController(req, res) {
     try {
-        const deleted = await Workout.deleteById(id, userId);
+        const { activity_level } = req.params;
+        const workoutTypes = await workoutModel.getWorkoutTypesByActivityLevel(activity_level);
+
+        res.status(200).json({
+            success: true,
+            message: 'Workout types retrieved successfully',
+            data: workoutTypes
+        });
+    } catch (error) {
+        console.error('Error fetching workout types by activity level:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+// WorkoutPlans Controllers
+async function createWorkoutPlanController(req, res) {
+    try {
+        const { user_id, exercise_name } = req.body;
         
-        if (!deleted) {
-            return res.status(404).json({ message: "Workout plan not found or not authorized" });
+        if (!user_id || !exercise_name) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID and exercise name are required'
+            });
         }
-        
-        res.json({ message: "Workout plan deleted successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error deleting workout plan" });
-    }
-};
 
-// Generate AI workout suggestion
-const generateWorkoutSuggestion = async (req, res) => {
-    try {
-        const suggestion = await Workout.generateWorkoutSuggestion();
-        res.json({ suggestion });
+        const workoutPlan = await workoutModel.createWorkoutPlan(user_id, exercise_name);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Workout plan created successfully',
+            data: workoutPlan
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error generating workout suggestion" });
+        console.error('Error creating workout plan:', error);
+        if (error.message === 'Workout not found' || error.message === 'Workout already exists in your plan') {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
     }
-};
+}
+
+async function getUserWorkoutPlansController(req, res) {
+    try {
+        const { user_id } = req.params;
+        const workoutPlans = await workoutModel.getUserWorkoutPlans(user_id);
+
+        res.status(200).json({
+            success: true,
+            message: 'User workout plans retrieved successfully',
+            data: workoutPlans
+        });
+    } catch (error) {
+        console.error('Error fetching user workout plans:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+async function removeWorkoutFromPlanController(req, res) {
+    try {
+        const { user_id, exercise_name } = req.params;
+        const isRemoved = await workoutModel.removeWorkoutFromPlan(user_id, exercise_name);
+
+        if (!isRemoved) {
+            return res.status(404).json({
+                success: false,
+                message: 'Workout not found in user plan'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Workout removed from plan successfully'
+        });
+    } catch (error) {
+        console.error('Error removing workout from plan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
+
+
+async function updateWorkoutPlanController(req, res) {
+    try {
+        const { user_id, exercise_name } = req.params;
+        const updates = req.body;
+        
+        const allowedFields = ['reps', 'sets', 'duration_minutes', 'frequency'];
+        const hasValidUpdate = allowedFields.some(field => updates[field] !== undefined);
+        
+        if (!hasValidUpdate) {
+            return res.status(400).json({
+                success: false,
+                message: 'At least one field (reps, sets, duration_minutes, frequency) must be provided for update'
+            });
+        }
+
+        const isUpdated = await workoutModel.updateWorkoutPlan(user_id, exercise_name, updates);
+
+        if (!isUpdated) {
+            return res.status(404).json({
+                success: false,
+                message: 'Workout not found in user plan'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Workout plan updated successfully'
+        });
+    } catch (error) {
+        console.error('Error updating workout plan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+}
 
 module.exports = {
-    getDefaultWorkouts,
-    getUserWorkouts,
-    getAllWorkoutsForUser,
-    getWorkoutById,
-    createWorkout,
-    updateWorkout,
-    deleteWorkout,
-    generateWorkoutSuggestion
+    getAllWorkoutTypesController,
+    getWorkoutTypeByExerciseTypeController,
+    getWorkoutTypesByActivityLevelController,
+    createWorkoutPlanController,
+    getUserWorkoutPlansController,
+    removeWorkoutFromPlanController,
+    updateWorkoutPlanController
 };

@@ -1,30 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const workoutController = require('../controllers/workoutController');
-const { validateWorkout, validateWorkoutUpdate } = require('../middlewares/validateWorkout');
+const { validateWorkoutPlan, validateWorkoutUpdate, validateWorkoutParams } = require('../middlewares/validateWorkout');
 
-// Get default workouts (everyone can see these)
-router.get('/default', workoutController.getDefaultWorkouts);
+// WorkoutTypes routes
+// Get all available workout types
+router.get('/types', workoutController.getAllWorkoutTypesController);
 
-// Get personal workouts for current user
-router.get('/personal', workoutController.getUserWorkouts);
+// Get workout types by activity level
+router.get('/types/activity/:activity_level', validateWorkoutParams, workoutController.getWorkoutTypesByActivityLevelController);
 
-// Get all workouts for a user (default + personal)
-router.get('/all', workoutController.getAllWorkoutsForUser);
+// Get specific workout type by exercise type
+router.get('/types/:exercise_type', validateWorkoutParams, workoutController.getWorkoutTypeByExerciseTypeController);
 
-// Get workout by ID
-router.get('/:id', workoutController.getWorkoutById);
+// WorkoutPlans routes
+// Create workout plan (add workout to user's plan)
+router.post('/plan', validateWorkoutPlan, workoutController.createWorkoutPlanController);
 
-// Create new personal workout
-router.post('/', validateWorkout, workoutController.createWorkout);
+// Get user's workout plans
+router.get('/plan/:user_id', validateWorkoutParams, workoutController.getUserWorkoutPlansController);
 
-// Update personal workout
-router.put('/:id', validateWorkoutUpdate, workoutController.updateWorkout);
+// Update workout in user's plan
+router.put('/plan/:user_id/:exercise_name', validateWorkoutUpdate, workoutController.updateWorkoutPlanController);
 
-// Delete personal workout
-router.delete('/:id', workoutController.deleteWorkout);
-
-// Generate AI workout suggestion
-router.get('/generate', workoutController.generateWorkoutSuggestion);
+// Remove workout from user's plan
+router.delete('/plan/:user_id/:exercise_name', validateWorkoutParams, workoutController.removeWorkoutFromPlanController);
 
 module.exports = router;

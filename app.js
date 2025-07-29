@@ -88,7 +88,7 @@ app.use('/userprofiles', userprofileRoutes);
 
 // 🔹 Lee Meng – Workout Plan Organizer
 const workoutRoutes = require('./routes/workoutRoutes');
-app.use('/api/workouts', workoutRoutes);
+app.use('/workouts', workoutRoutes);
 // 🔹 Lee Meng – Daily Log Tracker
 
 // ---------------------------------------------------

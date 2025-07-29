@@ -132,13 +132,30 @@ CREATE TABLE UserProfiles (
 -- Workout Plan Organizer
 -- (Lee Meng)
 CREATE TABLE WorkoutPlans (
-  plan_id INT PRIMARY KEY IDENTITY,
-  user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  exercise_name NVARCHAR(100),
-  frequency NVARCHAR(50),
-  duration_minutes INT
+    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+	  exercise_type NVARCHAR(100),
+    exercise_name NVARCHAR(100),
+	  frequency NVARCHAR(100),
+    activity_level NVARCHAR(50),
+    is_default BIT,
+    image_url NVARCHAR(MAX),
+    reps INT,
+    sets INT,
+    duration_minutes DECIMAL(3,1),
+    instructions NVARCHAR(MAX)
 );
 
+CREATE TABLE WorkoutTypes (
+exercise_type NVARCHAR(100),
+exercise_name NVARCHAR(100),
+frequency NVARCHAR(100),
+activity_level NVARCHAR(50),
+image_url NVARCHAR(MAX),
+reps INT,
+sets INT,
+duration_minutes DECIMAL(3,1),
+instructions NVARCHAR(MAX)
+);
 -- Daily Log Tracker
 -- (Lee Meng)
 CREATE TABLE DailyLogs (
@@ -246,3 +263,22 @@ INSERT INTO Friendships (sender_id, receiver_id, status) VALUES
 (2, 6, 'accepted'), -- Tan Ah Kow ↔ Wong Ah Ma
 (5, 1, 'accepted'), -- Chong Mei Lin ↔ Henry Neo
 (5, 3, 'accepted'); -- Chong Mei Lin ↔ Lim Bee Hwa 
+
+INSERT INTO WorkoutTypes(
+    exercise_type, exercise_name, frequency, activity_level, image_url, reps, sets, duration_minutes, instructions
+) VALUES 
+('Strength', 'Wall push-ups', '3 Times per Week', 'beginner', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753706323/xymszqdrqp8lqbophm3m.png', 12, 2, null, 'Stand arm''s length from wall, place palms flat, lower chest toward wall, push back.'),
+('Strength', 'Sit-to-stands', '3 Times per Week', 'beginner', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729349/SitToStand.png', 10, 3, null, 'Sit on a sturdy chair, stand up fully, then slowly sit back down.'),
+('Strength', 'Standing calf raises', '3 Times per Week', 'beginner', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729349/StandingCalfRaises.png', 15, 2, null, 'Stand tall, raise heels off the ground, then lower slowly.'),
+('Strength', 'Heel slides', '2 Times per Week', 'beginner', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729351/Heel%20Slides.png', 10, 2, null, 'Lie down, slowly slide heel toward hips and back.'),
+('Strength', 'Seated rows', '3 Times per Week', 'beginner', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729346/ChatGPT_Image_Jul_29_2025_02_55_57_AM_yw8rfd.png', 12, 2, null, 'Use resistance band, pull handles toward torso, squeeze shoulder blades.'),
+('Strength', 'Step-ups', '3 Times per Week', 'intermediate', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729344/ChatGPT_Image_Jul_29_2025_02_56_01_AM_bxipme.png', 10, 2, null, 'Step onto low platform with one foot, push up, step down.'),
+('Strength', 'Glute bridges', '2 Times per Week', 'intermediate', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729343/ChatGPT_Image_Jul_29_2025_02_56_03_AM_lmf9a8.png', 12, 2, null, 'Lie on back, knees bent, lift hips upward, squeeze glutes.'),
+('Strength', 'Bicep curls', '2 Times per Week', 'intermediate', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729347/ChatGPT_Image_Jul_29_2025_02_56_04_AM_vnrryy.png', 12, 2, null, 'Stand on band, curl handles toward shoulders.'),
+('Strength', 'Seated Chest press', '2 Times per Week', 'intermediate', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729344/ChatGPT_Image_Jul_29_2025_02_56_05_AM_rmhwne.png', 10, 2, null, 'Anchor band behind, press handles forward until arms extend.'),
+('Strength', 'Incline Push-ups', '2 Times per Week', 'intermediate', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729348/ChatGPT_Image_Jul_29_2025_02_56_00_AM_o9ui8x.png', 10, 2, null, 'Hold dumbbells at shoulders, press upward until arms are extended.'),
+('Strength', 'Goblet squats', '2 Times per Week', 'advanced', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729345/ChatGPT_Image_Jul_29_2025_02_56_07_AM_qeah0h.png', 8, 2, null, 'Hold dumbbell at chest, squat down and stand back up.'),
+('Strength', 'Romanian Deadlifts', '2 Times per Week', 'advanced', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729345/ChatGPT_Image_Jul_29_2025_02_56_08_AM_puwh4f.png', 8, 2, null, 'Hold weights, bend at hips, lower to shin height, return upright.'),
+('Strength', 'Farmer’s carry', '2 Times per Week', 'advanced', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729344/ChatGPT_Image_Jul_29_2025_02_56_11_AM_r48zwk.png', null, 2, 0.5, 'Hold weights at sides, walk slowly for time.'),
+('Strength', 'Lat pulldown', '2 Times per Week', 'advanced', 'https://res.cloudinary.com/dgtx0alyb/video/upload/v1753729348/01501201-Cable-Bar-Lateral-Pulldown_Back_tsy6ay.mp4', 10, 2, null, 'Sit at machine, pull bar to chest, control on return.'),
+('Strength', 'Side steps', '2 Times per Week', 'advanced', 'https://res.cloudinary.com/dgtx0alyb/image/upload/v1753729342/Side_Step_d0hpog.png', 10, 2, null, 'Push handles away from chest, control return.');
