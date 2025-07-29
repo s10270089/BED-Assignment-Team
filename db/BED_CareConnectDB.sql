@@ -41,6 +41,13 @@ CREATE TABLE BusSearchResults (
   load NVARCHAR(10) NOT NULL  -- SEA, SDA, LSD
 );
 
+CREATE TABLE BusFavourites (
+  favourite_id INT PRIMARY KEY IDENTITY,
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
+  bus_stop_code NVARCHAR(20) NOT NULL,
+  bus_stop_name NVARCHAR(100) NOT NULL
+);
+
 -- Shopping List Manager
 -- (Osmond)
 CREATE TABLE ShoppingLists (
