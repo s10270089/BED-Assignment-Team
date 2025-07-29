@@ -3,12 +3,12 @@ const DashboardModel = require('../models/dashboardModel');
 exports.getBMI = async (req, res) => {
   try {
     const userId = req.user.user_id;
-    const { height_cm, weight_kg } = await DashboardModel.getBMI(userId);
-    if (!height_cm || !weight_kg) return res.status(404).json({ error: 'Height or weight not found.' });
+    const { height, weight } = await DashboardModel.getBMI(userId);
+    if (!height || !weight) return res.status(404).json({ error: 'Height or weight not found.' });
     // BMI = weight (kg) / [height (m)]^2
-    const height_m = height_cm / 100;
-    const bmi = weight_kg / (height_m * height_m);
-    res.json({ bmi: bmi.toFixed(2), height_cm, weight_kg });
+    const height_m = height / 100;
+    const bmi = weight / (height_m * height_m);
+    res.json({ bmi: bmi.toFixed(2), height, weight });
   } catch (err) {
     console.error('Error fetching BMI:', err);
     res.status(500).send('Error fetching BMI');
