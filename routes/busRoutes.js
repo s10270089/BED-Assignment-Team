@@ -29,5 +29,12 @@ const validateBusSearch = require("../middlewares/validateBusSearch");
  */
 router.post("/search", authenticate, validateBusSearch, busController.searchBusArrivals);
 router.get("/recent", authenticate, busController.getRecentBusStops);
+router.get("/stop-name", authenticate, busController.getBusStopName);
+router.post("/favourites", authenticate, busController.addFavourite);
+router.get("/favourites", authenticate, busController.handleGetFavourites);
+router.delete("/favourites/:id", authenticate, busController.handleRemoveFavourite);
+
 
 module.exports = router;
+
+
