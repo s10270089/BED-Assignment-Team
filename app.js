@@ -71,6 +71,10 @@ app.use("/events", eventRoutes);
 
 // 🔹 Yoshi – Activity Calendar
 
+// 🔹 Louis – Appointments
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/appointments', appointmentRoutes);
+
 // 🔹 Louis – Overview Page / Dashboard
 
 // 🔹 Louis – Health Records
