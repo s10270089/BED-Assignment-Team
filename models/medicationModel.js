@@ -20,7 +20,7 @@ exports.getById = async (id, user_id) => {
 };
 
 exports.create = async (med) => {
-  const { name, dosage, time, frequency, user_id, start_date, end_date } = med;
+  const { name, dosage, time, frequency, user_id } = med;
   const pool = await sql.connect(dbConfig);
   await pool.request()
     .input("name", sql.NVarChar, name)
@@ -28,13 +28,11 @@ exports.create = async (med) => {
     .input("time", sql.NVarChar, time)
     .input("frequency", sql.NVarChar, frequency)
     .input("user_id", sql.Int, user_id)
-    .input("start_date", sql.Date, start_date)
-    .input("end_date", sql.Date, end_date)
-    .query("INSERT INTO Medications (user_id, name, dosage, time, frequency, start_date, end_date) VALUES (@user_id, @name, @dosage, @time, @frequency, @start_date, @end_date)");
+    .query("INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES (@user_id, @name, @dosage, @time, @frequency)");
 };
 
 exports.update = async (id, med, user_id) => {
-  const { name, dosage, time, frequency, start_date, end_date } = med;
+  const { name, dosage, time, frequency } = med;
   const pool = await sql.connect(dbConfig);
   await pool.request()
     .input("id", sql.Int, id)
@@ -43,9 +41,7 @@ exports.update = async (id, med, user_id) => {
     .input("dosage", sql.NVarChar, dosage)
     .input("time", sql.NVarChar, time)
     .input("frequency", sql.NVarChar, frequency)
-    .input("start_date", sql.Date, start_date)
-    .input("end_date", sql.Date, end_date)
-    .query("UPDATE Medications SET name = @name, dosage = @dosage, time = @time, frequency = @frequency, start_date = @start_date, end_date = @end_date WHERE id = @id AND user_id = @user_id");
+    .query("UPDATE Medications SET name = @name, dosage = @dosage, time = @time, frequency = @frequency WHERE id = @id AND user_id = @user_id");
 };
 
 exports.delete = async (id, user_id) => {

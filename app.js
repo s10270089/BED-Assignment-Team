@@ -43,7 +43,7 @@ sql.connect(dbConfig)
 // ---------------------------------------------------
 
 // 🔹 Braden – Medication Manager
-const medicationRoutes = require("./routes/medicationRoutes");
+const medicationRoutes = require("./routes/medicationRoutes.js");
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)

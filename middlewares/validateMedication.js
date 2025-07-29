@@ -14,11 +14,7 @@ const schema = Joi.object({
 
   frequency: Joi.number().integer().min(1).required(),
 
-  start_date: Joi.date().required(),
-  end_date: Joi.date().greater(Joi.ref('start_date')).required()
-    .messages({
-      "date.greater": "End Date must be after Start Date"
-    })
+
 });
 
 
