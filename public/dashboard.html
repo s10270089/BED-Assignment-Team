@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
 </head>
 <body>
   <header>
@@ -42,15 +44,14 @@
     </div>
   </header>
 
-  <main>
+  <main id="dashboard">
     <section id="user-info">
       <h2>Hello, <span id="username"></span></h2>
     </section>
 
     <section id="bmi-meter">
-      <h3>Your BMI</h3>
+      <canvas id="bmiMeter"></canvas> <!-- Chart.js canvas element -->
       <p id="bmiValue">Loading...</p>
-      <div id="bmiProgress" style="height: 20px; background-color: #4CAF50; width: 0;"></div>
       <p id="bmiCategory">Loading...</p>
     </section>
 
@@ -95,26 +96,8 @@
 
         // Set BMI
         document.getElementById("bmiValue").innerText = `Your BMI is: ${data.userInfo.bmi}`;
-        document.getElementById("bmiProgress").style.width = `${Math.min(100, (data.userInfo.bmi - 15) * 6)}%`;
-
-        // Assign BMI category and color
-        const bmi = parseFloat(data.bmi);
-        let bmiCategory = '';
-        let color = '#4CAF50'; // Default color is green (healthy)
-
-        if (bmi < 18.5) {
-          bmiCategory = 'Underweight';
-          color = '#FF9800'; // Orange for underweight
-        } else if (bmi >= 18.5 && bmi < 24.9) {
-          bmiCategory = 'Normal weight';
-          color = '#4CAF50'; // Green for normal weight
-        } else if (bmi >= 25 && bmi < 29.9) {
-          bmiCategory = 'Overweight';
-          color = '#FF9800'; // Orange for overweight
-        } else {
-          bmiCategory = 'Obese';
-          color = '#F44336'; // Red for obese
-        }
+        document.getElementById("bmiCategory").innerText = `Category: ${determineBMICategory(data.userInfo.bmi)}`;
+        setBmiMeter(data.userInfo.bmi);
 
         // Set Friends List
         const friendsList = document.getElementById("friendsList");
@@ -137,7 +120,59 @@
         alert("There was an issue loading your dashboard data.");
       }
     }
-    // Call function to load data
+    function determineBMICategory(bmi) {
+      if (bmi < 18.5) return 'Underweight';
+      if (bmi >= 18.5 && bmi < 24.9) return 'Normal weight';
+      if (bmi >= 25 && bmi < 29.9) return 'Overweight';
+      return 'Obese';
+    }
+
+    // Setup the BMI meter (Chart.js)
+    function setBmiMeter(bmi) {
+      const ctx = document.getElementById('bmiMeter').getContext('2d');
+      const bmiMeter = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+          labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
+          datasets: [{
+            data: [18.5, 24.9, 29.9, 40],
+            backgroundColor: ['#FF5733', '#4CAF50', '#FF9800', '#F44336'],
+            borderColor: ['#FF5733', '#4CAF50', '#FF9800', '#F44336'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          rotation: Math.PI,  // 180 degrees for semi-circle
+          circumference: Math.PI, // Half circle (180 degrees)
+          cutout: '70%',  // Center hollow
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  return `${tooltipItem.label}: ${tooltipItem.raw} BMI`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Update BMI meter needle based on the BMI value
+      const degree = mapBMIToDegree(bmi);
+      bmiMeter.data.datasets[0].data = [bmi, 24.9, 29.9, 40];
+      bmiMeter.update();
+    }
+
+    // Map BMI value to corresponding degree in the semi-circle
+    function mapBMIToDegree(bmi) {
+      if (bmi < 18.5) return 0;
+      if (bmi >= 18.5 && bmi < 24.9) return 45;
+      if (bmi >= 25 && bmi < 29.9) return 90;
+      return 135;
+    }
+
+    // Call the function to load data
     fetchDashboardData();
   </script>
 </body>

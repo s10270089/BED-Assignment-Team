@@ -76,7 +76,7 @@ header {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #4a90e2;
+  background: #4b91e2;
   border-radius: 4px;
   min-width: 300px;
   padding: 0.5rem;
@@ -559,7 +559,7 @@ ul li {
 
 /* Main content */
 
-main {
+#dashboard {
   padding: 40px 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -576,7 +576,7 @@ main {
 
 #user-info h2 {
   font-size: 1.8rem;
-  color: #4CAF50;
+  color: #4b91e2;
 }
 
 /* BMI Section */
