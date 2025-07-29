@@ -8,7 +8,9 @@ CREATE TABLE Users (
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
-  birthday DATE
+  birthday DATE,
+  weight NVARCHAR(20),
+  height NVARCHAR(20)
 );
 
 -- Medication Manager
@@ -37,6 +39,13 @@ CREATE TABLE BusSearchResults (
   service_no NVARCHAR(10) NOT NULL,
   estimated_arrival DATETIME NOT NULL,
   load NVARCHAR(10) NOT NULL  -- SEA, SDA, LSD
+);
+
+CREATE TABLE BusFavourites (
+  favourite_id INT PRIMARY KEY IDENTITY,
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
+  bus_stop_code NVARCHAR(20) NOT NULL,
+  bus_stop_name NVARCHAR(100) NOT NULL
 );
 
 -- Shopping List Manager

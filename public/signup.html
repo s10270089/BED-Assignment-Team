@@ -107,6 +107,24 @@
     <label>Birthday:</label>
     <input type="date" name="birthday" required />
 
+    <label>Weight:</label>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" name="weightValue" required style="flex: 1;" placeholder="e.g. 60" />
+      <select name="weightUnit" required style="width: 100px;">
+        <option value="kg">kg</option>
+        <option value="lbs">lbs</option>
+      </select>
+    </div>
+
+    <label>Height:</label>
+    <div style="display: flex; gap: 10px;">
+      <input type="text" name="heightValue" required style="flex: 1;" placeholder="e.g. 170" />
+      <select name="heightUnit" required style="width: 100px;">
+        <option value="cm">cm</option>
+        <option value="ft">ft</option>
+      </select>
+    </div>
+
     <button type="submit">Sign Up</button>
     <div class="error" id="signupError"></div>
   </form>
@@ -125,7 +143,10 @@
       email: form.email.value,
       password: form.password.value,
       birthday: form.birthday.value,
+      weight: form.weightValue.value + form.weightUnit.value,
+      height: form.heightValue.value + form.heightUnit.value
     };
+
 
     try {
       const res = await fetch("/signup", {

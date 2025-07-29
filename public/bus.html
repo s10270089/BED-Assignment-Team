@@ -8,9 +8,10 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(to bottom right, #e6f2ff, #f9f9f9);
       margin: 0;
       padding: 0;
+      min-height: 100vh;
     }
 
     header {
@@ -24,69 +25,117 @@
       box-sizing: border-box;
     }
 
+    .logout-btn {
+      background-color: #e74c3c;
+      padding: 8px 12px;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .container {
       max-width: 1000px;
       margin: 40px auto;
-      padding: 0 20px;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
     h2 {
-      color: #4a90e2;
+      color: #317ac1;
+      font-size: 26px;
       margin-bottom: 20px;
+      text-align: center;
     }
 
-    input {
-      padding: 10px;
-      font-size: 16px;
-      width: 250px;
-      margin-bottom: 10px;
-      margin-right: 8px;
+    label {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      padding: 12px;
+      font-size: 18px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 10px 16px;
-      font-size: 16px;
+      padding: 12px 24px;
+      font-size: 18px;
       background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
     }
 
     .error {
       color: red;
       margin-top: 10px;
+      font-size: 16px;
     }
 
     table {
-      margin-top: 20px;
+      margin-top: 30px;
       width: 100%;
       border-collapse: collapse;
+      font-size: 18px;
     }
 
     th, td {
-      padding: 12px;
+      padding: 16px;
       border: 1px solid #ccc;
       text-align: center;
     }
 
     th {
-      background-color: #e8f1fc;
+      background-color: #dff0ff;
+      color: #333;
     }
 
-    .green {
-      color: green;
-      font-weight: bold;
+    .green { color: green; font-weight: bold; }
+    .orange { color: orange; font-weight: bold; }
+    .red { color: red; font-weight: bold; }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
     }
 
-    .orange {
-      color: orange;
-      font-weight: bold;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .red {
-      color: red;
-      font-weight: bold;
+    ul#favouriteList {
+      padding-left: 0;
+      list-style-type: none;
+      margin-bottom: 20px;
+    }
+
+    ul#favouriteList li {
+      margin-bottom: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
   </style>
 </head>
@@ -102,20 +151,6 @@
             <ul class="dropdown-menu">
               <li><a href="./medications.html">Medication Manager</a></li>
               <li><a href="./bus.html">Live Bus Tracker</a></li>
-              <li><a href="./login.html">User Login &amp; Signup</a></li>
-              <li><a href="./shoplist.html">Shopping List Manager</a></li>
-              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
-              <li><a href="./checklist.html">Checklist Creator</a></li>
-              <li><a href="./event-planner.html">Event Planner</a></li>
-              <li><a href="./calendar.html">Activity Calendar</a></li>
-              <li><a href="./overview.html">Overview Dashboard</a></li>
-              <li><a href="./health-records.html">Health Records</a></li>
-              <li><a href="./reminder.html">Reminders</a></li>
-              <li><a href="./translation.html">Auto-Translation</a></li>
-              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
-              <li><a href="./profile.html">User Profile Manager</a></li>
-              <li><a href="./workout.html">Workout Plan Organizer</a></li>
-              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
             </ul>
           </li>
           <li><a href="#about">About</a></li>
@@ -124,13 +159,24 @@
         </ul>
       </nav>
     </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
   <div class="container">
     <h2>Live Bus Tracker</h2>
 
-    <label for="busStop">Enter Bus Stop Code:</label><br />
+    <label for="busStop">Enter Bus Stop Code:</label>
     <input type="text" id="busStop" placeholder="e.g. 83139" />
+
+    <label for="recentStops">Or select from Recent Stops:</label>
+    <select id="recentStops"></select>
+
+    <p>
+      <strong>Bus Stop Name:</strong>
+      <span id="busStopName"></span>
+      <button id="favouriteBtn" onclick="favouriteBusStop()" style="display:none;">❤️ Favourite</button>
+    </p>
+
     <button onclick="searchBus()">Search</button>
 
     <div class="error" id="errorMsg"></div>
@@ -145,12 +191,83 @@
       </thead>
       <tbody id="resultsBody"></tbody>
     </table>
+
+    <div>
+      <h3>Your Favourites</h3>
+      <ul id="favouriteList"></ul>
+    </div>
   </div>
 
   <script>
+    const token = localStorage.getItem("token");
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    async function loadRecentStops() {
+      const dropdown = document.getElementById("recentStops");
+      dropdown.innerHTML = '<option value="">Recent Bus Stops</option>';
+
+      if (!token) return;
+
+      try {
+        const res = await fetch("/bus/recent", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        for (const code of data.stops) {
+          try {
+            const res = await fetch(`/bus/stop-name?code=${code}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const info = await res.json();
+
+            const opt = document.createElement("option");
+            opt.value = code;
+            opt.textContent = `${info.name || "Unknown"} (${code})`;
+            dropdown.appendChild(opt);
+          } catch {
+            const opt = document.createElement("option");
+            opt.value = code;
+            opt.textContent = code;
+            dropdown.appendChild(opt);
+          }
+        }
+
+        dropdown.addEventListener("change", () => {
+          if (dropdown.value) {
+            document.getElementById("busStop").value = dropdown.value;
+            fetchBusStopName(dropdown.value);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to load recent stops:", err);
+      }
+    }
+
+    async function fetchBusStopName(code) {
+      try {
+        const res = await fetch(`/bus/stop-name?code=${code}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById("busStopName").textContent = data.name;
+          document.getElementById("favouriteBtn").style.display = "inline";
+        } else {
+          document.getElementById("busStopName").textContent = "Invalid bus stop.";
+          document.getElementById("favouriteBtn").style.display = "none";
+        }
+      } catch (err) {
+        document.getElementById("busStopName").textContent = "Error fetching name.";
+      }
+    }
+
     async function searchBus() {
-      const busStopCode = document.getElementById('busStop').value.trim();
-      const token = localStorage.getItem("token");
+      const busStopCode = document.getElementById("busStop").value.trim();
       const errorMsg = document.getElementById("errorMsg");
       const resultsTable = document.getElementById("resultsTable");
       const tbody = document.getElementById("resultsBody");
@@ -164,11 +281,13 @@
         return;
       }
 
+      await fetchBusStopName(busStopCode);
+
       try {
         const res = await fetch("/bus/search", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({ busStopCode })
@@ -205,10 +324,10 @@
               break;
             default:
               crowdLevel = "❓ Unknown";
-              crowdClass = "";
           }
 
           const row = document.createElement("tr");
+          row.className = "fade-in";
           row.innerHTML = `
             <td>${bus.ServiceNo}</td>
             <td>${arrival}</td>
@@ -223,6 +342,88 @@
         errorMsg.textContent = "Failed to fetch bus data.";
       }
     }
+
+    async function favouriteBusStop() {
+      const code = document.getElementById("busStop").value.trim();
+      const name = document.getElementById("busStopName").textContent;
+
+      try {
+        const res = await fetch("/bus/favourites", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            bus_stop_code: code,
+            bus_stop_name: name
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          loadFavourites();
+        } else {
+          alert(data.error || "Failed to save favourite.");
+        }
+      } catch (err) {
+        alert("Error saving favourite.");
+      }
+    }
+
+    async function loadFavourites() {
+      const list = document.getElementById("favouriteList");
+      list.innerHTML = "";
+
+      try {
+        const res = await fetch("/bus/favourites", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          data.favourites.forEach(fav => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span style="cursor:pointer;" onclick="useFavourite('${fav.bus_stop_code}')">
+                ❤️ ${fav.bus_stop_name} (${fav.bus_stop_code})
+              </span>
+              <button onclick="deleteFavourite(${fav.favourite_id})" style="margin-left:10px;">✖</button>
+            `;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error("Error loading favourites:", err);
+      }
+    }
+
+    async function deleteFavourite(id) {
+      try {
+        const res = await fetch(`/bus/favourites/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          loadFavourites();
+        } else {
+          alert(data.error || "Failed to delete.");
+        }
+      } catch (err) {
+        alert("Error deleting.");
+      }
+    }
+
+    function useFavourite(code) {
+      document.getElementById("busStop").value = code;
+      fetchBusStopName(code);
+    }
+
+    window.onload = () => {
+      loadRecentStops();
+      loadFavourites();
+    };
   </script>
 </body>
 </html>
