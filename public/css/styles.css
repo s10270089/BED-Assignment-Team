@@ -317,6 +317,7 @@ footer {
   .delete-btn {
     background-color: #f44336;
   }
+
 /* Main Layout */
 .reminders-page {
   display: grid;
@@ -553,6 +554,152 @@ ul li {
 .toggle-header {
   cursor: pointer;
   user-select: none;
+}
+/* Dashboard Page*/
+
+/* Main content */
+
+main {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* User Info Section */
+#user-info {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+#user-info h2 {
+  font-size: 1.8rem;
+  color: #4CAF50;
+}
+
+/* BMI Section */
+#bmi-meter {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+#bmi-meter h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#bmiValue {
+  font-size: 1.6rem;
+  color: #333;
+  font-weight: bold;
+}
+
+#bmiProgress {
+  margin-top: 10px;
+  height: 20px;
+  background-color: #4CAF50;
+  width: 0;
+  border-radius: 10px;
+}
+
+/* Friends List Section */
+#friends-list {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+#friends-list h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#friendsList {
+  list-style: none;
+}
+
+#friendsList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Upcoming Events Section */
+#upcoming-events {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+#upcoming-events h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#eventsList {
+  list-style: none;
+}
+
+#eventsList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Reminders Section */
+#reminders {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#reminders h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#remindersList {
+  list-style: none;
+}
+
+#remindersList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #user-info,
+  #bmi-meter,
+  #friends-list,
+  #upcoming-events,
+  #reminders {
+    margin-bottom: 20px;
+  }
 }
 
 /* Responsive */

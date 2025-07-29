@@ -13,9 +13,30 @@
       <nav>
         <ul class="nav-list">
           <li><a href="./index.html">Home</a></li>
-          <li><a href="./profile.html">Profile</a></li>
-          <li><a href="./health-records.html">Health Records</a></li>
-          <li><a href="./logout.html">Logout</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./dashboard.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
         </ul>
       </nav>
     </div>
@@ -30,6 +51,7 @@
       <h3>Your BMI</h3>
       <p id="bmiValue">Loading...</p>
       <div id="bmiProgress" style="height: 20px; background-color: #4CAF50; width: 0;"></div>
+      <p id="bmiCategory">Loading...</p>
     </section>
 
     <section id="friends-list">
@@ -45,57 +67,78 @@
         <!-- Upcoming events will be injected here -->
       </ul>
     </section>
+
+    <section id="reminders">
+      <h3>Reminders</h3>
+      <ul id="remindersList">
+        <!-- Reminders will be injected here if needed -->
+      </ul>
+    </section>
   </main>
 
   <script>
     const token = localStorage.getItem("token");
+    async function fetchDashboardData() {
+      try {
+        
+        const res = await fetch('/dashboard/data', {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
 
-    // Fetch and display user info (e.g., username)
-    async function fetchUserInfo() {
-      const res = await fetch('/dashboard/user-info', {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      document.getElementById("username").innerText = data.name;
+        if (!res.ok) throw new Error("Failed to fetch dashboard data");
+
+        const data = await res.json();
+        
+        // Set username
+        
+        document.getElementById("username").innerText = data.userInfo.name;
+
+        // Set BMI
+        document.getElementById("bmiValue").innerText = `Your BMI is: ${data.userInfo.bmi}`;
+        document.getElementById("bmiProgress").style.width = `${Math.min(100, (data.userInfo.bmi - 15) * 6)}%`;
+
+        // Assign BMI category and color
+        const bmi = parseFloat(data.bmi);
+        let bmiCategory = '';
+        let color = '#4CAF50'; // Default color is green (healthy)
+
+        if (bmi < 18.5) {
+          bmiCategory = 'Underweight';
+          color = '#FF9800'; // Orange for underweight
+        } else if (bmi >= 18.5 && bmi < 24.9) {
+          bmiCategory = 'Normal weight';
+          color = '#4CAF50'; // Green for normal weight
+        } else if (bmi >= 25 && bmi < 29.9) {
+          bmiCategory = 'Overweight';
+          color = '#FF9800'; // Orange for overweight
+        } else {
+          bmiCategory = 'Obese';
+          color = '#F44336'; // Red for obese
+        }
+
+        // Set Friends List
+        const friendsList = document.getElementById("friendsList");
+        friendsList.innerHTML = data.friendsList.map(friend => `<li>${friend.name}</li>`).join('');
+
+        // Set Upcoming Events
+        const eventsList = document.getElementById("eventsList");
+        eventsList.innerHTML = data.upcomingEvents.map(event => `
+          <li>${event.title} - ${new Date(event.event_time).toLocaleDateString()}</li>
+        `).join('');
+
+        // Set Reminders
+        const remindersList = document.getElementById("remindersList");
+        remindersList.innerHTML = data.reminders.map(reminder => `
+          <li>${reminder.title} - ${new Date(reminder.reminder_time).toLocaleDateString()}</li>
+        `).join('');
+
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        alert("There was an issue loading your dashboard data.");
+      }
     }
-
-    // Fetch and display BMI
-    async function fetchBMI() {
-      const res = await fetch('/dashboard/bmi', {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      document.getElementById("bmiValue").innerText = `Your BMI is: ${data.bmi}`;
-      document.getElementById("bmiProgress").style.width = `${Math.min(100, (data.bmi - 15) * 6)}%`;
-    }
-
-    // Fetch and display friends list
-    async function fetchFriendsList() {
-      const res = await fetch('/dashboard/friends', {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const friends = await res.json();
-      const friendsList = document.getElementById("friendsList");
-      friendsList.innerHTML = friends.map(friend => `<li>${friend.name}</li>`).join('');
-    }
-
-    // Fetch and display upcoming events
-    async function fetchUpcomingEvents() {
-      const res = await fetch('/dashboard/events', {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const events = await res.json();
-      const eventsList = document.getElementById("eventsList");
-      eventsList.innerHTML = events.map(event => `
-        <li>${event.title} - ${new Date(event.event_time).toLocaleDateString()}</li>
-      `).join('');
-    }
-
-    // Call all the functions on page load
-    fetchUserInfo();
-    fetchBMI();
-    fetchFriendsList();
-    fetchUpcomingEvents();
+    // Call function to load data
+    fetchDashboardData();
   </script>
 </body>
 </html>

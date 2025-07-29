@@ -1,40 +1,45 @@
 const DashboardModel = require('../models/dashboardModel');
 
-exports.getBMI = async (req, res) => {
+exports.getDashboardData = async (req, res) => {
   try {
     const userId = req.user.user_id;
+    if (!userId) {
+      return res.status(400).json({ error: "User not authenticated." });
+    }
+
+    const name = await DashboardModel.getUsername(userId);
+
+    // Fetch data for BMI
     const { height, weight } = await DashboardModel.getBMI(userId);
-    if (!height || !weight) return res.status(404).json({ error: 'Height or weight not found.' });
-    // BMI = weight (kg) / [height (m)]^2
+    if (!height || !weight) {
+      return res.status(404).json({ error: 'Height or weight not found.' });
+    }
     const height_m = height / 100;
     const bmi = weight / (height_m * height_m);
-    res.json({ bmi: bmi.toFixed(2), height, weight });
-  } catch (err) {
-    console.error('Error fetching BMI:', err);
-    res.status(500).send('Error fetching BMI');
-  }
-};
 
-// Fetch all appointments
-exports.getAppointments = async (req, res) => {
-  try {
-    const userId = req.user.user_id;  // Get the user_id from the token (after authentication)
-    const appointments = await DashboardModel.getAppointments(userId);
-    res.json(appointments);  // Send the appointments as JSON
-  } catch (err) {
-    console.error('Error fetching appointments:', err);
-    res.status(500).send('Error fetching appointments');
-  }
-};
+    // Fetch friends list
+    const friends = await DashboardModel.getFriends(userId);
 
-// Fetch all reminders
-exports.getReminders = async (req, res) => {
-  try {
-    const userId = req.user.user_id;  // Get the user_id from the token (after authentication)
+    // Fetch upcoming events
+    const events = await DashboardModel.getUpcomingEvents(userId);
+
+    // Fetch reminders
     const reminders = await DashboardModel.getReminders(userId);
-    res.json(reminders);  // Send the reminders as JSON
+
+    // Return all data together
+    res.json({
+      userInfo: {
+        name,
+        bmi: bmi.toFixed(2),
+        height,
+        weight
+      },
+      friendsList: friends,
+      upcomingEvents: events,
+      reminders: reminders
+    });
   } catch (err) {
-    console.error('Error fetching reminders:', err);
-    res.status(500).send('Error fetching reminders');
+    console.error('Error fetching dashboard data:', err);
+    res.status(500).send('Error fetching dashboard data');
   }
 };
