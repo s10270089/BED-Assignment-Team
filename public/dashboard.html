@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./js/dashboard.js"></script>
   <link rel="stylesheet" href="./css/styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
 </head>
@@ -77,103 +78,9 @@
     </section>
   </main>
 
-  <script>
-    const token = localStorage.getItem("token");
-    async function fetchDashboardData() {
-      try {
-        
-        const res = await fetch('/dashboard/data', {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
+<script>
+ 
+</script>
 
-        if (!res.ok) throw new Error("Failed to fetch dashboard data");
-
-        const data = await res.json();
-        
-        // Set username
-        
-        document.getElementById("username").innerText = data.userInfo.name;
-
-        // Set BMI
-        document.getElementById("bmiValue").innerText = `Your BMI is: ${data.userInfo.bmi}`;
-        document.getElementById("bmiCategory").innerText = `Category: ${determineBMICategory(data.userInfo.bmi)}`;
-        setBmiMeter(data.userInfo.bmi);
-
-        // Set Friends List
-        const friendsList = document.getElementById("friendsList");
-        friendsList.innerHTML = data.friendsList.map(friend => `<li>${friend.name}</li>`).join('');
-
-        // Set Upcoming Events
-        const eventsList = document.getElementById("eventsList");
-        eventsList.innerHTML = data.upcomingEvents.map(event => `
-          <li>${event.title} - ${new Date(event.event_time).toLocaleDateString()}</li>
-        `).join('');
-
-        // Set Reminders
-        const remindersList = document.getElementById("remindersList");
-        remindersList.innerHTML = data.reminders.map(reminder => `
-          <li>${reminder.title} - ${new Date(reminder.reminder_time).toLocaleDateString()}</li>
-        `).join('');
-
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        alert("There was an issue loading your dashboard data.");
-      }
-    }
-    function determineBMICategory(bmi) {
-      if (bmi < 18.5) return 'Underweight';
-      if (bmi >= 18.5 && bmi < 24.9) return 'Normal weight';
-      if (bmi >= 25 && bmi < 29.9) return 'Overweight';
-      return 'Obese';
-    }
-
-    // Setup the BMI meter (Chart.js)
-    function setBmiMeter(bmi) {
-      const ctx = document.getElementById('bmiMeter').getContext('2d');
-      const bmiMeter = new Chart(ctx, {
-        type: 'polarArea',
-        data: {
-          labels: ['Underweight', 'Normal', 'Overweight', 'Obesity'],
-          datasets: [{
-            data: [18.5, 24.9, 29.9, 40],
-            backgroundColor: ['#FF5733', '#4CAF50', '#FF9800', '#F44336'],
-            borderColor: ['#FF5733', '#4CAF50', '#FF9800', '#F44336'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          rotation: Math.PI,  // 180 degrees for semi-circle
-          circumference: Math.PI, // Half circle (180 degrees)
-          cutout: '70%',  // Center hollow
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function(tooltipItem) {
-                  return `${tooltipItem.label}: ${tooltipItem.raw} BMI`;
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Update BMI meter needle based on the BMI value
-      const degree = mapBMIToDegree(bmi);
-      bmiMeter.data.datasets[0].data = [bmi, 24.9, 29.9, 40];
-      bmiMeter.update();
-    }
-
-    // Map BMI value to corresponding degree in the semi-circle
-    function mapBMIToDegree(bmi) {
-      if (bmi < 18.5) return 0;
-      if (bmi >= 18.5 && bmi < 24.9) return 45;
-      if (bmi >= 25 && bmi < 29.9) return 90;
-      return 135;
-    }
-
-    // Call the function to load data
-    fetchDashboardData();
-  </script>
 </body>
 </html>
