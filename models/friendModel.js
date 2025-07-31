@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../../../db/dbConfig");
+const dbConfig = require("../dbConfig");
 
 exports.getFriends = async (userId) => {
   const pool = await sql.connect(dbConfig);
@@ -54,12 +54,57 @@ exports.sendFriendRequest = async (senderId, receiverId) => {
     `);
 };
 
-exports.updateRequestStatus = async (friendshipId, status) => {
+exports.updateFriendshipStatusById = async (friendshipId, status) => {
   const pool = await sql.connect(dbConfig);
-  await pool.request()
+  const result = await pool.request()
     .input("friendshipId", sql.Int, friendshipId)
     .input("status", sql.NVarChar, status)
     .query(`
-      UPDATE Friendships SET status = @status WHERE friendship_id = @friendshipId
+      UPDATE Friendships
+      SET status = @status
+      WHERE friendship_id = @friendshipId AND status = 'pending'
     `);
+
+  return result.rowsAffected[0]; // returns 1 if updated, 0 if not
+};
+
+exports.deleteFriendshipRequestById = async (friendshipId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input("friendshipId", sql.Int, friendshipId)
+    .query(`
+      DELETE FROM Friendships
+      WHERE friendship_id = @friendshipId AND status = 'pending'
+    `);
+    
+  return result.rowsAffected[0]; // 1 if deleted, 0 if not found
+};
+
+exports.removeFriendById = async (friendshipId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input("friendshipId", sql.Int, friendshipId)
+    .query(`
+      DELETE FROM Friendships
+      WHERE friendship_id = @friendshipId AND status = 'accepted'
+    `);
+
+  return result.rowsAffected[0]; // 1 if deleted, 0 if not
+};
+
+
+
+
+exports.getFriendshipId = async (senderId, receiverId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input("senderId", sql.Int, senderId)
+    .input("receiverId", sql.Int, receiverId)
+    .query(`
+      SELECT friendship_id FROM Friendships
+      WHERE (sender_id = @senderId AND receiver_id = @receiverId)
+         OR (sender_id = @receiverId AND receiver_id = @senderId)
+    `);
+  
+  return result.recordset[0]; // returns { friendship_id: X } or undefined
 };

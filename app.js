@@ -63,6 +63,10 @@ app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
 const emergencyRoutes = require('./routes/emergencyRoutes');
 app.use('/emergency-contacts', emergencyRoutes);
+// 🔹 Yoshi – Friendship manager
+const friendRoutes = require("./routes/friendRoutes");
+app.use("/friends", friendRoutes);
+
 // 🔹 Yoshi – Event Planner
 
 // Assuming you have an array to hold your events
