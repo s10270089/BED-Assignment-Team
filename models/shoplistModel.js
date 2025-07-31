@@ -2,62 +2,38 @@ const sql = require("mssql");
 const dbConfig = require("../dbConfig.js");
 
 // Get all lists for a user
-exports.getShoppingListsByUser = async (userId) => {
+exports.getItemsByUser = async (userId) => {
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
     .input("userId", sql.Int, userId)
-    .query("SELECT * FROM ShoppingLists WHERE user_id = @userId ORDER BY created_at DESC");
+    .query("SELECT * FROM ShoppingListItems WHERE user_id = @userId");
   return result.recordset;
 };
 
-// Create a new list
-exports.createShoppingList = async (userId, title) => {
+// Add an item for the user
+exports.addItem = async (userId, itemName, itemType, amount, notes) => {
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
     .input("userId", sql.Int, userId)
-    .input("title", sql.NVarChar, title)
-    .query("INSERT INTO ShoppingLists (user_id, title) OUTPUT INSERTED.* VALUES (@userId, @title)");
-  return result.recordset[0];
-};
-
-// Delete list and its items gg 
-exports.deleteShoppingList = async (listId) => {
-  const pool = await sql.connect(dbConfig);
-  await pool.request()
-    .input("listId", sql.Int, listId)
-    .query("DELETE FROM ShoppingListItems WHERE list_id = @listId; DELETE FROM ShoppingLists WHERE list_id = @listId;");
-};
-
-// Add an item to a list
-exports.addItem = async (listId, itemName, quantity, notes) => {
-  const pool = await sql.connect(dbConfig);
-  const result = await pool.request()
-    .input("listId", sql.Int, listId)
     .input("itemName", sql.NVarChar, itemName)
-    .input("quantity", sql.Int, quantity)
+    .input("itemType", sql.NVarChar, itemType)
+    .input("amount", sql.NVarChar, amount)
     .input("notes", sql.NVarChar, notes)
-    .query("INSERT INTO ShoppingListItems (list_id, item_name, quantity, notes) OUTPUT INSERTED.* VALUES (@listId, @itemName, @quantity, @notes)");
+    .query(`INSERT INTO ShoppingListItems (user_id, item_name, item_type, amount, notes)
+            OUTPUT INSERTED.* VALUES (@userId, @itemName, @itemType, @amount, @notes)`);
   return result.recordset[0];
-};
-
-// Get items for a list
-exports.getItemsByList = async (listId) => {
-  const pool = await sql.connect(dbConfig);
-  const result = await pool.request()
-    .input("listId", sql.Int, listId)
-    .query("SELECT * FROM ShoppingListItems WHERE list_id = @listId");
-  return result.recordset;
 };
 
 // Update an item
-exports.updateItem = async (itemId, itemName, quantity, notes) => {
+exports.updateItem = async (itemId, itemName, itemType, amount, notes) => {
   const pool = await sql.connect(dbConfig);
   await pool.request()
     .input("itemId", sql.Int, itemId)
     .input("itemName", sql.NVarChar, itemName)
-    .input("quantity", sql.Int, quantity)
+    .input("itemType", sql.NVarChar, itemType)
+    .input("amount", sql.NVarChar, amount)
     .input("notes", sql.NVarChar, notes)
-    .query("UPDATE ShoppingListItems SET item_name = @itemName, quantity = @quantity, notes = @notes WHERE item_id = @itemId");
+    .query("UPDATE ShoppingListItems SET item_name = @itemName, item_type = @itemType, amount = @amount, notes = @notes WHERE item_id = @itemId");
 };
 
 // Delete an item
