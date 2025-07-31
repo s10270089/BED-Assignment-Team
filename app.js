@@ -43,7 +43,7 @@ sql.connect(dbConfig)
 // ---------------------------------------------------
 
 // 🔹 Braden – Medication Manager
-const medicationRoutes = require("./routes/medicationRoutes");
+const medicationRoutes = require("./routes/medicationRoutes.js");
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)
@@ -75,9 +75,15 @@ app.use("/events", eventRoutes);
 
 // 🔹 Yoshi – Activity Calendar
 
+// 🔹 Louis – Appointments
+const appointmentRoutes = require('./routes/appointmentRoutes');
+app.use('/appointments', appointmentRoutes);
+
 // 🔹 Louis – Overview Page / Dashboard
 
 // 🔹 Louis – Health Records
+const healthRecordRoutes = require('./routes/healthRecordRoutes');
+app.use('/health-records', healthRecordRoutes);
 
 // 🔹 Louis – Reminders
 const methodOverride = require('method-override');

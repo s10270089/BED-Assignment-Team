@@ -28,7 +28,7 @@ exports.create = async (med) => {
     .input("time", sql.NVarChar, time)
     .input("frequency", sql.NVarChar, frequency)
     .input("user_id", sql.Int, user_id)
-    .query("INSERT INTO Medications (name, dosage, time, frequency, user_id) VALUES (@name, @dosage, @time, @frequency, @user_id)");
+    .query("INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES (@user_id, @name, @dosage, @time, @frequency)");
 };
 
 exports.update = async (id, med, user_id) => {

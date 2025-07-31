@@ -1,6 +1,6 @@
 // models/reminderModel.js
 const sql      = require('mssql');
-const dbConfig = require('../../../db/dbConfig');
+const dbConfig = require('../dbConfig');
 
 exports.getAllReminders = async (userId) => {
   const pool   = await sql.connect(dbConfig);

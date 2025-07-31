@@ -5,88 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Medication Manager</title>
   <link rel="stylesheet" href="./css/styles.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f0f8ff, #e0eafc);
       margin: 0;
-      background: #f9f9f9;
+      padding: 0;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-list {
+      list-style-type: none;
+      display: flex;
+      gap: 20px;
+      padding: 0;
+      margin: 0;
+      margin-left: 320px;
+      margin-top: 15px;
+    }
+
+    .nav-list li {
+      display: inline;
+    }
+
+    .nav-list a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .nav-list a:hover {
+      text-decoration: underline;
     }
 
     header {
-      background-color: #d3dce6;
-      color: white;
+      background-color: #2c3e50;
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: white;
     }
 
     .logout-btn {
       background-color: #e74c3c;
-      padding: 8px 12px;
       color: white;
+      padding: 8px 16px;
       font-weight: bold;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
     }
 
     .container {
       max-width: 1000px;
-      margin: 30px auto;
-      padding: 0 20px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     }
 
-    .medication-card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    h1 {
+      text-align: center;
+      color: #317ac1;
+      font-size: 32px;
       margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .medication-info {
-      flex-grow: 1;
-    }
-
-    .actions button {
-      margin-left: 10px;
-    }
-
-    form {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-top: 40px;
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      font-weight: bold;
+      margin-top: 20px;
     }
 
-    input {
+    input, select {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      max-width: 400px;
+      padding: 12px 16px;
+      margin: 10px 0;
+      font-size: 16px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #317ac1;
+      box-shadow: 0 0 5px rgba(49, 122, 193, 0.4);
+      outline: none;
     }
 
     button {
-      background-color: #4a90e2;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #2ecc71;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
-      margin-top: 20px;
+      transition: background-color 0.2s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    .medication-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .medication-info {
+      flex-grow: 1;
+      font-size: 18px;
+    }
+
+    .actions button {
+      margin-left: 10px;
+      padding: 8px 12px;
     }
 
     .modal {
@@ -101,50 +157,43 @@
     .modal-content {
       background: white;
       margin: 10% auto;
-      padding: 20px;
+      padding: 30px;
       width: 90%;
-      max-width: 400px;
-      border-radius: 10px;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      input, select {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- 🔹 HEADER from index.html -->
   <header>
     <div class="container header-container">
       <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
       <nav>
         <ul class="nav-list">
           <li><a href="./index.html">Home</a></li>
-          <li class="dropdown">
-            <a href="#features">Features</a>
-            <ul class="dropdown-menu">
-              <li><a href="./medications.html">Medication Manager</a></li>
-              <li><a href="./bus.html">Live Bus Tracker</a></li>
-              <li><a href="./login.html">User Login &amp; Signup</a></li>
-              <li><a href="./shoplist.html">Shopping List Manager</a></li>
-              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
-              <li><a href="./checklist.html">Checklist Creator</a></li>
-              <li><a href="./event-planner.html">Event Planner</a></li>
-              <li><a href="./calendar.html">Activity Calendar</a></li>
-              <li><a href="./overview.html">Overview Dashboard</a></li>
-              <li><a href="./health-records.html">Health Records</a></li>
-              <li><a href="./reminder.html">Reminders</a></li>
-              <li><a href="./translation.html">Auto-Translation</a></li>
-              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
-              <li><a href="./profile.html">User Profile Manager</a></li>
-              <li><a href="./workout.html">Workout Plan Organizer</a></li>
-              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
-            </ul>
-          </li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+          <li><a href="./profile.html">Profile</a></li>
+          <li><a href="./health-records.html">Health Records</a></li>
         </ul>
       </nav>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
-    <button id="logoutBtn" onclick="logout()">Logout</button>
   </header>
 
   <!-- 🔹 Main App -->
@@ -156,10 +205,20 @@
     <form id="addForm">
       <h2>Add New Medication</h2>
       <label>Name: <input type="text" name="name" required /></label>
-      <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" name="dosageValue" required style="flex: 1;" />
+          <select name="dosageUnit" required style="width: 100px;">
+            <option value="mg">mg</option>
+            <option value="IU">IU</option>
+            <option value="mL">mL</option>
+            <option value="tablet">tablet</option>
+            <option value="capsule">capsule</option>
+          </select>
+        </div>
       <label>Frequency:
         <input type="text" name="frequency" id="frequency" required />
-      </label>
+
       <div id="timeInputs"></div>
       <button type="submit">Add Medication</button>
     </form>
@@ -173,7 +232,17 @@
       <form id="updateForm">
         <input type="hidden" name="id" />
         <label>Name: <input type="text" name="name" required /></label>
-        <label>Dosage: <input type="text" name="dosage" required /></label>
+      <label>Dosage:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" name="dosageValue" required style="flex: 1;" />
+        <select name="dosageUnit" required style="width: 100px;">
+          <option value="mg">mg</option>
+          <option value="IU">IU</option>
+          <option value="mL">mL</option>
+          <option value="tablet">tablet</option>
+          <option value="capsule">capsule</option>
+        </select>
+      </div>
         <label>Frequency:
           <input type="text" name="frequency" id="update-frequency" required />
         </label>
@@ -241,7 +310,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -266,7 +335,9 @@
       const form = document.getElementById('updateForm');
       form.id.value = id;
       form.name.value = name;
-      form.dosage.value = dosage;
+      const [value, unit] = dosage.split(" ");
+      form.dosageValue.value = value || "";
+      form.dosageUnit.value = unit || "mg";
       form.frequency.value = frequency;
 
       updateTimeInputsDiv.innerHTML = "";
@@ -278,7 +349,7 @@
         const label = document.createElement('label');
         label.innerText = `Time ${i + 1}:`;
         const input = document.createElement('input');
-        input.type = 'text';
+        input.type = 'time';
         input.name = `time${i + 1}`;
         input.required = true;
         input.value = times[i] || "";
@@ -300,7 +371,7 @@
 
       const body = {
         name: form.name.value,
-        dosage: form.dosage.value,
+        dosage: form.dosageValue.value + " " + form.dosageUnit.value,
         frequency: form.frequency.value,
         time: times.join(", ")
       };
@@ -349,7 +420,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -376,7 +447,7 @@
           const label = document.createElement('label');
           label.innerText = `Time ${i}:`;
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'time';
           input.name = `time${i}`;
           input.required = true;
           label.appendChild(input);
@@ -384,6 +455,76 @@
         }
       }
     });
+
+    // Input validation for dosage (add)
+    const dosageInput = document.querySelector('input[name="dosageValue"]');
+    dosageInput.addEventListener('input', () => {
+      const value = dosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        dosageInput.value = value.replace(/[^0-9]/g, ""); // Remove invalid characters
+      }
+    });
+
+    // Input validation for dosage (update)
+    const updateDosageInput = document.querySelector('#updateForm input[name="dosageValue"]');
+
+    updateDosageInput.addEventListener('input', () => {
+      const value = updateDosageInput.value;
+
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter numbers only.");
+        updateDosageInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateDosageInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (add)
+    const frequencyInput = document.getElementById('frequency');
+
+    frequencyInput.addEventListener('input', () => {
+      const value = frequencyInput.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        frequencyInput.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    frequencyInput.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
+    // Input validation for frequency (update)
+    const updateFreqInputField = document.getElementById('update-frequency');
+
+    updateFreqInputField.addEventListener('input', () => {
+      const value = updateFreqInputField.value;
+      if (value && /[^0-9]/.test(value)) {
+        alert("Please enter a valid number for frequency.");
+        updateFreqInputField.value = value.replace(/[^0-9]/g, "");
+      }
+    });
+
+    updateFreqInputField.addEventListener('paste', (e) => {
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      if (/[^0-9]/.test(paste)) {
+        alert("Only numbers are allowed.");
+        e.preventDefault();
+      }
+    });
+
 
     // Init
     loadMedications();

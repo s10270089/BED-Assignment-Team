@@ -8,7 +8,9 @@ CREATE TABLE Users (
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
-  birthday DATE
+  birthday DATE,
+  weight float ,
+  height float 
 );
 
 -- Medication Manager
@@ -37,6 +39,13 @@ CREATE TABLE BusSearchResults (
   service_no NVARCHAR(10) NOT NULL,
   estimated_arrival DATETIME NOT NULL,
   load NVARCHAR(10) NOT NULL  -- SEA, SDA, LSD
+);
+
+CREATE TABLE BusFavourites (
+  favourite_id INT PRIMARY KEY IDENTITY,
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
+  bus_stop_code NVARCHAR(20) NOT NULL,
+  bus_stop_name NVARCHAR(100) NOT NULL
 );
 
 -- Shopping List Manager
@@ -161,6 +170,15 @@ CREATE TABLE Friendships (
     FOREIGN KEY (receiver_id) REFERENCES Users(user_id)
 );
 
+CREATE TABLE Appointments (
+  appointment_id INT PRIMARY KEY IDENTITY,
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
+  appointment_date DATETIME,
+  doctor_name NVARCHAR(100),
+  purpose NVARCHAR(255),
+  status NVARCHAR(50) DEFAULT 'Scheduled'
+);
+
 
 /*Sample Data Insertions*/
 
@@ -224,8 +242,8 @@ INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 
 INSERT INTO UserProfiles (user_id, activity_level, profile_photo_url)
 VALUES 
-  (1, 'High', 'http://example.com/img3.jpg'),
-  (2, 'Low', 'http://example.com/img4.jpg');
+  (1, 'High', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043459/samples/man-portrait.jpg'),
+  (2, 'Low', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043451/samples/people/boy-snow-hoodie.jpg');
 
 INSERT INTO Events (user_id, title, description, location, event_time, invitees)
 VALUES
@@ -246,3 +264,15 @@ INSERT INTO Friendships (sender_id, receiver_id, status) VALUES
 (2, 6, 'accepted'), -- Tan Ah Kow ↔ Wong Ah Ma
 (5, 1, 'accepted'), -- Chong Mei Lin ↔ Henry Neo
 (5, 3, 'accepted'); -- Chong Mei Lin ↔ Lim Bee Hwa 
+
+INSERT INTO HealthRecords (user_id, allergies, diagnosis, doctor_contact, emergency_contact, last_updated) VALUES
+  (1, 'Penicillin', 'Hypertension', '61234567', '81234567', '2024-07-01 10:30:00'),
+  (1, 'Latex', 'Asthma', '64567890', '87776665', '2024-07-06 11:45:00'),
+  (1, 'None', 'High Cholesterol', '61239876', '81231234', '2024-07-11 09:00:00');
+
+-- Sample Appointments for testing
+INSERT INTO Appointments (user_id, appointment_date, doctor_name, purpose) VALUES
+(1, '2025-07-15 09:00:00', 'Dr. John Smith', 'General check-up'),
+(1, '2025-07-20 14:00:00', 'Dr. Emily Watson', 'Blood pressure monitoring'),
+(2, '2025-08-01 10:00:00', 'Dr. Sarah Lee', 'Orthopedic consultation'),
+(3, '2025-07-28 16:00:00', 'Dr. Brian Clark', 'Asthma follow-up');
