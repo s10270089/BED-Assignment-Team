@@ -23,9 +23,8 @@ A multi-module web application built for seniors to manage daily tasks, medicati
 - **Medication Manager**: track dosages & schedules  
 - **Live Bus Tracker**: real-time arrival data  
 - **User Login & Signup** (JWT-based auth)  
-- **Shopping List Manager**  
-- **Emergency Quick-Dial**  
-- **Checklist Creator**  
+- **Shopping List Manager** : tracks shopping list and content
+- **Emergency Quick-Dial** : allows user to easily check and find emergency contacts and details
 - **Event Planner** & **Activity Calendar**  
 - **Overview Dashboard** (date, weather, upcoming)  
 - **Health Records** (BP logs, notes)  
