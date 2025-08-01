@@ -26,7 +26,7 @@ exports.getByUserId = async (user_id) => {
 
 //update event
 exports.updateEvent = async (event_id, updatedData) => {
-  const { title, description, location, event_time, invitees } = updatedData;
+  const { title, description, location, date, eventstarttime, eventendtime, invitees } = updatedData;
 
   const pool = await sql.connect(dbConfig);
   await pool.request()
@@ -34,14 +34,18 @@ exports.updateEvent = async (event_id, updatedData) => {
     .input("title", sql.NVarChar(100), title)
     .input("description", sql.NVarChar(255), description)
     .input("location", sql.NVarChar(100), location)
-    .input("event_time", sql.DateTime, event_time)
+    .input("date", sql.Date, date)
+    .input("event_start_time", sql.DateTime, eventstarttime)
+    .input("event_end_time", sql.DateTime, eventendtime)
     .input("invitees", sql.NVarChar(255), invitees)
     .query(`
       UPDATE Events
       SET title = @title,
           description = @description,
           location = @location,
-          event_time = @event_time,
+          date = @date,
+          event_start_time = @event_start_time,
+          event_end_time = @event_end_time,
           invitees = @invitees
       WHERE event_id = @event_id
     `);
@@ -76,7 +80,7 @@ exports.getByExactDate = async (date) => {
     .input("date", sql.Date, date)
     .query(`
       SELECT * FROM Events 
-      WHERE CAST(event_time AS DATE) = @date
+      WHERE CAST(date AS DATE) = @date
     `);
   return result.recordset;
 };
@@ -84,7 +88,7 @@ exports.getByExactDate = async (date) => {
 
 //create event
 exports.createEvent = async (eventData) => {
-  const { user_id, title, description, location, event_time, invitees } = eventData;
+  const { user_id, title, description, location, date, eventstarttime, eventendtime, invitees } = eventData;
   const pool = await sql.connect(dbConfig);
 
   await pool.request()
@@ -92,10 +96,12 @@ exports.createEvent = async (eventData) => {
     .input("title", sql.NVarChar(100), title)
     .input("description", sql.NVarChar(255), description)
     .input("location", sql.NVarChar(100), location)
-    .input("event_time", sql.DateTime, event_time)
+    .input("date", sql.Date, date)
+    .input("event_start_time", sql.DateTime, eventstarttime)
+    .input("event_end_time", sql.DateTime, eventendtime)
     .input("invitees", sql.NVarChar(255), invitees)
     .query(`
-      INSERT INTO Events (user_id, title, description, location, event_time, invitees)
-      VALUES (@user_id, @title, @description, @location, @event_time, @invitees)
+      INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)
+      VALUES (@user_id, @title, @description, @location, @date, @event_start_time, @event_end_time, @invitees)
     `);
 };

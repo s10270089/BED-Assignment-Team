@@ -45,7 +45,8 @@
 
 <section>
   <h2>5. Update Friend Request Status</h2>
-  <input id="friendshipId" placeholder="Friendship ID" />
+  <input id="receiverId" placeholder="Your User ID (receiver)" />
+  <input id="senderIdStatus" placeholder="Sender's User ID" />
   <select id="newStatus">
     <option value="accepted">Accept</option>
     <option value="rejected">Reject</option>
@@ -54,57 +55,92 @@
   <pre id="updateResult"></pre>
 </section>
 
+
+
 <script>
-  const baseUrl = "http://localhost:3000"; // Change if different port
+  const baseUrl = "http://localhost:3000";
 
   async function getFriends() {
-    const userId = document.getElementById("userIdView").value;
-    const res = await fetch(`${baseUrl}/friends/${userId}`);
-    const data = await res.json();
-    document.getElementById("friendsResult").textContent = JSON.stringify(data, null, 2);
+    const userId = document.getElementById("userIdView").value.trim();
+    try {
+      const res = await fetch(`${baseUrl}/friends/${userId}`);
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      document.getElementById("friendsResult").textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      document.getElementById("friendsResult").textContent = "Error: " + err.message;
+    }
   }
 
   async function getIncoming() {
-    const userId = document.getElementById("userIdIncoming").value;
-    const res = await fetch(`${baseUrl}/requests/incoming/${userId}`);
-    const data = await res.json();
-    document.getElementById("incomingResult").textContent = JSON.stringify(data, null, 2);
+    const userId = document.getElementById("userIdIncoming").value.trim();
+    try {
+      const res = await fetch(`${baseUrl}/friends/requests/incoming/${userId}`);
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      document.getElementById("incomingResult").textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      document.getElementById("incomingResult").textContent = "Error: " + err.message;
+    }
   }
 
   async function getOutgoing() {
-    const userId = document.getElementById("userIdOutgoing").value;
-    const res = await fetch(`${baseUrl}/requests/outgoing/${userId}`);
-    const data = await res.json();
-    document.getElementById("outgoingResult").textContent = JSON.stringify(data, null, 2);
+    const userId = document.getElementById("userIdOutgoing").value.trim();
+    try {
+      const res = await fetch(`${baseUrl}/friends/requests/outgoing/${userId}`);
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      document.getElementById("outgoingResult").textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      document.getElementById("outgoingResult").textContent = "Error: " + err.message;
+    }
   }
 
   async function sendRequest() {
-    const senderId = document.getElementById("senderId").value;
-    const receiverId = document.getElementById("receiverId").value;
-
-    const res = await fetch(`${baseUrl}/requests`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ senderId: parseInt(senderId), receiverId: parseInt(receiverId) })
-    });
-
-    const data = await res.json();
-    document.getElementById("sendResult").textContent = JSON.stringify(data, null, 2);
+    const senderId = document.getElementById("senderId").value.trim();
+    const receiverId = document.getElementById("receiverId").value.trim();
+    try {
+      const res = await fetch(`${baseUrl}/friends/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: parseInt(senderId),
+          receiverId: parseInt(receiverId)
+        })
+      });
+      if (!res.ok) throw new Error(`Status: ${res.status}`);
+      const data = await res.json();
+      document.getElementById("sendResult").textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      document.getElementById("sendResult").textContent = "Error: " + err.message;
+    }
   }
 
-  async function updateStatus() {
-    const friendshipId = document.getElementById("friendshipId").value;
-    const status = document.getElementById("newStatus").value;
+async function updateStatus() {
+  const receiverId = document.getElementById("receiverId").value.trim();
+  const senderId = document.getElementById("senderIdStatus").value.trim();
+  const status = document.getElementById("newStatus").value;
 
-    const res = await fetch(`${baseUrl}/requests/${friendshipId}`, {
+  try {
+    const res = await fetch(`${baseUrl}/friends/requests`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({
+        receiverId: parseInt(receiverId),
+        senderId: parseInt(senderId),
+        status
+      })
     });
 
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
     const data = await res.json();
     document.getElementById("updateResult").textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    document.getElementById("updateResult").textContent = "Error: " + err.message;
   }
+}
+
+
 </script>
 
 </body>

@@ -43,7 +43,7 @@ sql.connect(dbConfig)
 // ---------------------------------------------------
 
 // 🔹 Braden – Medication Manager
-const medicationRoutes = require("./routes/medicationRoutes");
+const medicationRoutes = require("./routes/medicationRoutes.js");
 app.use("/medications", medicationRoutes);
 
 // 🔹 Braden – User Login & Signup (Authentication)
@@ -63,6 +63,10 @@ app.use("/shopping-lists", shoplistRoutes);
 // 🔹 Osmond – Emergency Contact Quick Dial
 const emergencyRoutes = require('./routes/emergencyRoutes');
 app.use('/emergency-contacts', emergencyRoutes);
+// 🔹 Yoshi – Friendship manager
+const friendRoutes = require("./routes/friendRoutes");
+app.use("/friends", friendRoutes);
+
 // 🔹 Yoshi – Event Planner
 
 // Assuming you have an array to hold your events

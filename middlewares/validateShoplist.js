@@ -8,7 +8,8 @@ const listSchema = Joi.object({
 // Schema for adding/updating an item
 const itemSchema = Joi.object({
   item_name: Joi.string().min(1).max(100).required(),
-  quantity: Joi.number().integer().min(1).required(),
+  item_type: Joi.string().min(1).max(100).required(),
+  amount: Joi.string().min(1).max(50).required(),
   notes: Joi.string().max(255).allow("").optional()
 });
 

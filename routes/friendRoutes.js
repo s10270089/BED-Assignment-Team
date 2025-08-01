@@ -1,14 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("../controllers/friendController");
+const friendController = require("../controllers/friendController");
 
-// Routes
-router.get("/friends/:userId", controller.getFriends);
-router.get("/requests/incoming/:userId", controller.getIncomingRequests);
-router.get("/requests/outgoing/:userId", controller.getOutgoingRequests);
-router.post("/requests", controller.sendRequest);
-router.put("/requests/:friendshipId", controller.updateStatus);
-router.patch('/requests/:friendshipId', friendController.updateFriendRequestStatus);
 
+// More specific routes first
+router.get("/friendship-id/:senderId/:receiverId", friendController.getFriendshipId);
+router.patch("/requests/:friendshipId/accept", friendController.acceptFriendRequestById);
+router.get("/requests/incoming/:userId", friendController.getIncomingRequests);
+router.get("/requests/outgoing/:userId", friendController.getOutgoingRequests);
+router.post("/requests", friendController.sendRequest);
+router.delete("/requests/:friendshipId/reject", friendController.rejectFriendRequestById);
+router.delete("/remove/:friendshipId", friendController.removeFriendById);
+
+
+
+
+// This should come last
+router.get("/:userId", friendController.getFriends);
 
 module.exports = router;

@@ -50,18 +50,12 @@ CREATE TABLE BusFavourites (
 
 -- Shopping List Manager
 -- (Osmond)
-CREATE TABLE ShoppingLists (
-  list_id INT PRIMARY KEY IDENTITY,
-  user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  title NVARCHAR(100),
-  created_at DATETIME DEFAULT GETDATE()
-);
-
 CREATE TABLE ShoppingListItems (
   item_id INT PRIMARY KEY IDENTITY,
-  list_id INT FOREIGN KEY REFERENCES ShoppingLists(list_id),
+  user_id INT FOREIGN KEY REFERENCES Users(user_id),
   item_name NVARCHAR(100),
-  quantity INT,
+  item_type NVARCHAR(100),      -- Add this if you want to save type
+  amount NVARCHAR(50),          -- Combine value and unit if needed
   notes NVARCHAR(255)
 );
 
@@ -83,9 +77,14 @@ CREATE TABLE Events (
   title NVARCHAR(100),
   description NVARCHAR(255),
   location NVARCHAR(100),
-  event_time DATETIME,
+  date DATE,
+  event_start_time DATETIME,
+  event_end_time DATETIME,
   invitees NVARCHAR(255)
 );
+
+
+
 
 -- Activity Calendar
 -- (Yoshi)
@@ -245,18 +244,31 @@ VALUES
   (1, 'High', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043459/samples/man-portrait.jpg'),
   (2, 'Low', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043451/samples/people/boy-snow-hoodie.jpg');
 
-INSERT INTO Events (user_id, title, description, location, event_time, invitees)
-VALUES
-(1, 'Morning Tai Chi', 'Gentle tai chi session for seniors', 'Community Park Pavilion', '2025-07-15 07:30:00', '2,3,4'),
-(2, 'Health Talk', 'A doctor-led talk on managing arthritis', 'Senior Activity Centre Hall A', '2025-07-18 10:00:00', '1,3,5'),
-(3, 'Craft Workshop', 'Learn to make handmade greeting cards', 'Tampines Community Club', '2025-07-20 14:00:00', '2,4,6'),
-(4, 'Gardening Club Meetup', 'Monthly meeting for garden lovers', 'Bukit Timah Allotment Garden', '2025-07-22 09:00:00', '1,2,3'),
-(5, 'Classic Movie Screening', 'Watch and discuss a classic film together', 'Golden Years Centre AV Room', '2025-07-25 15:30:00', '3,4,6'),
-(1, 'Baking for Beginners', 'Basic baking class with a community chef', 'Bedok Senior Centre Kitchen', '2025-07-28 11:00:00', '2,5'),
-(2, 'Memory Games Hour', 'Engage in memory-boosting puzzles and games', 'Jurong West Elderly Hub', '2025-07-30 13:00:00', '1,3,4'),
-(3, 'Walking Club', 'Gentle group walk around the reservoir', 'MacRitchie Reservoir Entrance', '2025-08-01 07:00:00', '1,2,6'),
-(4, 'Karaoke Afternoon', 'Sing your favourite oldies with friends', 'Senior Karaoke Room, Hougang CC', '2025-08-03 16:00:00', '2,3,5'),
-(5, 'Storytelling Circle', 'Share life stories and wisdom with peers', 'Library@HarbourFront - Activity Room', '2025-08-06 10:30:00', '1,4,6');
+
+
+INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)
+VALUES 
+-- Henry Neo (user_id = 1)
+(1, 'Morning Tai Chi', 'Gentle tai chi session for seniors', 'Community Park Pavilion',
+ '2025-08-10', '2025-08-10 07:30:00', '2025-08-10 08:30:00', '2,3,4'),
+
+(1, 'Baking for Beginners', 'Basic baking class with a community chef', 'Bedok Senior Centre Kitchen',
+ '2025-08-12', '2025-08-12 11:00:00', '2025-08-12 13:00:00', '2,5'),
+
+-- Tan Ah Kow (user_id = 2)
+(2, 'Health Talk', 'A doctor-led talk on managing arthritis', 'Senior Activity Centre Hall A',
+ '2025-08-15', '2025-08-15 10:00:00', '2025-08-15 11:30:00', '1,3,5'),
+
+(2, 'Memory Games Hour', 'Engage in memory-boosting puzzles and games', 'Jurong West Elderly Hub',
+ '2025-08-20', '2025-08-20 13:00:00', '2025-08-20 14:30:00', '1,3,4'),
+
+-- Lim Bee Hwa (user_id = 3)
+(3, 'Craft Workshop', 'Learn to make handmade greeting cards', 'Tampines Community Club',
+ '2025-08-17', '2025-08-17 14:00:00', '2025-08-17 16:00:00', '2,4,6'),
+
+(3, 'Walking Club', 'Gentle group walk around the reservoir', 'MacRitchie Reservoir Entrance',
+ '2025-08-23', '2025-08-23 07:00:00', '2025-08-23 08:30:00', '1,2,6');
+
 
 INSERT INTO Friendships (sender_id, receiver_id, status) VALUES
 (1, 3, 'pending'),  -- Henry Neo → Lim Bee Hwa
@@ -276,3 +288,12 @@ INSERT INTO Appointments (user_id, appointment_date, doctor_name, purpose) VALUE
 (1, '2025-07-20 14:00:00', 'Dr. Emily Watson', 'Blood pressure monitoring'),
 (2, '2025-08-01 10:00:00', 'Dr. Sarah Lee', 'Orthopedic consultation'),
 (3, '2025-07-28 16:00:00', 'Dr. Brian Clark', 'Asthma follow-up');
+
+
+select * from EmergencyContacts;
+select * from Users;
+select * from ShoppingListItems;
+
+insert into EmergencyContacts(user_id, name, phone_number, relationship) values
+(2, 'BRADEN_MY_GOAT', 87654321, 'GOATRAHHH');
+
