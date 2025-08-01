@@ -44,7 +44,6 @@ async function getById(id) {
   
   const profile = result.recordset[0];
   
-  // Optional: Format birthday to remove time if needed
   if (profile && profile.birthday) {
     profile.birthday = formatDateOnly(profile.birthday);
   }
@@ -120,7 +119,6 @@ async function deleteProfile(id) {
     .query("DELETE FROM Users WHERE user_id = @id");
 }
 
-// Export all functions at once
 module.exports = {
   getAll,
   getById,

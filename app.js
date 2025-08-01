@@ -167,21 +167,7 @@ app.get("/test-cloudinary", (req, res) => {
   });
 });
 
-// Test route with a small test image
-app.get("/test-upload", async (req, res) => {
-  try {
-    // A tiny 1x1 pixel red PNG in base64
-    const testImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAHGLo6TqQAAAABJRU5ErkJggg==";
-    
-    console.log("Testing upload with tiny test image...");
-    const url = await uploadImage(testImage);
-    console.log("Test upload successful:", url);
-    res.json({ success: true, url });
-  } catch (err) {
-    console.error("Test upload failed:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+
 // 🔹 Lee Meng – Workout Plan Organizer
 
 // 🔹 Lee Meng – Daily Log Tracker
