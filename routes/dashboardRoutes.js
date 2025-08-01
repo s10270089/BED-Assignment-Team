@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
-const authenticate = require("../middleware/authenticate");
+const authenticate = require('../middlewares/authenticate');
 
-router.get('/bmi', authenticate, dashboardController.getBMI);
-router.get('/user-info', authenticate, dashboardController.getUserInfo);
-router.get('/friends', authenticate, dashboardController.getFriendsList);
-router.get('/events', authenticate, dashboardController.getUpcomingEvents);
+// Get dashboard data (BMI, appointments, reminders, events, health records)
+router.get('/data', authenticate, dashboardController.getDashboardData);
 
 module.exports = router;

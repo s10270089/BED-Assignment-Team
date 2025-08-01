@@ -80,6 +80,8 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 app.use('/appointments', appointmentRoutes);
 
 // 🔹 Louis – Overview Page / Dashboard
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/dashboard', dashboardRoutes);
 
 // 🔹 Louis – Health Records
 const healthRecordRoutes = require('./routes/healthRecordRoutes');

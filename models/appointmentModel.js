@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const dbConfig = require('../dbConfig');  // Update path if needed
+const dbConfig = require('../dbConfig');
 
 // Fetch all appointments for a user
 exports.getAllAppointments = async (user_id) => {
