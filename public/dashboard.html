@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="./js/dashboard.js"></script>
   <link rel="stylesheet" href="./css/styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
@@ -46,41 +45,41 @@
   </header>
 
   <main id="dashboard">
-    <section id="user-info">
-      <h2>Hello, <span id="username"></span></h2>
-    </section>
+    <div class="dashboard-container">
+      <!-- User Info Section -->
+      <section id="user-info" class="dashboard-card">
+        <p>Hello, <span id="username"></span></p>
+      </section>
 
-    <section id="bmi-meter">
-      <canvas id="bmiMeter"></canvas> <!-- Chart.js canvas element -->
-      <p id="bmiValue">Loading...</p>
-      <p id="bmiCategory">Loading...</p>
-    </section>
+      <!-- BMI Section -->
+      <section id="bmi-meter" class="dashboard-card">
+        <img id="bmiMeterImg" src="./assets/BMI-Metre.png" alt="BMI Meter">
+        <div id="bmiNeedleOverlay"></div>
+        <p id="bmiValue">Loading...</p>
+        <p id="bmiCategory">Loading...</p>
+        <div id="bmiProgress" class="progress-bar">
+          <span style="width: 0%"></span>
+        </div>
+      </section>
 
-    <section id="friends-list">
-      <h3>Friends List</h3>
-      <ul id="friendsList">
-        <!-- Friend list items will be injected here -->
-      </ul>
-    </section>
+      <!-- Friends List Section -->
+      <section id="friends-list" class="dashboard-card">
+        <h3>Friends List</h3>
+        <ul id="friendsList"></ul>
+      </section>
 
-    <section id="upcoming-events">
-      <h3>Upcoming Events</h3>
-      <ul id="eventsList">
-        <!-- Upcoming events will be injected here -->
-      </ul>
-    </section>
+      <!-- Upcoming Events Section -->
+      <section id="upcoming-events" class="dashboard-card">
+        <h3>Upcoming Events</h3>
+        <ul id="eventsList"></ul>
+      </section>
 
-    <section id="reminders">
-      <h3>Reminders</h3>
-      <ul id="remindersList">
-        <!-- Reminders will be injected here if needed -->
-      </ul>
-    </section>
+      <!-- Reminders Section -->
+      <section id="reminders" class="dashboard-card">
+        <h3>Reminders</h3>
+        <ul id="remindersList"></ul>
+      </section>
+    </div>
   </main>
-
-<script>
- 
-</script>
-
 </body>
 </html>

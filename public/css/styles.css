@@ -471,18 +471,42 @@ footer {
   padding: 20px;
 }
 
+/* Dashboard Layout */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 100%;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Progress Bar */
 .progress-bar {
   width: 100%;
   height: 25px;
   background-color: #f2f2f2;
   border-radius: 5px;
+  margin-top: 10px;
 }
 
 .progress-bar span {
   display: block;
   height: 100%;
   background-color: #4CAF50;
-  width: 0%; /* Set dynamically */
+  width: 0%;
 }
 
 #bmiSection, #appointmentsSection, #remindersSection {
@@ -559,7 +583,7 @@ ul li {
 
 /* Main content */
 #dashboard {
-  padding: 40px 20px;
+  padding: 20px 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -567,25 +591,28 @@ ul li {
 /* User Info Section */
 #user-info {
   background-color: white;
-  padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-}
-
-#user-info h2 {
-  font-size: 1.8rem;
-  color: #4b91e2;
+  color: #808080;
+  text-decoration: none;
 }
 
 /* BMI Section */
+/* BMI Meter Styling */
 #bmi-meter {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  position: relative;
+  width: 320px;
+  margin: 20px auto;
 }
+
+#bmiNeedleOverlay {
+  position: absolute;
+  width: 240px;
+  height: 140px;
+  top: 55px;
+  left: 60px;
+  pointer-events: none;
+}
+
 
 #bmi-meter h3 {
   font-size: 1.5rem;
@@ -606,14 +633,19 @@ ul li {
   border-radius: 10px;
 }
 
-/* Friends List Section */
-#friends-list {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+/* Friends List Styling */
+#friendsList {
+  list-style: none;
+  padding: 0;
 }
+
+#friendsList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
 
 #friends-list h3 {
   font-size: 1.5rem;
@@ -624,36 +656,31 @@ ul li {
   list-style: none;
 }
 
-#friendsList li {
-  font-size: 1rem;
-  padding: 5px 0;
-  color: #555;
-  border-bottom: 1px solid #ccc;
-}
-
-/* Upcoming Events Section */
-#upcoming-events {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
-}
-
-#upcoming-events h3 {
-  font-size: 1.5rem;
-  color: #333;
-}
-
-#eventsList {
+/* Events List Styling */
+#eventsList,
+#remindersList {
   list-style: none;
+  padding: 0;
 }
 
-#eventsList li {
+#eventsList li,
+#remindersList li {
   font-size: 1rem;
   padding: 5px 0;
   color: #555;
   border-bottom: 1px solid #ccc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* Reminders Section */
