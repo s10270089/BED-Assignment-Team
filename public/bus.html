@@ -2,144 +2,285 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="./css/styles.css" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <title>Live Bus Tracker</title>
+  <link rel="stylesheet" href="./css/styles.css" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f0f4f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f0f8ff, #e0eafc);
       margin: 0;
       padding: 0;
     }
 
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-list {
+      list-style-type: none;
+      display: flex;
+      gap: 20px;
+      padding: 0;
+      margin: 0;
+      margin-left: 320px;
+      margin-top: 15px;
+    }
+
+    .nav-list li {
+      display: inline;
+    }
+
+    .nav-list a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .nav-list a:hover {
+      text-decoration: underline;
+    }
+
     header {
-      background-color: #d3dce6;
-      color: white;
+      background-color: #2c3e50;
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
-      box-sizing: border-box;
+      color: white;
+    }
+
+    .logout-btn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 8px 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #c0392b;
     }
 
     .container {
       max-width: 1000px;
-      margin: 40px auto;
-      padding: 0 20px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     }
 
     h2 {
-      color: #4a90e2;
-      margin-bottom: 20px;
+      color: #317ac1;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
     }
 
-    input {
-      padding: 10px;
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    input, select {
+      width: 100%;
+      max-width: 400px;
+      padding: 12px 16px;
+      margin: 10px 0;
       font-size: 16px;
-      width: 250px;
-      margin-bottom: 10px;
-      margin-right: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #317ac1;
+      box-shadow: 0 0 5px rgba(49, 122, 193, 0.4);
+      outline: none;
     }
 
     button {
-      padding: 10px 16px;
+      padding: 10px 20px;
       font-size: 16px;
-      background-color: #4CAF50;
+      font-weight: bold;
+      background-color: #2ecc71;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+
+    #favouriteBtn {
+      margin-left: 12px;
+      background-color: #f39c12;
+    }
+
+    #favouriteBtn:hover {
+      background-color: #e67e22;
     }
 
     .error {
       color: red;
-      margin-top: 10px;
+      margin: 10px 0;
+      font-weight: bold;
     }
 
     table {
-      margin-top: 20px;
       width: 100%;
       border-collapse: collapse;
+      margin-top: 30px;
+      font-size: 16px;
     }
 
     th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
+      padding: 14px;
+      border: 1px solid #ddd;
       text-align: center;
     }
 
     th {
-      background-color: #e8f1fc;
+      background-color: #ecf0f1;
+      color: #333;
     }
 
-    .green {
-      color: green;
-      font-weight: bold;
+    tr.fade-in {
+      animation: fadeInUp 0.5s ease;
     }
 
-    .orange {
-      color: orange;
-      font-weight: bold;
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
     }
 
-    .red {
-      color: red;
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .green { color: green; font-weight: bold; }
+    .orange { color: orange; font-weight: bold; }
+    .red { color: red; font-weight: bold; }
+
+    #favouriteList {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 20px;
+    }
+
+    #favouriteList li {
+      font-size: 16px;
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    #favouriteList span {
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    #favouriteList span:hover {
+      color: #2980b9;
+    }
+
+    #favouriteList button {
+      background-color: #e74c3c;
+      padding: 5px 10px;
+      border: none;
+      color: white;
       font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #favouriteList button:hover {
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      input, select {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="container header-container">
-      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
-      <nav>
-        <ul class="nav-list">
-          <li><a href="./index.html">Home</a></li>
-          <li class="dropdown">
-            <a href="#features">Features</a>
-            <ul class="dropdown-menu">
-              <li><a href="./medications.html">Medication Manager</a></li>
-              <li><a href="./bus.html">Live Bus Tracker</a></li>
-              <li><a href="./login.html">User Login &amp; Signup</a></li>
-              <li><a href="./shoplist.html">Shopping List Manager</a></li>
-              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
-              <li><a href="./checklist.html">Checklist Creator</a></li>
-              <li><a href="./event-planner.html">Event Planner</a></li>
-              <li><a href="./calendar.html">Activity Calendar</a></li>
-              <li><a href="./overview.html">Overview Dashboard</a></li>
-              <li><a href="./health-records.html">Health Records</a></li>
-              <li><a href="./reminder.html">Reminders</a></li>
-              <li><a href="./translation.html">Auto-Translation</a></li>
-              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
-              <li><a href="./profile.html">User Profile Manager</a></li>
-              <li><a href="./workout.html">Workout Plan Organizer</a></li>
-              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
-            </ul>
-          </li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <div class="container header-container">
+    <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+    <nav>
+      <ul class="nav-list">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./profile.html">Profile</a></li>
+        <li><a href="./health-records.html">Health Records</a></li>
+      </ul>
+    </nav>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </div>
+</header>
 
   <div class="container">
     <h2>Live Bus Tracker</h2>
 
-    <label for="busStop">Enter Bus Stop Code:</label><br />
-    <input type="text" id="busStop" placeholder="e.g. 83139" />
-    <button onclick="searchBus()">Search</button>
+    <h3>Your Favourites</h3>
+    <ul id="favouriteList"></ul>
 
+    <label>Enter Bus Stop Code:</label>
+    <input type="text" id="busStop" placeholder="e.g. 83139" />
+
+    <label>Or select from Recent Stops:</label>
+    <select id="recentStops"></select>
+
+    <p>
+      <strong>Bus Stop Name:</strong>
+      <span id="busStopName">—</span>
+      <button id="favouriteBtn" onclick="favouriteBusStop()" style="display:none;">❤️ Favourite</button>
+    </p>
+
+    <button onclick="searchBus()">Search</button>
     <div class="error" id="errorMsg"></div>
 
     <table id="resultsTable" style="display: none;">
       <thead>
         <tr>
-          <th>Service No</th>
-          <th>Estimated Arrival</th>
+          <th>Bus Number</th>
+          <th>Next Arrival</th>
+          <th>Arrival 2</th>
+          <th>Arrival 3</th>
           <th>Crowd Level</th>
         </tr>
       </thead>
@@ -148,21 +289,99 @@
   </div>
 
   <script>
+    const token = localStorage.getItem("token");
+
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    function formatTime(raw) {
+      const d = new Date(raw);
+      return isNaN(d.getTime()) ? "—" : d.toLocaleTimeString("en-SG", {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    async function fetchBusStopName(code) {
+      try {
+        const res = await fetch(`/bus/stop-name?code=${code}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById("busStopName").textContent = data.name;
+          document.getElementById("favouriteBtn").style.display = "inline";
+        } else {
+          document.getElementById("busStopName").textContent = "Invalid bus stop.";
+          document.getElementById("favouriteBtn").style.display = "none";
+        }
+      } catch {
+        document.getElementById("busStopName").textContent = "Error fetching name.";
+      }
+    }
+
+    async function loadRecentStops() {
+    const dropdown = document.getElementById("recentStops");
+    dropdown.innerHTML = `<option value="">Recent Bus Stops</option>`;
+    if (!token) return;
+
+    try {
+      const res = await fetch("/bus/recent", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      const seen = new Set();
+      for (const code of data.stops) {
+        if (seen.has(code)) continue;
+        seen.add(code);
+
+        try {
+          const nameRes = await fetch(`/bus/stop-name?code=${code}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const nameData = await nameRes.json();
+          const opt = document.createElement("option");
+          opt.value = code;
+          opt.textContent = `${nameData.name || "Unknown"} (${code})`;
+          dropdown.appendChild(opt);
+        } catch {
+          const opt = document.createElement("option");
+          opt.value = code;
+          opt.textContent = `Unknown (${code})`;
+          dropdown.appendChild(opt);
+        }
+      }
+
+      dropdown.addEventListener("change", () => {
+        if (dropdown.value) {
+          document.getElementById("busStop").value = dropdown.value;
+          fetchBusStopName(dropdown.value);
+        }
+      });
+    } catch (err) {
+      console.error("Failed to load recent stops:", err);
+    }
+  }
+
     async function searchBus() {
-      const busStopCode = document.getElementById('busStop').value.trim();
-      const token = localStorage.getItem("token");
+      const busStopCode = document.getElementById("busStop").value.trim();
       const errorMsg = document.getElementById("errorMsg");
-      const resultsTable = document.getElementById("resultsTable");
+      const table = document.getElementById("resultsTable");
       const tbody = document.getElementById("resultsBody");
 
       errorMsg.textContent = "";
-      resultsTable.style.display = "none";
       tbody.innerHTML = "";
+      table.style.display = "none";
 
       if (!token) {
-        errorMsg.textContent = "You must be logged in.";
+        errorMsg.textContent = "Please login to use this feature.";
         return;
       }
+
+      await fetchBusStopName(busStopCode);
 
       try {
         const res = await fetch("/bus/search", {
@@ -175,54 +394,129 @@
         });
 
         const data = await res.json();
-
         if (!res.ok) {
           errorMsg.textContent = data.error || "Something went wrong.";
           return;
         }
 
         data.results.forEach(bus => {
-          const arrival = new Date(bus.NextBus.EstimatedArrival).toLocaleTimeString("en-SG", {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
+          const time1 = formatTime(bus.NextBus.EstimatedArrival);
+          const time2 = formatTime(bus.NextBus2.EstimatedArrival);
+          const time3 = formatTime(bus.NextBus3.EstimatedArrival);
 
-          let crowdLevel = "";
-          let crowdClass = "";
-
+          let crowd = "❓ Unknown", crowdClass = "";
           switch (bus.NextBus.Load) {
-            case "SEA":
-              crowdLevel = "🟢 Seats Available";
-              crowdClass = "green";
-              break;
-            case "SDA":
-              crowdLevel = "🟡 Standing Available";
-              crowdClass = "orange";
-              break;
-            case "LSD":
-              crowdLevel = "🔴 Limited Standing";
-              crowdClass = "red";
-              break;
-            default:
-              crowdLevel = "❓ Unknown";
-              crowdClass = "";
+            case "SEA": crowd = "🟢 Seats Available"; crowdClass = "green"; break;
+            case "SDA": crowd = "🟡 Standing Available"; crowdClass = "orange"; break;
+            case "LSD": crowd = "🔴 Limited Standing"; crowdClass = "red"; break;
           }
 
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${bus.ServiceNo}</td>
-            <td>${arrival}</td>
-            <td class="${crowdClass}">${crowdLevel}</td>
+            <td>${time1}</td>
+            <td>${time2}</td>
+            <td>${time3}</td>
+            <td class="${crowdClass}">${crowd}</td>
           `;
           tbody.appendChild(row);
         });
 
-        resultsTable.style.display = "table";
+        table.style.display = "table";
+        table.classList.add("fade-in");
+        loadRecentStops();
       } catch (err) {
-        console.error("Fetch failed:", err);
-        errorMsg.textContent = "Failed to fetch bus data.";
+        console.error("LTA Fetch Error:", err.message || err);
+        errorMsg.textContent = "Failed to fetch data. Please try again.";
       }
     }
+
+    async function favouriteBusStop() {
+      const code = document.getElementById("busStop").value;
+      const name = document.getElementById("busStopName").textContent;
+
+      const existingFavourites = Array.from(document.querySelectorAll("#favouriteList li"))
+        .map(li => li.textContent.match(/\((\d+)\)/)?.[1]);
+
+      if (existingFavourites.includes(code)) {
+        alert("You've already favorited this bus stop!");
+        return;
+      }
+
+      try {
+        const res = await fetch("/bus/favourites", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ bus_stop_code: code, bus_stop_name: name })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          loadFavourites();
+        } else {
+          alert(data.error || "Failed to save favourite.");
+        }
+      } catch (err) {
+        alert("Error saving favourite.");
+      }
+    }
+
+    async function loadFavourites() {
+      const list = document.getElementById("favouriteList");
+      list.innerHTML = "";
+
+      try {
+        const res = await fetch("/bus/favourites", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          data.favourites.forEach(fav => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span onclick="useFavourite('${fav.bus_stop_code}')" style="cursor:pointer;">❤️ ${fav.bus_stop_name} (${fav.bus_stop_code})</span>
+              <button onclick="deleteFavourite(${fav.favourite_id})">✖</button>
+            `;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {
+        console.error("Error loading favourites:", err);
+      }
+    }
+
+    async function deleteFavourite(id) {
+      try {
+        const res = await fetch(`/bus/favourites/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) loadFavourites();
+      } catch {
+        alert("Failed to delete favourite.");
+      }
+    }
+
+    function useFavourite(code) {
+      document.getElementById("busStop").value = code;
+      fetchBusStopName(code);
+    }
+
+    window.onload = () => {
+      loadRecentStops();
+      loadFavourites();
+    };
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      sessionStorage.clear(); // optional
+      alert("You've been logged out.");
+      window.location.href = "login.html";
+    });
   </script>
 </body>
 </html>

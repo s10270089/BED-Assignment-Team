@@ -76,7 +76,7 @@ header {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #4a90e2;
+  background: #4b91e2;
   border-radius: 4px;
   min-width: 300px;
   padding: 0.5rem;
@@ -317,6 +317,7 @@ footer {
   .delete-btn {
     background-color: #f44336;
   }
+
 /* Main Layout */
 .reminders-page {
   display: grid;
@@ -465,8 +466,66 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+/* Dashboard */
+.dashboard {
+  padding: 20px;
+}
 
+/* Dashboard Layout */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 100%;
+}
 
+.dashboard-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 100%;
+  height: 25px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background-color: #4CAF50;
+  width: 0%;
+}
+
+#bmiSection, #appointmentsSection, #remindersSection {
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #4a90e2;
+}
+
+ul {
+  list-style-type: none;
+}
+
+ul li {
+  margin-bottom: 10px;
+}
+
+/* reminders */
 .btn.add-reminder {
   background: #4a90e2;
   color: #fff;
@@ -519,6 +578,154 @@ footer {
 .toggle-header {
   cursor: pointer;
   user-select: none;
+}
+/* Dashboard Page*/
+
+/* Main content */
+#dashboard {
+  padding: 20px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* User Info Section */
+#user-info {
+  background-color: white;
+  border-radius: 8px;
+  color: #808080;
+  text-decoration: none;
+}
+
+/* BMI Section */
+/* BMI Meter Styling */
+#bmi-meter {
+  position: relative;
+  width: 320px;
+  margin: 20px auto;
+}
+
+#bmiNeedleOverlay {
+  position: absolute;
+  width: 240px;
+  height: 140px;
+  top: 55px;
+  left: 60px;
+  pointer-events: none;
+}
+
+
+#bmi-meter h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#bmiValue {
+  font-size: 1.6rem;
+  color: #333;
+  font-weight: bold;
+}
+
+#bmiProgress {
+  margin-top: 10px;
+  height: 20px;
+  background-color: #4CAF50;
+  width: 0;
+  border-radius: 10px;
+}
+
+/* Friends List Styling */
+#friendsList {
+  list-style: none;
+  padding: 0;
+}
+
+#friendsList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+
+#friends-list h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#friendsList {
+  list-style: none;
+}
+
+/* Events List Styling */
+#eventsList,
+#remindersList {
+  list-style: none;
+  padding: 0;
+}
+
+#eventsList li,
+#remindersList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Reminders Section */
+#reminders {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#reminders h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+#remindersList {
+  list-style: none;
+}
+
+#remindersList li {
+  font-size: 1rem;
+  padding: 5px 0;
+  color: #555;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #user-info,
+  #bmi-meter,
+  #friends-list,
+  #upcoming-events,
+  #reminders {
+    margin-bottom: 20px;
+  }
 }
 
 /* Responsive */

@@ -4,7 +4,7 @@ function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
+    return res.status(401).json({ error: "Please login to continue." });
   }
 
   const token = authHeader.split(" ")[1];
@@ -12,9 +12,10 @@ function authenticate(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-    next();
+    next(); // Token is valid, continue to next middleware or route
   } catch (err) {
-    res.status(403).json({ error: "Invalid or expired token." });
+    // If token is invalid or expired
+    return res.status(401).json({ error: "Please login to continue." });
   }
 }
 

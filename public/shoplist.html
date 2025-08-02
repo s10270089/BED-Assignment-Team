@@ -239,7 +239,7 @@
               <li><a href="./bus.html">Live Bus Tracker</a></li>
               <li><a href="./login.html">User Login &amp; Signup</a></li>
               <li><a href="./shoplist.html">Shopping List Manager</a></li>
-              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./emergencycontact.html">Emergency Quick-Dial</a></li>
               <li><a href="./checklist.html">Checklist Creator</a></li>
               <li><a href="./event-planner.html">Event Planner</a></li>
               <li><a href="./calendar.html">Activity Calendar</a></li>
@@ -302,66 +302,114 @@
     &copy; 2025 CareConnect | All Rights Reserved
   </footer>
   <script>
-    // Demo data storage (replace this with fetch/POST calls for backend integration)
-    let items = [];
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "login.html";
 
-    // Helpers
-    function renderItems() {
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    };
+
+    let editingId = null;
+
+    // Fetch and render all items
+    async function loadItems() {
+      const res = await fetch("/shopping-lists/items", { headers });
+      const items = await res.json();
+      renderItems(items);
+    }
+
+    function renderItems(items) {
       const tbody = document.getElementById('itemsTbody');
       tbody.innerHTML = '';
-      if (items.length === 0) {
+      if (!items.length) {
         document.getElementById('noItemsMsg').style.display = '';
         return;
       }
       document.getElementById('noItemsMsg').style.display = 'none';
-      items.forEach((item, idx) => {
+      items.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.type}</td>
+          <td>${item.item_name}</td>
+          <td>${item.item_type}</td>
           <td>${item.amount}</td>
           <td>${item.notes || ''}</td>
           <td class="item-actions">
-            <button class="edit" onclick="editItem(${idx})">Edit</button>
-            <button class="delete" onclick="deleteItem(${idx})">Delete</button>
+            <button class="edit" onclick="startEdit(${item.item_id}, '${item.item_name}', '${item.item_type}', '${item.amount}', '${item.notes || ""}')">Edit</button>
+            <button class="delete" onclick="deleteItem(${item.item_id})">Delete</button>
           </td>
         `;
         tbody.appendChild(row);
       });
     }
 
-    document.getElementById('addItemForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('itemName').value.trim();
-    const type = document.getElementById('itemType').value;
-    const amountValue = document.getElementById('itemAmountValue').value.trim();
-    const amountUnit = document.getElementById('itemAmountUnit').value;
-    const amount = amountValue + ' ' + amountUnit;
-    const notes = document.getElementById('itemNotes').value.trim();
+    // Handle add or update
+    document.getElementById('addItemForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const item_name = document.getElementById('itemName').value.trim();
+  const item_type = document.getElementById('itemType').value;
+  const amountValue = document.getElementById('itemAmountValue').value.trim();
+  const amountUnit = document.getElementById('itemAmountUnit').value;
+  const amount = amountValue + ' ' + amountUnit;
+  const notes = document.getElementById('itemNotes').value.trim();
 
-    if (name && type && amountValue) {
-      items.push({ name, type, amount, notes });
-      renderItems();
-      this.reset();
+  if (!item_name || !item_type || !amountValue) return;
+
+  try {
+    let response;
+    if (editingId) {
+      response = await fetch(`/shopping-lists/items/${editingId}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ item_name, item_type, amount, notes })
+      });
+      editingId = null;
+      document.getElementById('addItemBtn').textContent = "Add Item";
+    } else {
+      response = await fetch("/shopping-lists/items", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ item_name, item_type, amount, notes })
+      });
     }
-  });
 
-    window.editItem = function(idx) {
-      const item = items[idx];
-      document.getElementById('itemName').value = item.name;
-      document.getElementById('itemType').value = item.type;
-      document.getElementById('itemAmount').value = item.amount;
-      document.getElementById('itemNotes').value = item.notes;
-      // Remove item so editing will "replace" on next submit
-      items.splice(idx, 1);
-      renderItems();
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("Server error:", data);
+      alert("Error: " + (data.errors ? data.errors.join(", ") : "Unknown error"));
+    } else {
+      this.reset();
+      loadItems();
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    alert("Network or server error occurred.");
+  }
+});
+
+
+    // Edit
+    window.startEdit = function(id, name, type, amount, notes) {
+      editingId = id;
+      document.getElementById('itemName').value = name;
+      document.getElementById('itemType').value = type;
+      // Split amount into value/unit
+      const amtParts = amount.split(" ");
+      document.getElementById('itemAmountValue').value = amtParts[0];
+      document.getElementById('itemAmountUnit').value = amtParts[1] || "g";
+      document.getElementById('itemNotes').value = notes || "";
+      document.getElementById('addItemBtn').textContent = "Update Item";
       document.getElementById('itemName').focus();
     };
 
-    window.deleteItem = function(idx) {
+    // Delete
+    window.deleteItem = async function(id) {
       if (confirm("Delete this item?")) {
-        items.splice(idx, 1);
-        renderItems();
+        await fetch(`/shopping-lists/items/${id}`, {
+          method: "DELETE",
+          headers
+        });
+        loadItems();
       }
     };
 
@@ -371,8 +419,8 @@
       window.location.href = "login.html";
     }
 
-    // Initialize display
-    renderItems();
+    // Initialize
+    loadItems();
   </script>
 </body>
 </html>
