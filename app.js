@@ -90,6 +90,8 @@ app.use("/events", eventRoutes);
 const appointmentRoutes = require('./routes/appointmentRoutes');
 app.use('/appointments', appointmentRoutes);
 
+// 🔹 Louis – Overview Page / Dashboard
+
 // 🔹 Louis – Health Records
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 app.use('/health-records', healthRecordRoutes);
