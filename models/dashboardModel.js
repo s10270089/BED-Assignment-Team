@@ -38,11 +38,12 @@ exports.getUpcomingEvents = async (userId) => {
   const result = await pool.request()
     .input('user_id', sql.Int, userId)
     .query(`
-      SELECT title, event_time 
+      SELECT title, event_start_time 
       FROM Events 
-      WHERE user_id = @user_id AND event_time >= GETDATE()
-      ORDER BY event_time ASC
+      WHERE user_id = @user_id AND event_start_time >= GETDATE()
+      ORDER BY event_start_time ASC
     `);
+  console.log(result.recordset);
   return result.recordset;
 };
 

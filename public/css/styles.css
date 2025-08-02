@@ -590,17 +590,13 @@ ul li {
 
 /* User Info Section */
 #user-info {
-  background-color: white;
-  border-radius: 8px;
-  color: #808080;
-  text-decoration: none;
 }
 
 /* BMI Section */
 /* BMI Meter Styling */
 #bmi-meter {
   position: relative;
-  width: 320px;
+  width: 400px;
   margin: 20px auto;
 }
 

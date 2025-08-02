@@ -30,9 +30,15 @@ async function fetchDashboardData() {
 
     // Set Upcoming Events
     const eventsList = document.getElementById("eventsList");
-    eventsList.innerHTML = data.upcomingEvents.map(event => `
-      <li>${event.title} - ${new Date(event.event_time).toLocaleDateString()}</li>
-    `).join('');
+    eventsList.innerHTML = data.upcomingEvents.map(event => {
+      const eventDate = new Date(event.event_start_time);
+      const formattedDate = eventDate.getFullYear() ? eventDate.toLocaleDateString() : 'Invalid Date';
+      return `
+        <li>${event.title} - ${formattedDate}</li>
+      `;
+    }).join('');
+
+
 
     // Set Reminders
     const remindersList = document.getElementById("remindersList");
