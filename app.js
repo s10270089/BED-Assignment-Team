@@ -11,6 +11,9 @@ const sql = require("mssql");
 const path = require("path");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
+const passport = require("passport");
+const session = require("express-session");
+require("./auth/googleAuth"); // 👈 Google Auth Strategy
 
 // ---------------------------------------------------
 // Create Express App
@@ -29,6 +32,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 🔐 Session & Passport
+app.use(session({
+  secret: process.env.SESSION_SECRET || "your-session-secret",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 // ---------------------------------------------------
 // SQL Server Connection
 // ---------------------------------------------------
@@ -60,26 +73,22 @@ app.use("/bus", busRoutes);
 // 🔹 Osmond – Shopping List Manager
 const shoplistRoutes = require("./routes/shoplistRoutes");
 app.use("/shopping-lists", shoplistRoutes);
+
 // 🔹 Osmond – Emergency Contact Quick Dial
 const emergencyRoutes = require('./routes/emergencyRoutes');
 app.use('/emergency-contacts', emergencyRoutes);
+
 // 🔹 Yoshi – Friendship manager
 const friendRoutes = require("./routes/friendRoutes");
 app.use("/friends", friendRoutes);
 
 // 🔹 Yoshi – Event Planner
-
-// Assuming you have an array to hold your events
 const eventRoutes = require("./routes/eventRoutes");
 app.use("/events", eventRoutes);
-
-// 🔹 Yoshi – Activity Calendar
 
 // 🔹 Louis – Appointments
 const appointmentRoutes = require('./routes/appointmentRoutes');
 app.use('/appointments', appointmentRoutes);
-
-// 🔹 Louis – Overview Page / Dashboard
 
 // 🔹 Louis – Health Records
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
@@ -88,7 +97,6 @@ app.use('/health-records', healthRecordRoutes);
 // 🔹 Louis – Reminders
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
-
 const reminderRoutes = require('./routes/reminderRoutes');
 app.use('/reminders', reminderRoutes);
 
@@ -96,14 +104,27 @@ app.use('/reminders', reminderRoutes);
 const userprofileRoutes = require('./routes/userprofileRoutes');
 app.use('/userprofiles', userprofileRoutes);
 
-// 🔹 Lee Meng – Workout Plan Organizer
-
-// 🔹 Lee Meng – Daily Log Tracker
-
 // ---------------------------------------------------
 // Swagger API Documentation
 // ---------------------------------------------------
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+// ---------------------------------------------------
+// Google OAuth Routes
+// ---------------------------------------------------
+app.get("/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get("/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login.html",
+    session: false,
+  }),
+  (req, res) => {
+    res.redirect("/dashboard.html"); // ✅ Successful login redirect
+  }
+);
 
 // ---------------------------------------------------
 // Start Server
