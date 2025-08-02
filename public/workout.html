@@ -377,6 +377,80 @@
       background: #219a52;
     }
     
+    /* Add these new styles */
+    .workout-grid-container {
+      position: relative;
+    }
+    
+    .finish-button-container {
+      position: absolute;
+      top: -60px;
+      right: 0;
+      z-index: 100;
+    }
+    
+    .btn-finish {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    
+    .btn-finish:hover {
+      background: #219a52;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3); }
+      50% { box-shadow: 0 4px 20px rgba(39, 174, 96, 0.6); }
+      100% { box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3); }
+    }
+    
+    .workout-card.completed {
+      opacity: 0.7;
+      border-left-color: #27ae60;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+    }
+    
+    .workout-card.completed::after {
+      content: "✓ Completed";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #27ae60;
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    
+    .workout-card {
+      position: relative;
+    }
+    
+    /* Update plan stats to include completed workouts */
+    .stat-card.completed-stat {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+    }
+    
+    .stat-card.completed-stat .stat-number {
+      color: white;
+    }
+    
+    .stat-card.completed-stat .stat-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
     @media (max-width: 768px) {
       .edit-modal-content {
         margin: 5% auto;
@@ -390,6 +464,12 @@
       
       #my-workouts-grid.workout-grid {
         grid-template-columns: 1fr;
+      }
+      
+      .finish-button-container {
+        position: static;
+        text-align: center;
+        margin-bottom: 1rem;
       }
     }
   </style>
@@ -433,8 +513,7 @@
   <main>
     <div class="workout-container">
       <div class="workout-header">
-        <h1><span class="material-symbols-outlined">fitness_center</span> Workout Plan Organizer</h1>
-        <p>Create and track simple exercise routines tailored for you</p>
+        <h1><span class="material-symbols-outlined"></span> Workout Plan Organizer</h1>
       </div>
 
       <div class="workout-tabs">
@@ -469,6 +548,10 @@
               <span class="stat-label">Total Workouts</span>
             </div>
             <div class="stat-card">
+              <span id="completed-workouts" class="stat-number">0</span>
+              <span class="stat-label">Completed Today</span>
+            </div>
+            <div class="stat-card">
               <span id="total-duration" class="stat-number">0</span>
               <span class="stat-label">Minutes/Week</span>
             </div>
@@ -479,8 +562,18 @@
           </div>
         </div>
 
-        <div id="my-workouts-grid" class="workout-grid">
-          <!-- User's workout plan will be loaded here -->
+        <div class="workout-grid-container">
+          <!-- Finish Button -->
+          <div class="finish-button-container">
+            <button id="finish-workout-btn" class="btn btn-finish" onclick="finishWorkout()" style="display: none;">
+              <span class="material-symbols-outlined">check_circle</span>
+              Finish Workout
+            </button>
+          </div>
+          
+          <div id="my-workouts-grid" class="workout-grid">
+            <!-- User's workout plan will be loaded here -->
+          </div>
         </div>
 
         <div id="empty-plan" class="empty-state" style="display: none;">
@@ -626,6 +719,9 @@
             document.getElementById('empty-plan').style.display = 'none';
             displayWorkouts(data.data, 'my-workouts-grid', true);
             updatePlanStats(data.data);
+            
+            // Load today's completion data
+            loadTodayCompletions();
           }
         }
       } catch (error) {
@@ -649,9 +745,24 @@
       const card = document.createElement('div');
       card.className = 'workout-card';
       
+      // Check if workout is completed
+      const isCompleted = completedWorkouts.has(workout.exercise_name);
+      if (isCompleted) {
+        card.classList.add('completed');
+      }
+      
       const imageHeight = isUserPlan ? '150px' : '300px';
       
       card.innerHTML = `
+        ${isUserPlan ? `
+          <div class="workout-checkbox">
+            <input type="checkbox" id="workout-${workout.exercise_name}" 
+                   ${isCompleted ? 'checked' : ''} 
+                   onchange="toggleWorkoutCompletion('${workout.exercise_name}', this.checked)">
+            <label for="workout-${workout.exercise_name}">Mark as done</label>
+          </div>
+        ` : ''}
+        
         <h3>
           ${workout.exercise_name}
         </h3>
@@ -687,10 +798,10 @@
         <div class="workout-actions">
           ${isUserPlan ? `
             <button class="btn btn-secondary" onclick="openEditModal('${workout.exercise_name}', '${workout.exercise_name}', ${workout.reps || 0}, ${workout.sets || 0}, ${workout.duration_minutes || 0}, '${workout.frequency || ''}')">
-              <span class="material-symbols-outlined">Edit</span>
+              <span class="material-symbols-outlined">edit</span> Edit
             </button>
             <button class="btn btn-danger" onclick="removeFromPlan('${workout.exercise_name}')">
-              <span class="material-symbols-outlined">Delete</span>
+              <span class="material-symbols-outlined">delete</span> Remove
             </button>
           ` : `
             <button class="btn" onclick="addToPlan('${workout.exercise_name}')">
@@ -730,9 +841,46 @@
       }
     }
 
-    // Remove workout from user's plan
+    // Remove workout from plan without showing alert (silent removal)
+    async function removeFromPlanSilently(exerciseName) {
+      try {
+        const response = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Remove the card from DOM immediately for better UX
+          const card = document.querySelector(`input[id="workout-${exerciseName}"]`).closest('.workout-card');
+          card.style.transition = 'all 0.3s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.9)';
+          
+          setTimeout(() => {
+            card.remove();
+            // Update plan stats after removal
+            loadUserWorkoutPlan();
+          }, 300);
+          
+        } else {
+          alert('Error removing workout: ' + data.message);
+          // Uncheck the checkbox if removal failed
+          const checkbox = document.querySelector(`input[id="workout-${exerciseName}"]`);
+          checkbox.checked = false;
+        }
+      } catch (error) {
+        console.error('Error removing workout:', error);
+        alert('Error removing workout from plan');
+        // Uncheck the checkbox if removal failed
+        const checkbox = document.querySelector(`input[id="workout-${exerciseName}"]`);
+        checkbox.checked = false;
+      }
+    }
+
+    // Update the regular removeFromPlan function to show confirmation
     async function removeFromPlan(exerciseName) {
-      if (!confirm('Remove this workout from your plan?')) return;
+      if (!confirm('Are you sure you want to remove this workout from your plan?')) return;
       
       try {
         const response = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
@@ -823,9 +971,142 @@
       }
     }
 
+    // Add these new variables
+    let completedWorkouts = new Set(); // Track completed workouts
+    let currentWorkoutSession = [];
+
+    // Toggle workout completion - UPDATED: Remove workout when marked as done
+    function toggleWorkoutCompletion(exerciseName, isCompleted) {
+      if (isCompleted) {
+        // Show confirmation before removing
+        if (confirm(`Mark "${exerciseName}" as completed and remove it from your plan?`)) {
+          // Remove from plan via API
+          removeFromPlanSilently(exerciseName);
+          
+          // Add to completed workouts for session tracking
+          completedWorkouts.add(exerciseName);
+          
+          // Update stats
+          updateCompletionStats();
+          toggleFinishButton();
+        } else {
+          // User cancelled, uncheck the checkbox
+          const checkbox = document.querySelector(`input[id="workout-${exerciseName}"]`);
+          checkbox.checked = false;
+        }
+      } else {
+        // Remove from completed workouts if unchecked (though this shouldn't happen now)
+        completedWorkouts.delete(exerciseName);
+        updateCompletionStats();
+        toggleFinishButton();
+      }
+    }
+
+    // Update completion statistics
+    function updateCompletionStats() {
+      const completedCount = completedWorkouts.size;
+      document.getElementById('completed-workouts').textContent = completedCount;
+      
+      // Add visual indicator for completed stat card
+      const completedStatCard = document.getElementById('completed-workouts').closest('.stat-card');
+      if (completedCount > 0) {
+        completedStatCard.classList.add('completed-stat');
+      } else {
+        completedStatCard.classList.remove('completed-stat');
+      }
+    }
+
+    // Show/hide finish button based on completed workouts
+    function toggleFinishButton() {
+      const finishBtn = document.getElementById('finish-workout-btn');
+      if (completedWorkouts.size > 0) {
+        finishBtn.style.display = 'inline-flex';
+      } else {
+        finishBtn.style.display = 'none';
+      }
+    }
+
+    // Finish workout session
+    function finishWorkout() {
+      if (completedWorkouts.size === 0) {
+        alert('No workouts completed in this session!');
+        return;
+      }
+      
+      const completedCount = completedWorkouts.size;
+      const workoutList = Array.from(completedWorkouts).join(', ');
+      
+      // Save completion to localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const sessionData = {
+        date: today,
+        completedWorkouts: Array.from(completedWorkouts),
+        count: completedCount
+      };
+      
+      // Save to localStorage
+      const sessions = JSON.parse(localStorage.getItem('workoutSessions') || '[]');
+      sessions.push(sessionData);
+      localStorage.setItem('workoutSessions', JSON.stringify(sessions));
+      
+      // Show success message
+      alert(`🎉 Workout session completed!\n\nYou finished ${completedCount} workout${completedCount > 1 ? 's' : ''}:\n${workoutList}\n\nKeep up the great work!`);
+      
+      // Reset completion state
+      completedWorkouts.clear();
+      
+      // Update stats
+      updateCompletionStats();
+      
+      // Hide finish button
+      document.getElementById('finish-workout-btn').style.display = 'none';
+    }
+
+    // Load today's completed workouts from localStorage
+    function loadTodayCompletions() {
+      const today = new Date().toISOString().split('T')[0];
+      const sessions = JSON.parse(localStorage.getItem('workoutSessions') || '[]');
+      const todaySessions = sessions.filter(session => session.date === today);
+      
+      const todayCompletedCount = todaySessions.reduce((total, session) => total + session.count, 0);
+      document.getElementById('completed-workouts').textContent = todayCompletedCount;
+      
+      if (todayCompletedCount > 0) {
+        document.getElementById('completed-workouts').closest('.stat-card').classList.add('completed-stat');
+      }
+    }
+
+    // Update the updatePlanStats function to include additional stats
+    function updatePlanStats(workouts) {
+      // Total workouts
+      document.getElementById('total-workouts').textContent = workouts.length;
+      
+      // Total duration per week
+      const totalDuration = workouts.reduce((sum, workout) => {
+        const duration = workout.duration_minutes || 0;
+        const frequency = parseInt(workout.frequency) || 1;
+        return sum + (duration * frequency);
+      }, 0);
+      document.getElementById('total-duration').textContent = totalDuration;
+      
+      // Average difficulty level
+      const levels = workouts.map(w => {
+        switch(w.activity_level.toLowerCase()) {
+          case 'beginner': return 1;
+          case 'intermediate': return 2;
+          case 'advanced': return 3;
+          default: return 1;
+        }
+      });
+      const avgLevel = levels.reduce((sum, level) => sum + level, 0) / levels.length;
+      const levelText = avgLevel <= 1.5 ? 'Beginner' : avgLevel <= 2.5 ? 'Intermediate' : 'Advanced';
+      document.getElementById('difficulty-level').textContent = levelText;
+    }
+
     // Initialize page
     document.addEventListener('DOMContentLoaded', function() {
       loadAllWorkouts();
+      updateCompletionStats();
     });
   </script>
 </body>
