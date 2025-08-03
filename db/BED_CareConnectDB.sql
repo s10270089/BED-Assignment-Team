@@ -11,7 +11,9 @@ CREATE TABLE Users (
   birthday DATE,
   weight float,
   height float,
-  google_id NVARCHAR(100) -- for Google login users
+  profile_photo_url NVARCHAR(255) NULL,
+  gender NVARCHAR(10),
+  google_id NVARCHAR(100),
 );
 
 -- Medication Manager
@@ -84,16 +86,7 @@ CREATE TABLE Events (
   invitees NVARCHAR(255)
 );
 
--- Event Invitees
 
-CREATE TABLE EventInvitations (
-  invitation_id INT PRIMARY KEY IDENTITY,
-  event_id INT FOREIGN KEY REFERENCES event(event_id),
-  invitee_id INT FOREIGN KEY REFERENCES Users(user_id),
-  status NVARCHAR(20) CHECK (status IN ('pending', 'accepted', 'rejected')) NOT NULL,
-  sent_at DATETIME DEFAULT GETDATE(),
-  accepted_at DATETIME NULL  -- NULL by default until accepted
-);
 
 
 -- Activity Calendar
@@ -318,11 +311,6 @@ INSERT INTO Appointments (user_id, appointment_date, doctor_name, purpose) VALUE
 (1, '2025-07-20 14:00:00', 'Dr. Emily Watson', 'Blood pressure monitoring'),
 (2, '2025-08-01 10:00:00', 'Dr. Sarah Lee', 'Orthopedic consultation'),
 (3, '2025-07-28 16:00:00', 'Dr. Brian Clark', 'Asthma follow-up');
-
-
-select * from EmergencyContacts;
-select * from Users;
-select * from ShoppingListItems;
 
 insert into EmergencyContacts(user_id, name, phone_number, relationship) values
 (2, 'BRADEN_MY_GOAT', 87654321, 'GOATRAHHH');

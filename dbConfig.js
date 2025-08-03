@@ -10,4 +10,3 @@ module.exports = {
     trustServerCertificate: true,
   },
 };
-

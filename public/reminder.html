@@ -86,8 +86,6 @@
   </div>
 </div>
 
-
-
   <!-- Calendar Panel -->
   <div class="calendar-panel">
     <div id="calendar"></div>
@@ -96,180 +94,221 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', async function () {
-  const calendarEl = document.getElementById('calendar');
-  const res = await fetch('/reminders');
-  const reminders = await res.json();
+    document.addEventListener('DOMContentLoaded', async function () {
+      // Fetch user_id and token
+      const user_id = localStorage.getItem("user_id");
+      const token = localStorage.getItem('token');
 
-  const events = reminders.map(r => ({
-    id: r.reminder_id,
-    title: r.message,
-    start: r.reminder_time,
-    allDay: false
-  }));
+      // Check if the user is logged in
+      if (!token) {
+        alert('You need to be logged in to access reminders.');
+        window.location.href = '/login.html';
+        return;
+      }
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'timeGridDay',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
-    events,
-    editable: true,
-    eventDrop: async function(info) {
-      const updatedTime = info.event.start.toISOString();
-      await fetch(`/reminders/${info.event.id}/update`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-          message: info.event.title, 
-          reminder_time: updatedTime,
-          is_completed: 0 
-        })
-      });
-    }
-  });
+      // Set up the calendar
+      const calendarEl = document.getElementById('calendar');
+      try {
+        const res = await fetch('/reminders', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
 
-  calendar.render();
-  await loadTasksPanel();
+        if (!res.ok) {
+          throw new Error('Unauthorized request');
+        }
 
-});
-async function loadTasksPanel() {
-  let pastCount = 0, todayCount = 0, tomorrowCount = 0, upcomingCount = 0;
-  try {
-    const res = await fetch('/reminders');
-    const reminders = await res.json();
+        const reminders = await res.json();
 
-    const listPast = document.getElementById('list-past');
-    const listToday = document.getElementById('list-today');
-    const listTomorrow = document.getElementById('list-tomorrow');
-    const listUpcoming = document.getElementById('list-upcoming');
+        if (!Array.isArray(reminders)) {
+          throw new Error('Invalid response format. Expected an array of reminders.');
+        }
 
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const events = reminders.map(r => ({
+          id: r.reminder_id,
+          title: r.message,
+          start: r.reminder_time,
+          allDay: false,
+        }));
 
-    listPast.innerHTML = '';
-    listToday.innerHTML = '';
-    listTomorrow.innerHTML = '';
-    listUpcoming.innerHTML = '';
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'timeGridDay',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          },
+          events,
+          editable: true,
+          eventDrop: async function(info) {
+            const updatedTime = info.event.start.toISOString();
+            await fetch(`/reminders/${info.event.id}/update`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ 
+                message: info.event.title, 
+                reminder_time: updatedTime,
+                is_completed: 0 
+              })
+            });
+          },
+        });
 
-    reminders.forEach(reminder => {
-    const date = new Date(reminder.reminder_time);
-    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        calendar.render();
+        await loadTasksPanel();
 
-    const taskEl = document.createElement('div');
-    taskEl.className = `task-item${reminder.is_completed ? ' completed' : ''}`;
-    taskEl.innerHTML = `
-    <div class="task-content">
-      <input type="checkbox" class="complete-toggle" data-id="${reminder.reminder_id}" ${reminder.is_completed ? 'checked' : ''} />
-      <span class="task-title">${reminder.message}</span>
-      <div class="task-meta">
-        <span class="task-tag">${timeStr}</span>
-      </div>
-    </div>
-  `;
-    // Strip time from both dates
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    if (dateOnly < today) {
-      listPast.appendChild(taskEl);
-      pastCount++;
-    } else if (dateOnly.getTime() === today.getTime()) {
-      listToday.appendChild(taskEl);
-      todayCount++;
-    } else if (dateOnly.getTime() === tomorrow.getTime()) {
-      listTomorrow.appendChild(taskEl);
-      tomorrowCount++;
-    } else {
-      listUpcoming.appendChild(taskEl);
-      upcomingCount++;
-    }
-    document.getElementById('count-past').textContent = pastCount;
-    document.getElementById('count-today').textContent = todayCount;
-    document.getElementById('count-tomorrow').textContent = tomorrowCount;
-    document.getElementById('count-upcoming').textContent = upcomingCount;
-});
+      } catch (err) {
+        console.error('Error loading reminders:', err);
+        alert('Failed to load reminders');
+      }
 
-document.querySelectorAll('.complete-toggle').forEach(checkbox => {
-  checkbox.addEventListener('change', async function () {
-    const id = this.getAttribute('data-id');
-    const isCompleted = this.checked;
+      // Load tasks panel
+      async function loadTasksPanel() {
+        let pastCount = 0, todayCount = 0, tomorrowCount = 0, upcomingCount = 0;
+        try {
+          const res = await fetch('/reminders', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
 
-    try {
-      // Find the original reminder data to preserve message & time
-      const original = reminders.find(r => r.reminder_id == id);
-      if (!original) throw new Error("Reminder not found in memory");
+          if (!res.ok) {
+            throw new Error('Unauthorized request');
+          }
 
-      await fetch(`/reminders/${id}/update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: original.message,
-          reminder_time: original.reminder_time,
-          is_completed: isCompleted ? 1 : 0
-        })
-      });
+          const reminders = await res.json();
 
-      await loadTasksPanel();  // Refresh display
-    } catch (err) {
-      console.error('Failed to update task status:', err);
-    }
-  });
-});
-  } catch (err) {
-    console.error('Error loading tasks panel', err);
-  }
-document.querySelectorAll('.toggle-header').forEach(header => {
-  header.addEventListener('click', function () {
-    const targetId = this.getAttribute('data-target');
-    const list = document.getElementById(targetId);
-    list.classList.toggle('hidden');
+          const listPast = document.getElementById('list-past');
+          const listToday = document.getElementById('list-today');
+          const listTomorrow = document.getElementById('list-tomorrow');
+          const listUpcoming = document.getElementById('list-upcoming');
 
-    const isCollapsed = list.classList.contains('hidden');
-    const arrow = this.querySelector('.arrow');
-    arrow.textContent = isCollapsed ? '▶' : '▼';
-  });
-});
+          const now = new Date();
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
+          listPast.innerHTML = '';
+          listToday.innerHTML = '';
+          listTomorrow.innerHTML = '';
+          listUpcoming.innerHTML = '';
 
-}
-async function addNewReminder() {
-  const message = document.getElementById('new-task-message').value.trim();
-  const datetime = document.getElementById('new-task-datetime').value;
+          reminders.forEach(reminder => {
+            const date = new Date(reminder.reminder_time);
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  if (!message || !datetime) {
-    alert('Please enter both a message and datetime.');
-    return;
-  }
+            const taskEl = document.createElement('div');
+            taskEl.className = `task-item${reminder.is_completed ? ' completed' : ''}`;
+            taskEl.innerHTML = `
+              <div class="task-content">
+                <input type="checkbox" class="complete-toggle" data-id="${reminder.reminder_id}" ${reminder.is_completed ? 'checked' : ''} />
+                <span class="task-title">${reminder.message}</span>
+                <div class="task-meta">
+                  <span class="task-tag">${timeStr}</span>
+                </div>
+              </div>
+            `;
 
-  try {
-    const res = await fetch('/reminders', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        message,
-        reminder_time: new Date(datetime).toISOString()
-      })
+            // Strip time from both dates
+            const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            if (dateOnly < today) {
+              listPast.appendChild(taskEl);
+              pastCount++;
+            } else if (dateOnly.getTime() === today.getTime()) {
+              listToday.appendChild(taskEl);
+              todayCount++;
+            } else if (dateOnly.getTime() === tomorrow.getTime()) {
+              listTomorrow.appendChild(taskEl);
+              tomorrowCount++;
+            } else {
+              listUpcoming.appendChild(taskEl);
+              upcomingCount++;
+            }
+            document.getElementById('count-past').textContent = pastCount;
+            document.getElementById('count-today').textContent = todayCount;
+            document.getElementById('count-tomorrow').textContent = tomorrowCount;
+            document.getElementById('count-upcoming').textContent = upcomingCount;
+          });
+
+          document.querySelectorAll('.complete-toggle').forEach(checkbox => {
+            checkbox.addEventListener('change', async function () {
+              const id = this.getAttribute('data-id');
+              const isCompleted = this.checked;
+
+              try {
+                // Find the original reminder data to preserve message & time
+                const original = reminders.find(r => r.reminder_id == id);
+                if (!original) throw new Error("Reminder not found in memory");
+
+                await fetch(`/reminders/${id}/update`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    message: original.message,
+                    reminder_time: original.reminder_time,
+                    is_completed: isCompleted ? 1 : 0
+                  })
+                });
+
+                await loadTasksPanel();  // Refresh display
+              } catch (err) {
+                console.error('Failed to update task status:', err);
+              }
+            });
+          });
+
+        } catch (err) {
+          console.error('Error loading tasks panel', err);
+        }
+      }
+
+      // Add new reminder function
+      const addNewReminder = document.getElementById('addNewReminder');
+      if (addNewReminder) {
+        addNewReminder.addEventListener('click', async function () {
+          const message = document.getElementById('new-task-message').value.trim();
+          const datetime = document.getElementById('new-task-datetime').value;
+
+          if (!message || !datetime) {
+            alert('Please enter both a message and datetime.');
+            return;
+          }
+
+          try {
+            const res = await fetch('/reminders', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                message,
+                reminder_time: new Date(datetime).toISOString(),
+              })
+            });
+
+            if (!res.ok) {
+              const error = await res.json();
+              console.error('Error response:', error);
+              throw new Error(error.message || 'Failed to create reminder');
+            }
+
+            document.getElementById('new-task-message').value = '';
+            document.getElementById('new-task-datetime').value = '';
+            await loadTasksPanel(); // Refresh the task panel after successful creation
+
+          } catch (err) {
+            console.error('Error creating reminder:', err);
+            alert('Error adding reminder: ' + err.message);
+          }
+        });
+      }
+
     });
-    if (!res.ok) throw new Error('Failed to create reminder');
-    document.getElementById('new-task-message').value = '';
-    document.getElementById('new-task-datetime').value = '';
-    await loadTasksPanel();
-  } catch (err) {
-    console.error(err);
-    alert('Error adding reminder: ' + err.message);
-  }
-}
-
-setInterval(() => {
-  loadTasksPanel();
-}, 60000); // Refresh every 60 seconds
-
-</script>
+  </script>
 
 </body>
 </html>

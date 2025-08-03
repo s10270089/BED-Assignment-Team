@@ -1,6 +1,15 @@
 const sql = require('mssql');
 const dbConfig = require('../dbConfig');
 
+// Fetch user profile photo URL and gender
+exports.getUserProfile = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT profile_photo_url, gender FROM Users WHERE user_id = @user_id');
+  return result.recordset[0] || null;
+};
+
 exports.getUsername = async (userId) => {
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
@@ -10,6 +19,42 @@ exports.getUsername = async (userId) => {
     throw new Error('User not found');
   }
   return result.recordset[0].name;
+};
+
+exports.getBirthday = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT birthday FROM Users WHERE user_id = @user_id');
+  if (result.recordset.length === 0) {
+    throw new Error('Birthday not found');
+  }
+  return result.recordset[0].birthday;
+}
+
+exports.getMedications = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT name, dosage
+      FROM Medications 
+      WHERE user_id = @user_id
+    `);
+  return result.recordset;
+};
+
+exports.getHealthRecords = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT last_updated, allergies, diagnosis
+      FROM HealthRecords 
+      WHERE user_id = @user_id
+      ORDER BY last_updated DESC
+    `);
+  return result.recordset;
 };
 
 exports.getBMI = async (userId) => {
@@ -38,11 +83,12 @@ exports.getUpcomingEvents = async (userId) => {
   const result = await pool.request()
     .input('user_id', sql.Int, userId)
     .query(`
-      SELECT title, event_time 
+      SELECT title, event_start_time 
       FROM Events 
-      WHERE user_id = @user_id AND event_time >= GETDATE()
-      ORDER BY event_time ASC
+      WHERE user_id = @user_id AND event_start_time >= GETDATE()
+      ORDER BY event_start_time ASC
     `);
+  console.log(result.recordset);
   return result.recordset;
 };
 
@@ -56,4 +102,26 @@ exports.getReminders = async (userId) => {
       WHERE user_id = @user_id
     `);
   return result.recordset;
+};
+
+exports.getAppointments = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT appointment_date, doctor_name, purpose, status 
+      FROM Appointments 
+      WHERE user_id = @user_id 
+      ORDER BY appointment_date ASC
+    `);
+  return result.recordset;
+};
+
+
+exports.getUserDetails = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT height, weight, gender FROM Users WHERE user_id = @user_id');
+  return result.recordset[0]; // { height, weight, gender }
 };

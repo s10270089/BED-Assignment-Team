@@ -9,15 +9,29 @@ exports.getReminders = async (req, res) => {
     }
 };
 
-exports.createReminder = async (req, res) => {
+exports.createReminder = async (req, res) => { 
     try {
+        console.log("Received user_id:", req.user.id);  // Debugging line
         const { message, reminder_time } = req.body;
-        await reminderModel.createReminder(req.user.id, message, reminder_time);
+        const user_id = req.user.user_id;  // Ensure we are extracting the correct user_id from the JWT token
+
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is missing in the request.' });
+        }
+
+        await reminderModel.createReminder({ 
+            user_id,
+            message,
+            reminder_time 
+        });
+
         res.status(201).json({ message: 'Reminder created successfully' });
     } catch (err) {
+        console.error('Error creating reminder:', err);
         res.status(500).json({ error: 'Failed to create reminder' });
     }
 };
+
 
 exports.updateReminder = async (req, res) => {
     try {

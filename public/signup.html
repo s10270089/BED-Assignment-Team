@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CareConnect Signup</title>
   <link rel="stylesheet" href="./css/styles.css" />
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+  <script src="./js/signup.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -94,79 +96,121 @@
 
 <div class="signup-box">
   <h2>Sign Up for CareConnect</h2>
-  <form id="signupForm">
-    <label>Name:</label>
-    <input type="text" name="name" required />
+  <form id="signupForm" method="POST" action="/your-endpoint"> <!-- Ensure your backend endpoint -->
+    <!-- Step 1: Basic Info -->
+    <div class="signup-step" id="step1">
+      <label>Name:</label>
+      <input type="text" name="name" required />
 
-    <label>Email:</label>
-    <input type="email" name="email" required />
+      <label>Email:</label>
+      <input type="email" name="email" required />
 
-    <label>Password:</label>
-    <input type="password" name="password" required />
+      <label>Password:</label>
+      <div style="position:relative;">
+        <input type="password" name="password" id="password" required />
+        <button type="button" id="togglePassword" style="position:absolute;bottom:10px;left:190px;background:none;border:none;padding:0;cursor:pointer;">
+          <svg id="eyeIconPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
 
-    <label>Birthday:</label>
-    <input type="date" name="birthday" required />
+      <label>Confirm Password:</label>
+      <div style="position:relative;">
+        <input type="password" name="confirmPassword" id="confirmPassword" required />
+        <button type="button" id="toggleConfirmPassword" style="position:absolute;bottom:10px;left:190px;background:none;border:none;padding:0;cursor:pointer;">
+          <svg id="eyeIconConfirm" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
 
-    <label>Weight:</label>
-    <div style="display: flex; gap: 10px;">
-      <input type="text" name="weightValue" required style="flex: 1;" placeholder="e.g. 60" />
-      <select name="weightUnit" required style="width: 100px;">
-        <option value="kg">kg</option>
-        <option value="lbs">lbs</option>
-      </select>
+      <button type="button" id="nextToStep2">Next</button>
     </div>
 
-    <label>Height:</label>
-    <div style="display: flex; gap: 10px;">
-      <input type="text" name="heightValue" required style="flex: 1;" placeholder="e.g. 170" />
-      <select name="heightUnit" required style="width: 100px;">
-        <option value="cm">cm</option>
-        <option value="ft">ft</option>
+    <!-- Step 2: Height/Weight, Birthday, Gender -->    
+    <div class="signup-step" id="step2" style="display:none;">
+      <label>Height:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="number" name="heightValue" id="heightValue" style="flex: 1;" placeholder="e.g. 170" />
+        <select name="heightUnit" id="heightUnit" style="width: 100px;">
+          <option value="cm">cm</option>
+          <option value="ft">ft</option>
+        </select>
+      </div>
+
+      <label>Weight:</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="number" name="weightValue" id="weightValue" style="flex: 1;" placeholder="e.g. 60" />
+        <select name="weightUnit" id="weightUnit" style="width: 100px;">
+          <option value="kg">kg</option>
+          <option value="lbs">lbs</option>
+        </select>
+      </div>
+
+      <label>Birthday:</label>
+      <input type="date" name="birthday" id="birthday" required />
+
+      <label>Gender:</label>
+      <select name="gender" id="gender" required>
+        <option value="" disabled selected>Select gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
       </select>
+
+      <button type="button" id="skipStep2">Skip</button>
+      <button type="button" id="nextToStep3">Next</button>
     </div>
 
-    <button type="submit">Sign Up</button>
+    <!-- Step 3: Profile Picture -->
+    <div class="signup-step" id="step3" style="display:none;">
+      <label>Profile Picture (optional):</label>
+      <button type="button" id="upload_widget" class="cloudinary-button">Upload Profile Picture</button>
+      <!-- Hidden input to store Cloudinary profile image URL -->
+      <input type="hidden" id="profilePicUrl" name="profile_photo_url" />
+      <!-- Profile Picture Preview -->
+      <img id="profilePicPreview" src="" alt="Preview" style="display:none;max-width:120px;margin-top:10px;" />
+      <button type="button" id="skipStep3">Skip</button>
+      <button type="submit" id="submitSignup">Sign Up</button>
+    </div>
     <div class="error" id="signupError"></div>
+
   </form>
 </div>
 
 <script>
-  const form = document.getElementById("signupForm");
-  const errorBox = document.getElementById("signupError");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    errorBox.textContent = "";
-
-    const body = {
-      name: form.name.value,
-      email: form.email.value,
-      password: form.password.value,
-      birthday: form.birthday.value,
-      weight: form.weightValue.value + form.weightUnit.value,
-      height: form.heightValue.value + form.heightUnit.value
-    };
-
-
-    try {
-      const res = await fetch("/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        errorBox.textContent = data.error || data.errors?.[0] || "Signup failed.";
+  // Initialize Cloudinary upload widget
+  const myWidget = cloudinary.createUploadWidget(
+    {
+      cloudName: 'dqnoqh0hi', // replace with your Cloudinary cloud name
+      uploadPreset: 'profile_pics_preset',  // replace with your upload preset
+      sources: ['local', 'url', 'camera'],
+      multiple: false,
+      maxFileSize: 5000000, // Optional: max file size (5MB here)
+      resourceType: 'image',
+      clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif'], // Allowed formats
+      cropping: true,
+      croppingAspectRatio: 1,  // Optional: Crop to a square (1:1 ratio)
+    },
+    (error, result) => {
+      if (error) {
+        console.error("Error uploading image:", error);
         return;
       }
+       if (result && result.event === 'success') {
+        console.log("Image uploaded successfully:", result.info.secure_url);
 
-      alert("Signup successful! Please login.");
-      window.location.href = "login.html";
-    } catch (err) {
-      errorBox.textContent = "Could not connect to server.";
+        // Store the image URL in the hidden input field
+        document.getElementById("profilePicUrl").value = result.info.secure_url;
+
+        // Optionally display the image preview
+        const profilePicPreview = document.getElementById("profilePicPreview");
+        profilePicPreview.src = result.info.secure_url;
+        profilePicPreview.style.display = "block";  // Show the image preview
+      }
     }
+  );
+
+  // Trigger the widget when the button is clicked
+  document.getElementById("upload_widget").addEventListener("click", function () {
+    myWidget.open();
   });
 </script>
 
