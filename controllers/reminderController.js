@@ -1,13 +1,18 @@
 const reminderModel = require('../models/reminderModel');
 
-exports.getReminders = async (req, res) => {
+exports.getAllReminders = async (req, res) => {
     try {
-        const reminders = await reminderModel.getAllReminders(req.user.id);
-        res.json(reminders);
+        const user_id = req.user.user_id;  // Correctly access user_id from the decoded token
+        console.log("Received user_id:", user_id);  // Debugging log to check user_id
+
+        const reminders = await reminderModel.getAllReminders(user_id);  // Use user_id to get reminders
+        res.json(reminders);  // Return the reminders in JSON format
     } catch (err) {
+        console.error("Error fetching reminders:", err);
         res.status(500).json({ error: 'Failed to retrieve reminders' });
     }
 };
+
 
 exports.createReminder = async (req, res) => { 
     try {
