@@ -6,9 +6,9 @@ const validateReminder = require('../middlewares/validateReminder');
 
 router.use(authenticate);
 
-router.get('/', authenticate, validateReminder, reminderController.getAllReminders);
+router.get('/', validateReminder, reminderController.getAllReminders);
 router.post('/', validateReminder, reminderController.createReminder);
-router.put('/:id', validateReminder, reminderController.updateReminder); 
+router.post('/:id/update', validateReminder, reminderController.updateReminder); 
 router.delete('/:id', validateReminder, reminderController.deleteReminder);
 
 module.exports = router;
