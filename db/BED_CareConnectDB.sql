@@ -86,7 +86,16 @@ CREATE TABLE Events (
   invitees NVARCHAR(255)
 );
 
-
+-- Event Invitations
+-- (Yoshi)
+CREATE TABLE EventInvitations (
+  invitation_id INT PRIMARY KEY IDENTITY,
+  event_id INT FOREIGN KEY REFERENCES Events(event_id),
+  invitee_id INT FOREIGN KEY REFERENCES Users(user_id),
+  status NVARCHAR(20) CHECK (status IN ('pending', 'accepted', 'rejected')) NOT NULL,
+  sent_at DATETIME DEFAULT GETDATE(),
+  accepted_at DATETIME NULL  -- NULL by default until accepted
+);
 
 
 -- Activity Calendar
