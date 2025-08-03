@@ -155,7 +155,6 @@
         <option value="other">Other</option>
       </select>
 
-      <button type="button" id="skipStep2">Skip</button>
       <button type="button" id="nextToStep3">Next</button>
     </div>
 
@@ -167,7 +166,6 @@
       <input type="hidden" id="profilePicUrl" name="profile_photo_url" />
       <!-- Profile Picture Preview -->
       <img id="profilePicPreview" src="" alt="Preview" style="display:none;max-width:120px;margin-top:10px;" />
-      <button type="button" id="skipStep3">Skip</button>
       <button type="submit" id="submitSignup">Sign Up</button>
     </div>
     <div class="error" id="signupError"></div>
@@ -179,8 +177,8 @@
   // Initialize Cloudinary upload widget
   const myWidget = cloudinary.createUploadWidget(
     {
-      cloudName: 'dqnoqh0hi', // replace with your Cloudinary cloud name
-      uploadPreset: 'profile_pics_preset',  // replace with your upload preset
+      cloudName: 'dgtx0alyb', // replace with your Cloudinary cloud name
+      uploadPreset: 'Profile-pictures',  // replace with your upload preset
       sources: ['local', 'url', 'camera'],
       multiple: false,
       maxFileSize: 5000000, // Optional: max file size (5MB here)

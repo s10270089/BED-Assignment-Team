@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Plan Organizer - CareConnect</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle,fitness_center,add,edit,delete" />
+  <style>
+    .workout-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .workout-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .workout-header h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .workout-header p {
+      color: #666;
+      font-size: 1.2rem;
+    }
+
+    .workout-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-button {
+      background: none;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button.active {
+      color: #3498db;
+      border-bottom-color: #3498db;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .workout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .workout-card {
+      background: white;
+      border-radius: 10px;
+      justify-content: space-around;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-left: 4px solid #3498db;
+    }
+
+    .workout-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+
+    .recommended-badge {
+      background: #27ae60;
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+    }
+
+    .workout-card h3 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .workout-card .exercise-type {
+      background: #3498db;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .workout-details {
+      margin: 1rem 0;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-label {
+      font-weight: bold;
+      color: #666;
+    }
+
+    .detail-value {
+      color: #2c3e50;
+    }
+
+    .workout-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background: #2980b9;
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+    }
+
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+
+    .filter-section {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .filter-select {
+      padding: 0.7rem 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin: 0 0.5rem;
+    }
+
+    .my-plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .plan-stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #3498db;
+      display: block;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .empty-state .material-symbols-outlined {
+      font-size: 4rem;
+      color: #bdc3c7;
+      margin-bottom: 1rem;
+    }
+
+    /* Update the workout grid for My Plan tab to be smaller */
+    #my-workouts-grid.workout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      justify-content: center;
+      padding: 0 1rem;
+    }
+    
+    #my-workouts-grid .workout-card {
+      padding: 1rem;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto; 
+    }
+    
+    #my-workouts-grid .workout-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    #my-workouts-grid .workout-card img {
+      height: 120px !important;
+    }
+    
+    #my-workouts-grid .workout-card .exercise-type {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+    }
+    
+    #my-workouts-grid .workout-card .detail-item {
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    #my-workouts-grid .workout-card .btn {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+
+    /* Edit Modal Styles */
+    .edit-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .edit-modal-content {
+      background-color: white;
+      margin: 1% auto;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    
+    .edit-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 1rem;
+    }
+    
+    .edit-modal-header h3 {
+      color: #2c3e50;
+      margin: 0;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .close-modal:hover {
+      background: #f0f0f0;
+    }
+    
+    .edit-form-group {
+      margin-bottom: 0.1rem;
+    }
+    
+    .edit-form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    .edit-form-group input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    
+    .edit-form-group input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    
+    .edit-modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2rem;
+    }
+    
+    .btn-cancel {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .btn-cancel:hover {
+      background: #7f8c8d;
+    }
+    
+    .btn-save {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .btn-save:hover {
+      background: #219a52;
+    }
+    
+    /* Add these new styles */
+    .workout-grid-container {
+      position: relative;
+    }
+    
+    .finish-button-container {
+      position: absolute;
+      top: -60px;
+      right: 0;
+      z-index: 100;
+    }
+    
+    .btn-finish {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    
+    .btn-finish:hover {
+      background: #219a52;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3); }
+      50% { box-shadow: 0 4px 20px rgba(39, 174, 96, 0.6); }
+      100% { box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3); }
+    }
+    
+    .workout-card.completed {
+      opacity: 0.7;
+      border-left-color: #27ae60;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+    }
+    
+    .workout-card.completed::after {
+      content: "✓ Completed";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #27ae60;
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    
+    .workout-card {
+      position: relative;
+    }
+    
+    /* Update plan stats to include completed workouts */
+    .stat-card.completed-stat {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+    }
+    
+    .stat-card.completed-stat .stat-number {
+      color: white;
+    }
+    
+    .stat-card.completed-stat .stat-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* Done button styling */
+    .done-button {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+      white-space: nowrap;
+    }
+
+    .done-button:hover {
+      background: #219a52;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(39, 174, 96, 0.4);
+    }
+
+    .done-button.completed {
+      background: #2ecc71;
+      color: white;
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .done-button.completed:hover {
+      background: #2ecc71;
+      transform: none;
+      box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .edit-modal-content {
+        margin: 5% auto;
+        width: 95%;
+        padding: 1.5rem;
+      }
+      
+      .edit-modal-actions {
+        flex-direction: column;
+      }
+      
+      #my-workouts-grid.workout-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .finish-button-container {
+        position: static;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Make the date stat card smaller */
+    .stat-card:has(#todays-date) {
+      font-size: 1rem;
+    }
+
+    #todays-date {
+      font-size: 1.5rem !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./overview.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./dailylog.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="workout-container">
+      <div class="workout-header">
+        <h1><span class="material-symbols-outlined"></span> Workout Plan Organizer</h1>
+      </div>
+
+      <div class="workout-tabs">
+        <button class="tab-button active" onclick="showTab('browse')">Browse Workouts</button>
+        <button class="tab-button" onclick="showTab('myplan')">My Workout Plan</button>
+      </div>
+
+      <!-- Browse Workouts Tab -->
+      <div id="browse-tab" class="tab-content active">
+        <div class="filter-section">
+          <label for="activity-filter">Filter by Activity Level:</label>
+          <select id="activity-filter" class="filter-select" onchange="filterWorkouts()">
+            <option value="">All Levels</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+
+        <div id="workouts-grid" class="workout-grid">
+          <!-- Workout cards will be loaded here -->
+        </div>
+      </div>
+
+      <!-- My Workout Plan Tab -->
+      <div id="myplan-tab" class="tab-content">
+        <div class="my-plan-header">
+          <h2>My Workout Plan</h2>
+          <div class="plan-stats">
+            <div class="stat-card">
+              <span id="total-workouts" class="stat-number">0</span>
+              <span class="stat-label">Total Workouts</span>
+            </div>
+            <div class="stat-card">
+              <span id="completed-workouts" class="stat-number">0</span>
+              <span class="stat-label">Completed Today</span>
+            </div>
+            <div class="stat-card">
+              <span id="todays-date" class="stat-number">-</span>
+              <span class="stat-label">Today's Date</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="workout-grid-container">
+          <!-- Finish Button -->
+          <div class="finish-button-container">
+            <button id="finish-workout-btn" class="btn btn-finish" onclick="finishWorkout()" style="display: none;">
+              <span class="material-symbols-outlined">check_circle</span>
+              Finish Workout
+            </button>
+          </div>
+          
+          <div id="my-workouts-grid" class="workout-grid">
+            <!-- User's workout plan will be loaded here -->
+          </div>
+        </div>
+
+        <div id="empty-plan" class="empty-state" style="display: none;">
+          <div class="material-symbols-outlined">fitness_center</div>
+          <h3>No workouts in your plan yet</h3>
+          <p>Browse available workouts and add them to create your personalized plan</p>
+          <button class="btn" onclick="showTab('browse')">Browse Workouts</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container footer-container">
+      <p>&copy; 2025 CareConnect. All rights reserved.</p>
+      <ul class="footer-nav">
+        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a href="#terms">Terms of Service</a></li>
+        <li><a href="#support">Support</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="edit-modal">
+    <div class="edit-modal-content">
+      <div class="edit-modal-header">
+        <h3>Edit Workout</h3>
+        <button class="close-modal" onclick="closeEditModal()">&times;</button>
+      </div>
+      
+      <form id="edit-form">
+        <div class="edit-form-group">
+          <label for="edit-exercise-name">Exercise Name:</label>
+          <input type="text" id="edit-exercise-name" readonly style="background: #f8f9fa; color: #666;">
+        </div>
+        
+        <div class="edit-form-group">
+          <label for="edit-reps">Repetitions:</label>
+          <input type="number" id="edit-reps" min="1" max="50" placeholder="Enter number of reps">
+        </div>
+        
+        <div class="edit-form-group">
+          <label for="edit-sets">Sets:</label>
+          <input type="number" id="edit-sets" min="1" max="10" placeholder="Enter number of sets">
+        </div>
+        
+        <div class="edit-form-group">
+          <label for="edit-duration">Duration (minutes):</label>
+          <input type="number" id="edit-duration" min="5" max="180" placeholder="Enter duration in minutes">
+        </div>
+        
+        <div class="edit-form-group">
+          <label for="edit-rest-duration">Rest Duration (minutes):</label>
+          <input type="number" id="edit-rest-duration" min="0" max="60" placeholder="Enter rest duration in minutes">
+        </div>
+      </form>
+      
+      <div class="edit-modal-actions">
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-save" onclick="saveWorkoutChanges()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fixed authentication function
+    function getCurrentUserFromToken() {
+      try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+          console.error('No token found, redirecting to login');
+          window.location.href = '/login.html';
+          return null;
+        }
+        
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        
+        // Check if token is expired
+        if (payload.exp * 1000 < Date.now()) {
+          console.error('Token expired, redirecting to login');
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
+          window.location.href = '/login.html';
+          return null;
+        }
+        
+        return payload.user_id;
+      } catch (error) {
+        console.error('Invalid token:', error);
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return null;
+      }
+    }
+
+    // Get user ID and check authentication
+    const USER_ID = getCurrentUserFromToken();
+    
+    if (!USER_ID) {
+      // If no valid user ID, stop execution
+      throw new Error('Authentication failed');
+    }
+    
+    console.log('Authenticated user ID:', USER_ID);
+
+    // Add these new variables
+    let completedWorkouts = new Set(); // Track completed workouts for current session
+    let allWorkouts = []; // Store all available workouts
+    let userWorkouts = []; // Store user's workout plan
+
+    // Tab functionality
+    function showTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName + '-tab').classList.add('active');
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+      
+      // Load data based on tab
+      if (tabName === 'browse') {
+        loadAllWorkouts();
+      } else if (tabName === 'myplan') {
+        loadUserWorkoutPlan();
+      }
+    }
+
+    // Load all available workout types (Browse tab only)
+    async function loadAllWorkouts() {
+      try {
+        const response = await fetch('/workouts/types');
+        const data = await response.json();
+        
+        if (data.success) {
+          allWorkouts = data.data;
+          displayBrowseWorkouts(data.data, 'workouts-grid');
+        }
+      } catch (error) {
+        console.error('Error loading workouts:', error);
+      }
+    }
+
+    // Filter workouts by activity level (Browse tab only)
+    async function filterWorkouts() {
+      const activityLevel = document.getElementById('activity-filter').value;
+      
+      try {
+        let url = '/workouts/types';
+        if (activityLevel) {
+          url = `/workouts/types/activity/${activityLevel}`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayBrowseWorkouts(data.data, 'workouts-grid');
+        }
+      } catch (error) {
+        console.error('Error filtering workouts:', error);
+      }
+    }
+
+    // Mark workout as done (logs workout before removing from plan)
+    async function markWorkoutAsDone(exerciseName) {
+      if (!confirm(`Mark "${exerciseName}" as completed?`)) {
+        return;
+      }
+      
+      try {
+        // First, get the workout details to log
+        const workout = userWorkouts.find(w => w.exercise_name === exerciseName);
+        if (!workout) {
+          alert('Workout not found in your plan');
+          return;
+        }
+        
+        // Log the completed workout to DailyLogs table (creates or updates today's log)
+        const logResponse = await fetch('/dailylogs/workout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            exercise_type: workout.exercise_type,
+            exercise_name: workout.exercise_name,
+            sets: workout.sets,
+            reps: workout.reps,
+            duration_minutes: workout.duration_minutes
+          })
+        });
+        
+        console.log('Log response status:', logResponse.status);
+        const logData = await logResponse.json();
+        console.log('Log response data:', logData);
+        
+        if (!logData.success) {
+          console.error('Failed to log workout:', logData.message);
+          alert(`Failed to log workout: ${logData.message}`);
+          // Continue with removal even if logging fails
+        }
+        
+        // Then remove from WorkoutUser table
+        const removeResponse = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+          method: 'DELETE'
+        });
+        
+        console.log('Remove response status:', removeResponse.status);
+        const removeData = await removeResponse.json();
+        console.log('Remove response data:', removeData);
+        
+        if (removeData.success) {
+          // Add to completed workouts for session tracking
+          completedWorkouts.add(exerciseName);
+          
+          // Show success message
+          alert(`✅ Great job! "${exerciseName}" completed and logged in your daily progress!`);
+          
+          // Reload the user's workout plan
+          loadUserWorkoutPlan();
+          
+          // Update completion stats
+          updateCompletionStats();
+          updateTodayCompletedCount();
+        } else {
+          alert('Error: ' + removeData.message);
+        }
+      } catch (error) {
+        console.error('Error marking workout as done:', error);
+        alert(`Error completing workout: ${error.message}`);
+      }
+    }
+
+    // Update today's completed workout count from database
+    async function updateTodayCompletedCount() {
+      try {
+        const response = await fetch(`/dailylogs/today-count/${USER_ID}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('completed-workouts').textContent = data.data.count;
+          
+          if (data.data.count > 0) {
+            document.getElementById('completed-workouts').closest('.stat-card').classList.add('completed-stat');
+          }
+        }
+      } catch (error) {
+        console.error('Error updating today completed count:', error);
+      }
+    }
+
+    // Load user's workout plan (My Plan tab only)
+    async function loadUserWorkoutPlan() {
+      try {
+        const response = await fetch(`/workouts/plan/${USER_ID}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          userWorkouts = data.data;
+          if (data.data.length === 0) {
+            document.getElementById('my-workouts-grid').style.display = 'none';
+            document.getElementById('empty-plan').style.display = 'block';
+          } else {
+            document.getElementById('my-workouts-grid').style.display = 'grid';
+            document.getElementById('empty-plan').style.display = 'none';
+            displayUserWorkouts(data.data, 'my-workouts-grid');
+            updatePlanStats(data.data);
+          }
+          
+          // Load today's completion count from database
+          updateTodayCompletedCount();
+        }
+      } catch (error) {
+        console.error('Error loading user workout plan:', error);
+      }
+    }
+
+    // Display Browse workouts (no completion functionality)
+    function displayBrowseWorkouts(workouts, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      workouts.forEach(workout => {
+        const card = createBrowseWorkoutCard(workout);
+        container.appendChild(card);
+      });
+    }
+
+    // Display User workouts (with completion functionality)
+    function displayUserWorkouts(workouts, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      workouts.forEach(workout => {
+        const card = createUserWorkoutCard(workout);
+        container.appendChild(card);
+      });
+    }
+
+    // Create workout card for Browse tab (no DONE button)
+    function createBrowseWorkoutCard(workout) {
+      const card = document.createElement('div');
+      card.className = 'workout-card';
+      
+      card.innerHTML = `
+        <h3>
+          ${workout.exercise_name}
+          ${workout.recommended ? `<span class="recommended-badge">⭐ Recommended</span>` : ''}
+        </h3>
+        <div class="exercise-type">${workout.exercise_type}</div>
+        
+        ${workout.image_url ? `<img src="${workout.image_url}" alt="${workout.exercise_name}" style="width: 100%; height: 300px; object-fit: contain; border-radius: 8px; margin: 1rem 0;">` : ''}
+        
+        <div class="workout-details">
+          ${workout.activity_level ? `<div class="detail-item">
+            <span class="detail-label">Activity Level:</span>
+            <span class="detail-value">${workout.activity_level}</span>
+          </div>` : ''}
+          ${workout.rest_duration ? `<div class="detail-item">
+            <span class="detail-label">Rest Duration:</span>
+            <span class="detail-value">${workout.rest_duration} minutes per set</span>
+          </div>` : ''}
+          ${workout.reps ? `<div class="detail-item">
+            <span class="detail-label">Reps:</span>
+            <span class="detail-value">${workout.reps}</span>
+          </div>` : ''}
+          ${workout.sets ? `<div class="detail-item">
+            <span class="detail-label">Sets:</span>
+            <span class="detail-value">${workout.sets}</span>
+          </div>` : ''}
+          ${workout.Benefits ? `<p><strong>Benefits:</strong> ${workout.Benefits}</p>` : ''}
+        </div>
+        
+        ${workout.instructions ? `<p><strong>Instructions:</strong> ${workout.instructions}</p>` : ''}
+        
+        <div class="workout-actions">
+          <button class="btn" onclick="addToPlan('${workout.exercise_name}')">
+            <span class="material-symbols-outlined"></span> Add to Plan
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Create workout card for My Plan tab (with DONE button and edit/remove)
+    function createUserWorkoutCard(workout) {
+      const card = document.createElement('div');
+      card.className = 'workout-card';
+      
+      card.innerHTML = `
+        <h3>
+          ${workout.exercise_name}
+          <button class="done-button" 
+                  onclick="markWorkoutAsDone('${workout.exercise_name}')"
+                  style="margin-left: auto;">
+            DONE
+          </button>
+        </h3>
+        <div class="exercise-type">${workout.exercise_type}</div>
+        
+        ${workout.image_url ? `<img src="${workout.image_url}" alt="${workout.exercise_name}" style="width: 100%; height: 120px; object-fit: contain; border-radius: 8px; margin: 1rem 0;">` : ''}
+        
+        <div class="workout-details">
+          ${workout.rest_duration ? `<div class="detail-item">
+            <span class="detail-label">Rest Duration:</span>
+            <span class="detail-value">${workout.rest_duration} minutes per set</span>
+          </div>` : ''}
+          ${workout.reps ? `<div class="detail-item">
+            <span class="detail-label">Reps:</span>
+            <span class="detail-value">${workout.reps}</span>
+          </div>` : ''}
+          ${workout.sets ? `<div class="detail-item">
+            <span class="detail-label">Sets:</span>
+            <span class="detail-value">${workout.sets}</span>
+          </div>` : ''}
+          ${workout.duration_minutes ? `<div class="detail-item">
+            <span class="detail-label">Duration:</span>
+            <span class="detail-value">${workout.duration_minutes} minutes</span>
+          </div>` : ''}
+          ${workout.Benefits ? `<p><strong>Benefits:</strong> ${workout.Benefits}</p>` : ''}
+        </div>
+        
+        ${workout.instructions ? `<p><strong>Instructions:</strong> ${workout.instructions}</p>` : ''}
+        
+        <div class="workout-actions">
+          <button class="btn btn-secondary" onclick="openEditModal('${workout.exercise_name}', '${workout.exercise_name}', ${workout.reps || 0}, ${workout.sets || 0}, ${workout.duration_minutes || 0}, ${workout.rest_duration || 0})">
+            <span class="material-symbols-outlined">Edit</span>
+          </button>
+          <button class="btn btn-danger" onclick="removeFromPlan('${workout.exercise_name}')">
+            <span class="material-symbols-outlined">Delete</span>
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Add workout to user's plan
+    async function addToPlan(exerciseName) {
+      try {
+        const response = await fetch('/workouts/plan', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            exercise_name: exerciseName
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Workout added to your plan!');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error adding workout to plan:', error);
+        alert('Error adding workout to plan');
+      }
+    }
+
+    // Mark workout as done (removes from plan)
+    async function markWorkoutAsDone(exerciseName) {
+      if (!confirm(`Mark "${exerciseName}" as completed?`)) {
+        return;
+      }
+      
+      try {
+        // First, get the workout details to log
+        const workout = userWorkouts.find(w => w.exercise_name === exerciseName);
+        if (!workout) {
+          alert('Workout not found in your plan');
+          return;
+        }
+        
+        // Log the completed workout to DailyLogs table (creates or updates today's log)
+        const logResponse = await fetch('/dailylogs/workout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            exercise_type: workout.exercise_type,
+            exercise_name: workout.exercise_name,
+            sets: workout.sets,
+            reps: workout.reps,
+            duration_minutes: workout.duration_minutes
+          })
+        });
+        
+        const logData = await logResponse.json();
+        
+        if (!logData.success) {
+          console.error('Failed to log workout:', logData.message);
+          // Continue with removal even if logging fails
+        }
+        
+        // Then remove from WorkoutUser table
+        const removeResponse = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+          method: 'DELETE'
+        });
+        
+        const removeData = await removeResponse.json();
+        
+        if (removeData.success) {
+          // Add to completed workouts for session tracking
+          completedWorkouts.add(exerciseName);
+          
+          // Show success message
+          alert(`✅ Great job! "${exerciseName}" completed and logged in your daily progress!`);
+          
+          // Reload the user's workout plan
+          loadUserWorkoutPlan();
+          
+          // Update completion stats
+          updateCompletionStats();
+          updateTodayCompletedCount();
+        } else {
+          alert('Error: ' + removeData.message);
+        }
+      } catch (error) {
+        console.error('Error marking workout as done:', error);
+        alert('Error completing workout');
+      }
+    }
+
+    // Remove workout from plan (with confirmation)
+    async function removeFromPlan(exerciseName) {
+      if (!confirm('Are you sure you want to remove this workout from your plan?')) return;
+      
+      try {
+        const response = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Workout removed from your plan');
+          loadUserWorkoutPlan(); // Refresh the plan
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error removing workout:', error);
+        alert('Error removing workout');
+      }
+    }
+
+    // Store current editing workout
+    let currentEditingWorkout = null;
+
+    // Open edit modal
+    function openEditModal(exerciseName, displayName, reps, sets, duration, restDuration) {
+      currentEditingWorkout = exerciseName;
+      
+      document.getElementById('edit-exercise-name').value = displayName;
+      document.getElementById('edit-reps').value = reps || '';
+      document.getElementById('edit-sets').value = sets || '';
+      document.getElementById('edit-duration').value = duration || '';
+      document.getElementById('edit-rest-duration').value = restDuration || '';
+      
+      document.getElementById('edit-modal').style.display = 'block';
+    }
+
+    // Close edit modal
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+      currentEditingWorkout = null;
+      
+      // Clear form
+      document.getElementById('edit-form').reset();
+    }
+
+    // Save workout changes
+    async function saveWorkoutChanges() {
+      if (!currentEditingWorkout) return;
+      
+      const reps = document.getElementById('edit-reps').value;
+      const sets = document.getElementById('edit-sets').value;
+      const duration = document.getElementById('edit-duration').value;
+      const restDuration = document.getElementById('edit-rest-duration').value;
+      
+      const updates = {};
+      if (reps && !isNaN(reps)) updates.reps = parseInt(reps);
+      if (sets && !isNaN(sets)) updates.sets = parseInt(sets);
+      if (duration && !isNaN(duration)) updates.duration_minutes = parseInt(duration);
+      if (restDuration && !isNaN(restDuration)) updates.rest_duration = parseFloat(restDuration);
+      
+      if (Object.keys(updates).length === 0) {
+        alert('Please make at least one change');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(currentEditingWorkout)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updates)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Workout updated successfully!');
+          closeEditModal();
+          loadUserWorkoutPlan();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error updating workout:', error);
+        alert('Error updating workout');
+      }
+    }
+
+    // Update completion statistics
+    function updateCompletionStats() {
+      const completedCount = completedWorkouts.size;
+      document.getElementById('completed-workouts').textContent = completedCount;
+      
+      // Add visual indicator for completed stat card
+      const completedStatCard = document.getElementById('completed-workouts').closest('.stat-card');
+      if (completedCount > 0) {
+        completedStatCard.classList.add('completed-stat');
+      } else {
+        completedStatCard.classList.remove('completed-stat');
+      }
+    }
+
+    // Show/hide finish button based on completed workouts
+    function toggleFinishButton() {
+      const finishBtn = document.getElementById('finish-workout-btn');
+      if (completedWorkouts.size > 0) {
+        finishBtn.style.display = 'inline-flex';
+      } else {
+        finishBtn.style.display = 'none';
+      }
+    }
+
+    // Finish workout session
+    function finishWorkout() {
+      if (completedWorkouts.size === 0) {
+        alert('No workouts completed in this session!');
+        return;
+      }
+      
+      const completedCount = completedWorkouts.size;
+      const workoutList = Array.from(completedWorkouts).join(', ');
+      
+      // Save completion to localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const sessionData = {
+        date: today,
+        completedWorkouts: Array.from(completedWorkouts),
+        count: completedCount
+      };
+      
+      // Save to localStorage
+      const sessions = JSON.parse(localStorage.getItem('workoutSessions') || '[]');
+      sessions.push(sessionData);
+      localStorage.setItem('workoutSessions', JSON.stringify(sessions));
+      
+      // Show success message
+      alert(`🎉 Workout session completed!\n\nYou finished ${completedCount} workout${completedCount > 1 ? 's' : ''}:\n${workoutList}\n\nKeep up the great work!`);
+      
+      // Reset completion state
+      completedWorkouts.clear();
+      
+      // Update stats
+      updateCompletionStats();
+      
+      // Hide finish button
+      document.getElementById('finish-workout-btn').style.display = 'none';
+    }
+
+    // Load today's completed workouts from localStorage
+    function loadTodayCompletions() {
+      const today = new Date().toISOString().split('T')[0];
+      const sessions = JSON.parse(localStorage.getItem('workoutSessions') || '[]');
+      const todaySessions = sessions.filter(session => session.date === today);
+      
+      const todayCompletedCount = todaySessions.reduce((total, session) => total + session.count, 0);
+      document.getElementById('completed-workouts').textContent = todayCompletedCount;
+      
+      if (todayCompletedCount > 0) {
+        document.getElementById('completed-workouts').closest('.stat-card').classList.add('completed-stat');
+      }
+    }
+
+    // Update plan stats
+    function updatePlanStats(workouts) {
+      // Total workouts
+      document.getElementById('total-workouts').textContent = workouts.length;
+      
+      // Today's date
+      const today = new Date();
+      const options = { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      };
+      const formattedDate = today.toLocaleDateString('en-SG', options);
+      document.getElementById('todays-date').textContent = formattedDate;
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load browse workouts by default
+      loadAllWorkouts();
+      updateCompletionStats();
+      
+      // Set today's date immediately when page loads
+      const today = new Date();
+      const options = { 
+        weekday: 'short', 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      };
+      const formattedDate = today.toLocaleDateString('en-US', options);
+      document.getElementById('todays-date').textContent = formattedDate;
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('edit-modal');
+      if (event.target === modal) {
+        closeEditModal();
+      }
+    }
+  </script>
+</body>
+</html>

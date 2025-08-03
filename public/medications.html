@@ -263,8 +263,12 @@
 
     function logout() {
       localStorage.removeItem("token");
-      window.location.replace("login.html");
+      sessionStorage.clear(); // optional
+      alert("You've been logged out.");
+      window.location.href = "login.html";
     }
+
+    document.getElementById("logoutBtn").addEventListener("click", logout);
 
     function loadMedications() {
       const container = document.getElementById('medications');
@@ -528,6 +532,7 @@
 
     // Init
     loadMedications();
+
   </script>
 </body>
 </html>

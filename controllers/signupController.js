@@ -6,8 +6,12 @@ exports.registerUser = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = await insertUser({ name, email, hashedPassword });
-    res.status(201).json({ message: "Registration successful.", user_id: userId });
+    const result = await insertUser({ name, email, hashedPassword });
+    res.status(201).json({ 
+      message: "Registration successful.", 
+      user_id: result.userId,
+      profile_id: result.profileId 
+    });
   } catch (err) {
     if (err.originalError?.info?.number === 2627 || err.code === "EMAIL_EXISTS") {
       return res.status(400).json({ error: "Email already registered." });

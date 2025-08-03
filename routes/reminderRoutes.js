@@ -6,7 +6,7 @@ const validateReminder = require('../middlewares/validateReminder');
 
 router.use(authenticate);
 
-router.get('/', reminderController.getReminders);
+router.get('/', authenticate, validateReminder, reminderController.getAllReminders);
 router.post('/', validateReminder, reminderController.createReminder);
 router.put('/:id', validateReminder, reminderController.updateReminder); 
 router.delete('/:id', validateReminder, reminderController.deleteReminder);
