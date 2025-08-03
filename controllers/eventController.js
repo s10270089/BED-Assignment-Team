@@ -134,3 +134,32 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+
+exports.acceptInvitation = async (req, res) => {
+  const { invitationId } = req.params;
+  try {
+    const updated = await eventModel.updateInvitationStatus(invitationId, 'accepted');
+    if (updated === 0) {
+      return res.status(404).json({ error: 'Invitation not found or already processed' });
+    }
+    res.status(200).json({ message: 'Invitation accepted' });
+  } catch (err) {
+    console.error('Error accepting invitation:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.rejectInvitation = async (req, res) => {
+  const { invitationId } = req.params;
+  try {
+    const updated = await eventModel.updateInvitationStatus(invitationId, 'rejected');
+    if (updated === 0) {
+      return res.status(404).json({ error: 'Invitation not found or already processed' });
+    }
+    res.status(200).json({ message: 'Invitation rejected' });
+  } catch (err) {
+    console.error('Error rejecting invitation:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
