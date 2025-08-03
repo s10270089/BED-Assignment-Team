@@ -82,7 +82,7 @@
   <div class="task-input">
     <input type="text" id="new-task-message" placeholder="New reminder message..." />
     <input type="datetime-local" id="new-task-datetime" />
-    <button onclick="addNewReminder()">Add Reminder</button>
+    <button id="addNewReminder">Add Reminder</button>
   </div>
 </div>
 
@@ -95,21 +95,27 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
-      // Fetch user_id and token
+    
       const user_id = localStorage.getItem("user_id");
       const token = localStorage.getItem('token');
 
-      // Check if the user is logged in
       if (!token) {
         alert('You need to be logged in to access reminders.');
         window.location.href = '/login.html';
         return;
       }
 
+      try {
+        await loadTasksPanel();  // Load tasks panel first
+      } catch (error) {
+        console.error('Error loading tasks panel:', error);
+      }
       // Set up the calendar
       const calendarEl = document.getElementById('calendar');
       try {
+        console.log('Token:', token);  // Verify that the token is correct
         const res = await fetch('/reminders', {
+          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -131,6 +137,7 @@
           start: r.reminder_time,
           allDay: false,
         }));
+        console.log("Mapped events:", events);
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridDay',
@@ -156,7 +163,7 @@
         });
 
         calendar.render();
-        await loadTasksPanel();
+        loadTasksPanel();
 
       } catch (err) {
         console.error('Error loading reminders:', err);
@@ -178,6 +185,7 @@
           }
 
           const reminders = await res.json();
+          console.log("Fetched reminders:", reminders);
 
           const listPast = document.getElementById('list-past');
           const listToday = document.getElementById('list-today');
@@ -194,6 +202,7 @@
           listUpcoming.innerHTML = '';
 
           reminders.forEach(reminder => {
+            console.log(reminder);
             const date = new Date(reminder.reminder_time);
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -306,7 +315,6 @@
           }
         });
       }
-
     });
   </script>
 
