@@ -288,11 +288,6 @@ INSERT INTO Appointments (user_id, appointment_date, doctor_name, purpose) VALUE
 (2, '2025-08-01 10:00:00', 'Dr. Sarah Lee', 'Orthopedic consultation'),
 (3, '2025-07-28 16:00:00', 'Dr. Brian Clark', 'Asthma follow-up');
 
-
-select * from EmergencyContacts;
-select * from Users;
-select * from ShoppingListItems;
-
 insert into EmergencyContacts(user_id, name, phone_number, relationship) values
 (2, 'BRADEN_MY_GOAT', 87654321, 'GOATRAHHH');
 
