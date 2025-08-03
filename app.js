@@ -200,19 +200,6 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 // ---------------------------------------------------
 // Google OAuth Routes
 // ---------------------------------------------------
-app.get("/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-app.get("/auth/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login.html",
-    session: false,
-  }),
-  (req, res) => {
-    res.redirect("/dashboard.html"); // ✅ Successful login redirect
-  }
-);
 
 // ---------------------------------------------------
 // Start Server
