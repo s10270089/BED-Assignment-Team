@@ -33,7 +33,6 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 
 router.get("/google/callback", passport.authenticate("google", { session: false, failureRedirect: "/login.html" }),
   (req, res) => {
-    // Google login success → redirect to frontend with token
     const token = req.user.token;
     res.redirect(`/login.html?token=${token}`);
   }

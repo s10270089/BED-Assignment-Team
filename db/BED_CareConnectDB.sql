@@ -7,7 +7,7 @@ CREATE TABLE Users (
   user_id INT PRIMARY KEY IDENTITY,
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
-  password_hash NVARCHAR(255) NOT NULL,
+  password_hash NVARCHAR(255) NULL, 
   birthday DATE,
   weight float,
   height float,
@@ -85,6 +85,9 @@ CREATE TABLE Events (
   event_end_time DATETIME,
   invitees NVARCHAR(255)
 );
+
+
+
 
 -- Activity Calendar
 -- (Yoshi)
@@ -266,6 +269,28 @@ VALUES
 
 (3, 'Walking Club', 'Gentle group walk around the reservoir', 'MacRitchie Reservoir Entrance',
  '2025-08-23', '2025-08-23 07:00:00', '2025-08-23 08:30:00', '1,2,6');
+
+ INSERT INTO EventInvitations (event_id, invitee_id, status, sent_at, accepted_at)
+VALUES
+-- Activity 1 Invitations
+(1, 2, 'pending', GETDATE(), NULL),
+(1, 3, 'accepted', GETDATE(), '2025-08-05 10:00:00'),
+(1, 4, 'rejected', GETDATE(), NULL),
+
+-- Activity 2 Invitations
+(2, 1, 'accepted', GETDATE(), '2025-08-06 09:30:00'),
+(2, 4, 'accepted', GETDATE(), '2025-08-06 10:00:00'),
+
+-- Activity 3 Invitations
+(3, 1, 'pending', GETDATE(), NULL),
+(3, 2, 'accepted', GETDATE(), '2025-08-07 08:15:00'),
+(3, 6, 'pending', GETDATE(), NULL),
+
+-- Activity 4 Invitations
+(4, 1, 'accepted', GETDATE(), '2025-08-08 18:00:00'),
+(4, 2, 'accepted', GETDATE(), '2025-08-08 18:10:00'),
+(4, 3, 'pending', GETDATE(), NULL);
+
 
 
 INSERT INTO Friendships (sender_id, receiver_id, status) VALUES

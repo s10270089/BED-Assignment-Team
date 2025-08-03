@@ -105,3 +105,18 @@ exports.createEvent = async (eventData) => {
       VALUES (@user_id, @title, @description, @location, @date, @event_start_time, @event_end_time, @invitees)
     `);
 };
+
+exports.updateInvitationStatus = async (invitationId, status) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('invitationId', sql.Int, invitationId)
+    .input('status', sql.NVarChar, status)
+    .query(`
+      UPDATE EventInvitations
+      SET status = @status,
+          accepted_at = CASE WHEN @status = 'accepted' THEN GETDATE() ELSE NULL END
+      WHERE invitation_id = @invitationId AND status = 'pending'
+    `);
+
+  return result.rowsAffected[0]; // returns 1 if updated, 0 if not found
+};
