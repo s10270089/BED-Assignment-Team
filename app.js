@@ -90,6 +90,8 @@ app.use('/userprofiles', userprofileRoutes);
 const workoutRoutes = require('./routes/workoutRoutes');
 app.use('/workouts', workoutRoutes);
 // 🔹 Lee Meng – Daily Log Tracker
+const dailylogRoutes = require('./routes/dailylogRoutes');
+app.use('/dailylogs', dailylogRoutes);
 
 // ---------------------------------------------------
 // Swagger API Documentation

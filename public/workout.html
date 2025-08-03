@@ -556,7 +556,7 @@
               <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
               <li><a href="./profile.html">User Profile Manager</a></li>
               <li><a href="./workout.html">Workout Plan Organizer</a></li>
-              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+              <li><a href="./dailylog.html">Daily Log Tracker</a></li>
             </ul>
           </li>
           <li><a href="#about">About</a></li>
@@ -807,6 +807,104 @@
       }
     }
 
+    // Mark workout as done (logs workout before removing from plan)
+    async function markWorkoutAsDone(exerciseName) {
+      if (!confirm(`Mark "${exerciseName}" as completed?`)) {
+        return;
+      }
+      
+      try {
+        // First, get the workout details to log
+        const workout = userWorkouts.find(w => w.exercise_name === exerciseName);
+        if (!workout) {
+          alert('Workout not found in your plan');
+          return;
+        }
+        
+        console.log('Attempting to log workout:', {
+          user_id: USER_ID,
+          exercise_type: workout.exercise_type,
+          exercise_name: workout.exercise_name,
+          sets: workout.sets,
+          reps: workout.reps,
+          duration_minutes: workout.duration_minutes
+        });
+        
+        // Log the completed workout to DailyLogs table (creates or updates today's log)
+        const logResponse = await fetch('/dailylogs/workout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            exercise_type: workout.exercise_type,
+            exercise_name: workout.exercise_name,
+            sets: workout.sets,
+            reps: workout.reps,
+            duration_minutes: workout.duration_minutes
+          })
+        });
+        
+        console.log('Log response status:', logResponse.status);
+        const logData = await logResponse.json();
+        console.log('Log response data:', logData);
+        
+        if (!logData.success) {
+          console.error('Failed to log workout:', logData.message);
+          alert(`Failed to log workout: ${logData.message}`);
+          // Continue with removal even if logging fails
+        }
+        
+        // Then remove from WorkoutUser table
+        const removeResponse = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+          method: 'DELETE'
+        });
+        
+        console.log('Remove response status:', removeResponse.status);
+        const removeData = await removeResponse.json();
+        console.log('Remove response data:', removeData);
+        
+        if (removeData.success) {
+          // Add to completed workouts for session tracking
+          completedWorkouts.add(exerciseName);
+          
+          // Show success message
+          alert(`✅ Great job! "${exerciseName}" completed and logged in your daily progress!`);
+          
+          // Reload the user's workout plan
+          loadUserWorkoutPlan();
+          
+          // Update completion stats
+          updateCompletionStats();
+          updateTodayCompletedCount();
+        } else {
+          alert('Error: ' + removeData.message);
+        }
+      } catch (error) {
+        console.error('Error marking workout as done:', error);
+        alert(`Error completing workout: ${error.message}`);
+      }
+    }
+
+    // Update today's completed workout count from database
+    async function updateTodayCompletedCount() {
+      try {
+        const response = await fetch(`/dailylogs/today-count/${USER_ID}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('completed-workouts').textContent = data.data.count;
+          
+          if (data.data.count > 0) {
+            document.getElementById('completed-workouts').closest('.stat-card').classList.add('completed-stat');
+          }
+        }
+      } catch (error) {
+        console.error('Error updating today completed count:', error);
+      }
+    }
+
     // Load user's workout plan (My Plan tab only)
     async function loadUserWorkoutPlan() {
       try {
@@ -823,10 +921,10 @@
             document.getElementById('empty-plan').style.display = 'none';
             displayUserWorkouts(data.data, 'my-workouts-grid');
             updatePlanStats(data.data);
-            
-            // Load today's completion data
-            loadTodayCompletions();
           }
+          
+          // Load today's completion count from database
+          updateTodayCompletedCount();
         }
       } catch (error) {
         console.error('Error loading user workout plan:', error);
@@ -983,32 +1081,63 @@
 
     // Mark workout as done (removes from plan)
     async function markWorkoutAsDone(exerciseName) {
-      if (!confirm(`Mark "${exerciseName}" as completed? This will remove it from your plan.`)) {
+      if (!confirm(`Mark "${exerciseName}" as completed?`)) {
         return;
       }
       
       try {
-        const response = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
+        // First, get the workout details to log
+        const workout = userWorkouts.find(w => w.exercise_name === exerciseName);
+        if (!workout) {
+          alert('Workout not found in your plan');
+          return;
+        }
+        
+        // Log the completed workout to DailyLogs table (creates or updates today's log)
+        const logResponse = await fetch('/dailylogs/workout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: USER_ID,
+            exercise_type: workout.exercise_type,
+            exercise_name: workout.exercise_name,
+            sets: workout.sets,
+            reps: workout.reps,
+            duration_minutes: workout.duration_minutes
+          })
+        });
+        
+        const logData = await logResponse.json();
+        
+        if (!logData.success) {
+          console.error('Failed to log workout:', logData.message);
+          // Continue with removal even if logging fails
+        }
+        
+        // Then remove from WorkoutUser table
+        const removeResponse = await fetch(`/workouts/plan/${USER_ID}/${encodeURIComponent(exerciseName)}`, {
           method: 'DELETE'
         });
         
-        const data = await response.json();
+        const removeData = await removeResponse.json();
         
-        if (data.success) {
+        if (removeData.success) {
           // Add to completed workouts for session tracking
           completedWorkouts.add(exerciseName);
           
           // Show success message
-          alert(`✅ Great job! "${exerciseName}" completed and removed from your plan.`);
+          alert(`✅ Great job! "${exerciseName}" completed and logged in your daily progress!`);
           
           // Reload the user's workout plan
           loadUserWorkoutPlan();
           
           // Update completion stats
           updateCompletionStats();
-          toggleFinishButton();
+          updateTodayCompletedCount();
         } else {
-          alert('Error: ' + data.message);
+          alert('Error: ' + removeData.message);
         }
       } catch (error) {
         console.error('Error marking workout as done:', error);

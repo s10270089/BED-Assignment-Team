@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Workout Log - CareConnect</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=calendar_today,fitness_center,delete,trending_up,today" />
+  <style>
+    .dailylog-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .dailylog-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .dailylog-header h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .dailylog-header p {
+      color: #666;
+      font-size: 1.2rem;
+    }
+
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card.today-stats {
+      border-color: #3498db;
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white;
+    }
+
+    .stat-card.weekly-stats {
+      border-color: #27ae60;
+      background: linear-gradient(135deg, #27ae60 0%, #219a52 100%);
+      color: white;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-select, .filter-input {
+      padding: 0.7rem 1rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .filter-select:focus, .filter-input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    .filter-input.active, .filter-select.active {
+      border-color: #27ae60;
+      background-color: #f0f8f0;
+    }
+
+    .filter-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .filter-btn:hover {
+      background: #2980b9;
+    }
+
+    .filter-status {
+      font-size: 0.9rem;
+      color: #666;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    .logs-section {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .logs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #f8f9fa;
+      padding-bottom: 1rem;
+    }
+
+    .logs-header h2 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin: 0;
+    }
+
+    .logs-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .log-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 4px solid #3498db;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .log-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .log-card.workout-log {
+      border-left-color: #27ae60;
+    }
+
+    .log-date {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .log-content {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .log-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .empty-state .material-symbols-outlined {
+      font-size: 4rem;
+      color: #bdc3c7;
+      margin-bottom: 1rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+
+    .loading .material-symbols-outlined {
+      font-size: 2rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success-message {
+      background: #27ae60;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .error-message {
+      background: #e74c3c;
+      color: white;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .workout-entry {
+      margin-bottom: 1rem;
+    }
+
+    .exercise-name {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #2c3e50;
+    }
+
+    .exercise-name strong {
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    .exercise-type {
+      font-style: italic;
+      color: #666;
+      font-weight: normal;
+    }
+
+    .exercise-details {
+      margin-left: 1rem;
+      line-height: 1.4;
+    }
+
+    .sets-line, .reps-line, .duration-line {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 0.3rem;
+    }
+
+    .sets-line {
+      color: #3498db;
+      font-weight: 500;
+    }
+
+    .reps-line {
+      color: #e67e22;
+      font-weight: 500;
+    }
+
+    .duration-line {
+      color: #9b59b6;
+      font-weight: 500;
+    }
+
+    .workout-fallback {
+      font-style: italic;
+      color: #666;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e1e8ed, transparent);
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .logs-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
+    }
+
+    .reflection-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.8rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      line-height: 1.5;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+    }
+
+    .reflection-textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .reflection-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+      justify-content: flex-end;
+    }
+
+    .save-reflection-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.3s ease;
+    }
+
+    .save-reflection-btn:hover {
+      background: #219a52;
+    }
+
+    .save-reflection-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .cancel-reflection-btn {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s ease;
+    }
+
+    .cancel-reflection-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .edit-reflection-btn {
+      background: #f39c12;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.3s ease;
+    }
+
+    .edit-reflection-btn:hover {
+      background: #e67e22;
+    }
+
+    .reflection-display {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+      font-style: italic;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergency.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./overview.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./dailylog.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="dailylog-container">
+      <!-- Header -->
+      <div class="dailylog-header">
+        <h1>Daily Workout Log</h1>
+        <p>Track your fitness journey and see your progress over time</p>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <div id="success-message" class="success-message"></div>
+      <div id="error-message" class="error-message"></div>
+
+      <!-- Statistics Section -->
+      <div class="stats-section">
+        <div class="stat-card today-stats">
+          <span class="stat-icon material-symbols-outlined">Today</span>
+          <span id="today-count" class="stat-number">0</span>
+          <span class="stat-label">Workouts Today</span>
+        </div>
+        <div class="stat-card weekly-stats">
+          <span class="stat-icon material-symbols-outlined">Workout Done</span>
+          <span id="weekly-count" class="stat-number">0</span>
+          <span class="stat-label">This Week</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon material-symbols-outlined">Total Days</span>
+          <span id="active-days" class="stat-number">0</span>
+          <span class="stat-label">Active Days</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon material-symbols-outlined">Today's Date</span>
+          <span id="current-date" class="stat-number">-</span>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <div class="filter-group">
+          <label for="date-filter">Filter by Date:</label>
+          <input type="date" id="date-filter" class="filter-input">
+        </div>
+        <button class="filter-btn" onclick="filterLogs()">Apply Filter</button>
+        <button class="filter-btn" onclick="resetFilters()">Reset</button>
+      </div>
+
+      <!-- Logs Section -->
+      <div class="logs-section">
+        <div class="logs-header">
+          <h2>Your Workout History</h2>
+          <div id="logs-count">Loading...</div>
+        </div>
+        
+        <div id="loading" class="loading">
+          <span class="material-symbols-outlined">refresh</span>
+          <p>Loading your workout logs...</p>
+        </div>
+
+        <div id="logs-grid" class="logs-grid" style="display: none;">
+          <!-- Log cards will be loaded here -->
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+          <span class="material-symbols-outlined">fitness_center</span>
+          <h3>No workout logs found</h3>
+          <p>Complete some workouts to see your progress here!</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Authentication function
+    function getCurrentUserFromToken() {
+      try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+          console.error('No token found, redirecting to login');
+          window.location.href = '/login.html';
+          return null;
+        }
+        
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        
+        // Check if token is expired
+        if (payload.exp * 1000 < Date.now()) {
+          console.error('Token expired, redirecting to login');
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
+          window.location.href = '/login.html';
+          return null;
+        }
+        
+        return payload.user_id;
+      } catch (error) {
+        console.error('Invalid token:', error);
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        window.location.href = '/login.html';
+        return null;
+      }
+    }
+
+    // Get user ID
+    const USER_ID = getCurrentUserFromToken();
+    
+    if (!USER_ID) {
+      throw new Error('Authentication failed');
+    }
+
+    // Global variables
+    let allLogs = [];
+
+    // Initialize page - load all logs without initial filtering
+    document.addEventListener('DOMContentLoaded', function() {
+      setCurrentDate();
+      loadStats();
+      loadLogs(); // Load all logs without filtering
+    });
+
+    // Set current date
+    function setCurrentDate() {
+      const today = new Date();
+      const options = { 
+        month: 'short', 
+        day: 'numeric'
+      };
+      const formattedDate = today.toLocaleDateString('en-US', options);
+      document.getElementById('current-date').textContent = formattedDate;
+    }
+
+    // Load statistics
+    async function loadStats() {
+      try {
+        // Load today's count
+        const todayResponse = await fetch(`/dailylogs/today-count/${USER_ID}`);
+        const todayData = await todayResponse.json();
+        
+        if (todayData.success) {
+          document.getElementById('today-count').textContent = todayData.data.count;
+        }
+
+        // Load weekly stats
+        const weeklyResponse = await fetch(`/dailylogs/stats/${USER_ID}?days=7`);
+        const weeklyData = await weeklyResponse.json();
+        
+        if (weeklyData.success) {
+          document.getElementById('weekly-count').textContent = weeklyData.data.total_workouts;
+          document.getElementById('active-days').textContent = weeklyData.data.active_days;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load workout logs - simplified to load all logs
+    async function loadLogs(date = null) {
+      try {
+        showLoading();
+        
+        let url = `/dailylogs/${USER_ID}`;
+        if (date) {
+          url += `?date=${date}`;
+        }
+        
+        console.log('Loading logs from URL:', url);
+        
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (data.success) {
+          // Store ALL logs from the database
+          allLogs = data.data;
+          
+          console.log('All logs loaded:', allLogs.length);
+          displayLogs(allLogs);
+        } else {
+          console.error('API returned error:', data.message);
+          showError('Failed to load workout logs: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        showError('Error loading workout logs: ' + error.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Display logs
+    function displayLogs(logs) {
+      const logsGrid = document.getElementById('logs-grid');
+      const emptyState = document.getElementById('empty-state');
+      const logsCount = document.getElementById('logs-count');
+      
+      logsCount.textContent = `${logs.length} log${logs.length !== 1 ? 's' : ''} found`;
+      
+      if (logs.length === 0) {
+        logsGrid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      logsGrid.style.display = 'grid';
+      emptyState.style.display = 'none';
+      logsGrid.innerHTML = '';
+      
+      logs.forEach(log => {
+        const logCard = createLogCard(log);
+        logsGrid.appendChild(logCard);
+      });
+    }
+
+    // Create log card
+    function createLogCard(log) {
+      const card = document.createElement('div');
+      card.className = 'log-card workout-log';
+      
+      const logDate = new Date(log.log_date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      // Parse the exercises to extract workout details
+      const workoutContent = parseWorkoutExercises(log.exercises);
+      
+      card.innerHTML = `
+        <div class="log-date">
+          <span class="material-symbols-outlined">calendar_today</span>
+          ${logDate}
+        </div>
+        <div class="log-content">
+          <div class="exercises-section">
+            <h4 style="color: #27ae60; margin-bottom: 0.5rem;">
+              <span class="material-symbols-outlined" style="font-size: 1.2rem; vertical-align: middle;">Exercises Completed</span>
+            </h4>
+            ${workoutContent}
+          </div>
+          <div class="reflection-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e1e8ed;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <h4 style="color: #3498db; margin: 0;">
+                <span class="material-symbols-outlined" style="font-size: 1.2rem; vertical-align: middle;">Daily Reflection</span>
+              </h4>
+              ${log.reflection ? `
+                <button class="edit-reflection-btn" onclick="toggleReflectionEdit(${log.log_id}, '${log.log_date}')">
+                  <span class="material-symbols-outlined" style="font-size: 0.9rem;">Edit</span>
+                </button>
+              ` : ''}
+            </div>
+            <div id="reflection-display-${log.log_id}" ${log.reflection ? '' : 'style="display: none;"'}>
+              <div class="reflection-display">${log.reflection || ''}</div>
+            </div>
+            <div id="reflection-edit-${log.log_id}" ${log.reflection ? 'style="display: none;"' : ''}>
+              <textarea 
+                class="reflection-textarea" 
+                id="reflection-text-${log.log_id}" 
+                placeholder="Share your thoughts about today's workout... How did you feel? What did you learn? Any goals for tomorrow?"
+              >${log.reflection || ''}</textarea>
+              <div class="reflection-actions">
+                <button class="cancel-reflection-btn" onclick="cancelReflectionEdit(${log.log_id})">
+                  Cancel
+                </button>
+                <button class="save-reflection-btn" onclick="saveReflection(${log.log_id}, '${log.log_date}')">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">Save Reflection</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="log-actions">
+          <button class="delete-btn" onclick="deleteLog(${log.log_id})">
+            <span class="material-symbols-outlined">Delete</span>
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Toggle reflection edit mode
+    function toggleReflectionEdit(logId, logDate) {
+      const displayDiv = document.getElementById(`reflection-display-${logId}`);
+      const editDiv = document.getElementById(`reflection-edit-${logId}`);
+      
+      displayDiv.style.display = 'none';
+      editDiv.style.display = 'block';
+      
+      // Focus on textarea
+      const textarea = document.getElementById(`reflection-text-${logId}`);
+      textarea.focus();
+      // Move cursor to end
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+
+    // Cancel reflection edit
+    function cancelReflectionEdit(logId) {
+      const displayDiv = document.getElementById(`reflection-display-${logId}`);
+      const editDiv = document.getElementById(`reflection-edit-${logId}`);
+      const textarea = document.getElementById(`reflection-text-${logId}`);
+      
+      // Reset textarea to original value (reload from the log data)
+      const originalLog = allLogs.find(log => log.log_id === logId);
+      if (originalLog) {
+        textarea.value = originalLog.reflection || '';
+      }
+      
+      if (originalLog && originalLog.reflection) {
+        displayDiv.style.display = 'block';
+        editDiv.style.display = 'none';
+      } else {
+        // Keep edit mode if no reflection exists
+        editDiv.style.display = 'block';
+        displayDiv.style.display = 'none';
+      }
+    }
+
+    // Save reflection
+    async function saveReflection(logId, logDate) {
+      const textarea = document.getElementById(`reflection-text-${logId}`);
+      const reflection = textarea.value.trim();
+      
+      console.log('Saving reflection:', {
+        logId,
+        logDate,
+        reflection,
+        USER_ID
+      });
+      
+      if (!reflection) {
+        showError('Please enter a reflection before saving.');
+        return;
+      }
+      
+      const saveBtn = document.querySelector(`#reflection-edit-${logId} .save-reflection-btn`);
+      const originalText = saveBtn.innerHTML;
+      
+      try {
+        // Show loading state
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1rem;">sync</span> Saving...';
+        
+        const url = `/dailylogs/reflection/${USER_ID}/${logDate}`;
+        const requestBody = { reflection: reflection };
+        
+        console.log('Making request to:', url);
+        console.log('Request body:', requestBody);
+        
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (data.success) {
+          // Update the local log data
+          const logIndex = allLogs.findIndex(log => log.log_id === logId);
+          if (logIndex !== -1) {
+            allLogs[logIndex].reflection = reflection;
+          }
+          
+          // Update display
+          const displayDiv = document.getElementById(`reflection-display-${logId}`);
+          const editDiv = document.getElementById(`reflection-edit-${logId}`);
+          
+          displayDiv.querySelector('.reflection-display').textContent = reflection;
+          displayDiv.style.display = 'block';
+          editDiv.style.display = 'none';
+          
+          // Add edit button if it doesn't exist
+          const reflectionSection = displayDiv.closest('.reflection-section');
+          const header = reflectionSection.querySelector('h4').parentElement;
+          if (!header.querySelector('.edit-reflection-btn')) {
+            header.innerHTML = `
+              <h4 style="color: #3498db; margin: 0;">
+                <span class="material-symbols-outlined" style="font-size: 1.2rem; vertical-align: middle;"></span>
+                Daily Reflection
+              </h4>
+              <button class="edit-reflection-btn" onclick="toggleReflectionEdit(${logId}, '${logDate}')">
+                <span class="material-symbols-outlined" style="font-size: 0.9rem;"></span>
+                Edit
+              </button>
+            `;
+          }
+          
+          showSuccess('Reflection saved successfully!');
+        } else {
+          console.error('API returned error:', data);
+          showError('Failed to save reflection: ' + (data.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving reflection:', error);
+        showError('Error saving reflection: ' + error.message);
+      } finally {
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+      }
+    }
+
+    // Show loading indicator
+    function showLoading() {
+      document.getElementById('loading').style.display = 'block';
+    }
+
+    // Hide loading indicator
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.getElementById('success-message');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      
+      setTimeout(() => {
+        successDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    // Filter logs based on date only
+    function filterLogs() {
+      const dateFilter = document.getElementById('date-filter').value;
+      const dateInput = document.getElementById('date-filter');
+      
+      console.log('Filtering with date:', dateFilter);
+      console.log('Total logs available:', allLogs.length);
+      
+      let filteredLogs = [...allLogs];
+      let statusMessage = '';
+      
+      // Remove active class
+      dateInput.classList.remove('active');
+      
+      if (dateFilter) {
+        // Specific date filter
+        filteredLogs = filteredLogs.filter(log => {
+          const logDate = log.log_date.split('T')[0];
+          return logDate === dateFilter;
+        });
+        dateInput.classList.add('active');
+        statusMessage = `Showing logs for ${new Date(dateFilter).toLocaleDateString()}`;
+      }
+      
+      console.log('Filtered results:', filteredLogs.length);
+      
+      // Update status in logs header
+      const logsCount = document.getElementById('logs-count');
+      logsCount.innerHTML = `${filteredLogs.length} log${filteredLogs.length !== 1 ? 's' : ''} found ${statusMessage ? `<br><small class="filter-status">${statusMessage}</small>` : ''}`;
+      
+      displayLogs(filteredLogs);
+    }
+
+    // Reset filters to show all logs
+    function resetFilters() {
+      document.getElementById('date-filter').value = '';
+      document.getElementById('date-filter').classList.remove('active');
+      
+      // Show all logs
+      displayLogs(allLogs);
+      
+      // Update logs count
+      const logsCount = document.getElementById('logs-count');
+      logsCount.innerHTML = `${allLogs.length} log${allLogs.length !== 1 ? 's' : ''} found`;
+    }
+
+    // Delete a log
+    async function deleteLog(logId) {
+      if (!confirm('Are you sure you want to delete this log? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/dailylogs/${logId}/${USER_ID}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Remove the deleted log from the allLogs array
+          allLogs = allLogs.filter(log => log.log_id !== logId);
+          displayLogs(allLogs);
+          loadStats(); // Reload stats after deletion
+          showSuccess('Log deleted successfully!');
+        } else {
+          showError('Failed to delete log: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error deleting log:', error);
+        showError('Error deleting log: ' + error.message);
+      }
+    }
+
+    // Parse workout exercises from log data
+    function parseWorkoutExercises(exercises) {
+      if (!exercises) return '<p style="color: #999;">No exercises recorded</p>';
+      
+      // Split by "Completed" to get individual workouts
+      const workoutParts = exercises.split(/;\s*Completed\s+|^Completed\s+/);
+      let formattedContent = '';
+      
+      workoutParts.forEach((part, index) => {
+        if (part.trim() === '') return;
+        
+        // Extract exercise name, type, sets, reps, and duration using regex
+        const match = part.match(/^(.+?)\s+\((.+?)\)\s+-\s+(\d+)\s+sets?,\s+(\d+)\s+reps?(?:,\s+(\d+)\s+minutes?)?/);
+        
+        if (match) {
+          const [, exerciseName, exerciseType, sets, reps, duration] = match;
+          
+          if (index > 0) {
+            formattedContent += '<hr style="margin: 1rem 0; border: 1px solid #e1e8ed;">';
+          }
+          
+          formattedContent += `
+            <div class="workout-entry">
+              <div class="exercise-name"><strong>${exerciseName}</strong> <span class="exercise-type">(${exerciseType})</span></div>
+              <div class="exercise-details">
+                <div class="sets-line">Sets: ${sets}</div>
+                <div class="reps-line">Reps: ${reps}</div>
+                ${duration ? `<div class="duration-line">Duration: ${duration} minutes</div>` : ''}
+              </div>
+            </div>
+          `;
+        } else {
+          // Fallback for any formatting that doesn't match
+          formattedContent += `<div class="workout-fallback">${part.trim()}</div>`;
+        }
+      });
+      
+      return formattedContent || '<p style="color: #999;">No valid exercise data found</p>';
+    }
+  </script>
+</body>
+</html>
