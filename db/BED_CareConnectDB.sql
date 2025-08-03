@@ -7,10 +7,11 @@ CREATE TABLE Users (
   user_id INT PRIMARY KEY IDENTITY,
   name NVARCHAR(100),
   email NVARCHAR(100) UNIQUE NOT NULL,
-  password_hash NVARCHAR(255) NOT NULL,
+  password_hash NVARCHAR(255) NULL, 
   birthday DATE,
-  weight float ,
-  height float 
+  weight float,
+  height float,
+  google_id NVARCHAR(100) -- for Google login users
 );
 
 -- Medication Manager
