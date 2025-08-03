@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Live Bus Tracker</title>
   <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,43 +13,84 @@
       padding: 0;
     }
 
+    header {
+      background-color: transparent;
+      padding: 30px 40px;
+    }
+
     .header-container {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      height: 100px;
     }
 
     .nav-list {
-      list-style-type: none;
+      list-style: none;
       display: flex;
       gap: 20px;
-      padding: 0;
-      margin: 0;
-      margin-left: 320px;
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
-    .nav-list li {
-      display: inline;
+    .nav-list .dropdown {
+      position: relative;
     }
 
     .nav-list a {
-      color: #2c3e50;
+      color: #223074;
       text-decoration: none;
       font-weight: bold;
     }
 
     .nav-list a:hover {
-      text-decoration: underline;
+      color: #ffcd00;
     }
 
-    header {
-      background-color: #2c3e50;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #4b91e2;
+      border-radius: 4px;
+      min-width: 300px;
+      padding: 0.5rem;
+      list-style: none;
+      column-count: 2;
+      column-gap: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .dropdown:hover .dropdown-menu {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .dropdown-menu li {
+      break-inside: avoid;
+      margin-bottom: 0.25rem;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 0.25rem 0.5rem;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-menu a:hover {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
     }
 
     .logout-btn {
@@ -60,10 +102,15 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.2s ease;
+      margin-top: -20px;
     }
 
     .logout-btn:hover {
       background-color: #c0392b;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
     }
 
     .container {
@@ -164,25 +211,13 @@
     }
 
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .green { color: green; font-weight: bold; }
@@ -226,32 +261,42 @@
     #favouriteList button:hover {
       background-color: #c0392b;
     }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px;
-      }
-
-      input, select {
-        max-width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
   <header>
-  <div class="container header-container">
-    <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
-    <nav>
-      <ul class="nav-list">
-        <li><a href="./index.html">Home</a></li>
-        <li><a href="./profile.html">Profile</a></li>
-        <li><a href="./health-records.html">Health Records</a></li>
-      </ul>
-    </nav>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
-  </div>
-</header>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shoplist.html">Shopping List Manager</a></li>
+              <li><a href="./emergencycontact.html">Emergency Quick-Dial</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./dashboard.html">Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./appointments.html">Appointments</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./dailylog.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./login.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+          <li><button class="logout-btn" id="logoutBtn">Logout</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
   <div class="container">
     <h2>Live Bus Tracker</h2>
