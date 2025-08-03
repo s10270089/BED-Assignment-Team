@@ -11,12 +11,7 @@ const photoInput = document.getElementById("photo-input");
 const uploadPhotoBtn = document.getElementById("upload-photo-btn");
 const photoUploadOverlay = document.getElementById("photo-upload-overlay");
 const apiBaseUrl = "http://localhost:3000";
-/*
-// Configuration
-const profileId = 1; // Replace with real dynamic ID if needed
-const userId = 1; // This should come from authentication/session
-*/
-// In profile.js - get user data from stored token
+
 function getCurrentUserFromToken() {
   try {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -64,9 +59,8 @@ if (!currentUser) {
 
 // Set global variables for use throughout the file
 const userId = currentUser.userId;
-const profileId = currentUser.profileId;
 
-console.log('Using user IDs from token:', { userId, profileId });
+console.log('Using user ID from token:', userId);
 
 // Function to show loading state on button
 function setLoadingState(isLoading) {
@@ -249,7 +243,7 @@ async function uploadPhoto() {
       profile_photo_url: imageUrl
     };
 
-    const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
+    const response = await fetch(`${apiBaseUrl}/userprofiles/user/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -331,8 +325,8 @@ async function preloadProfileData() {
     // Get token for authorization
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     
-    // Make a GET request to your API endpoint with token
-    const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
+    // Use the user_id endpoint
+    const response = await fetch(`${apiBaseUrl}/userprofiles/user/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -340,7 +334,6 @@ async function preloadProfileData() {
     });
 
     if (!response.ok) {
-      // Handle HTTP errors (e.g., 404, 500)
       const errorBody = response.headers
         .get("content-type")
         ?.includes("application/json")
@@ -351,8 +344,8 @@ async function preloadProfileData() {
       );
     }
 
-    // Parse the JSON response
     const data = await response.json();
+    console.log('Profile loaded:', data);
 
     // Prefill form fields
     fillFormWithData(data);
@@ -370,15 +363,9 @@ async function preloadProfileData() {
   } catch (error) {
     console.error("Error loading profile:", error);
     
-    // Show error message
     if (messageDiv) {
       messageDiv.textContent = `Failed to load profile: ${error.message}`;
       messageDiv.className = "message error";
-    }
-    
-    // Don't show alert if messageDiv exists
-    if (!messageDiv) {
-      alert(`Failed to load profile: ${error.message}`);
     }
   }
 }
@@ -426,7 +413,7 @@ async function updateProfile(profileData) {
     }
 
     // Make PUT request to update profile
-    const response = await fetch(`${apiBaseUrl}/userprofiles/${profileId}`, {
+    const response = await fetch(`${apiBaseUrl}/userprofiles/user/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
