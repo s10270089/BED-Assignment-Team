@@ -21,6 +21,42 @@ exports.getUsername = async (userId) => {
   return result.recordset[0].name;
 };
 
+exports.getBirthday = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT birthday FROM Users WHERE user_id = @user_id');
+  if (result.recordset.length === 0) {
+    throw new Error('Birthday not found');
+  }
+  return result.recordset[0].birthday;
+}
+
+exports.getMedications = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT name, dosage
+      FROM Medications 
+      WHERE user_id = @user_id
+    `);
+  return result.recordset;
+};
+
+exports.getHealthRecords = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT last_updated, allergies, diagnosis
+      FROM HealthRecords 
+      WHERE user_id = @user_id
+      ORDER BY last_updated DESC
+    `);
+  return result.recordset;
+};
+
 exports.getBMI = async (userId) => {
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()

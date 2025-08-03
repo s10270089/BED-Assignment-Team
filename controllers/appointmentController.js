@@ -25,7 +25,9 @@ exports.getAppointmentById = async (req, res) => {
 // Create a new appointment
 exports.createAppointment = async (req, res) => {
   try {
-    await Appointment.createAppointment(req.body);
+    // Log the incoming data to check if user_id is received correctly
+    console.log("Received user_id:", req.body.user_id);
+    await Appointment.createAppointment(req.body);  // Pass the request body to the model
     res.status(201).send('Appointment created successfully');
   } catch (err) {
     res.status(500).send('Error creating appointment');

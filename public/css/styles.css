@@ -481,9 +481,8 @@ footer {
 
 .dashboard-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 2rem;
-  padding: 2rem;
   max-width: 100%;
 }
 
@@ -611,8 +610,8 @@ ul li {
   position: absolute;
   width: 240px;
   height: 140px;
-  top: 55px;
-  left: 60px;
+  top: 60px;
+  left: 80px;
   pointer-events: none;
 }
 
@@ -634,6 +633,36 @@ ul li {
   background-color: #4CAF50;
   width: 0;
   border-radius: 10px;
+}
+
+/* Medications Section */
+#medicationsList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.medication-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.medication-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.medication-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.medication-frequency {
+  font-size: 14px;
+  color: #777;
 }
 
 /* Friends List Styling */

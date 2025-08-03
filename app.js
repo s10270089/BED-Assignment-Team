@@ -102,14 +102,14 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 app.use('/appointments', appointmentRoutes);
 
 // 🔹 Louis – Overview Page / Dashboard
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/dashboard', dashboardRoutes);
 
 // 🔹 Louis – Health Records
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 app.use('/health-records', healthRecordRoutes);
 
 // 🔹 Louis – Reminders
-const methodOverride = require('method-override');
-app.use(methodOverride('_method'));
 const reminderRoutes = require('./routes/reminderRoutes');
 app.use('/reminders', reminderRoutes);
 

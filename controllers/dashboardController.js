@@ -9,12 +9,14 @@ exports.getDashboardData = async (req, res) => {
 
     // Fetch User Data
     const name = await DashboardModel.getUsername(userId);
-    const { height, weight, gender } = await DashboardModel.getUserDetails(userId); // Get user details including gender
+    const birthday = await DashboardModel.getBirthday(userId);
+    const { height, weight, gender } = await DashboardModel.getUserDetails(userId);
     const friends = await DashboardModel.getFriends(userId);
     const events = await DashboardModel.getUpcomingEvents(userId);
     const reminders = await DashboardModel.getReminders(userId);
     const appointments = await DashboardModel.getAppointments(userId);
-
+    const medications = await DashboardModel.getMedications(userId);
+    const healthRecords = await DashboardModel.getHealthRecords(userId);
     // Fetch Profile Photo URL (Default if not found)
     const userProfile = await DashboardModel.getUserProfile(userId); // Fetch User Profile
     let profilePhotoUrl = userProfile ? userProfile.profile_photo_url : null;
@@ -32,15 +34,18 @@ exports.getDashboardData = async (req, res) => {
     res.json({
       userInfo: {
         name,
+        birthday,
         bmi: bmi.toFixed(2),
         height,
         weight,
         profile_photo_url: profilePhotoUrl
       },
+      healthRecords: healthRecords || [],
+      medications: medications || [],
       friendsList: friends,
       upcomingEvents: events,
       reminders: reminders,
-      appointments: appointments,
+      appointments: appointments || [],
     });
   } catch (err) {
     console.error('Error fetching dashboard data:', err);
