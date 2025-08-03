@@ -84,7 +84,16 @@ CREATE TABLE Events (
   invitees NVARCHAR(255)
 );
 
+-- Event Invitees
 
+CREATE TABLE EventInvitations (
+  invitation_id INT PRIMARY KEY IDENTITY,
+  event_id INT FOREIGN KEY REFERENCES event(event_id),
+  invitee_id INT FOREIGN KEY REFERENCES Users(user_id),
+  status NVARCHAR(20) CHECK (status IN ('pending', 'accepted', 'rejected')) NOT NULL,
+  sent_at DATETIME DEFAULT GETDATE(),
+  accepted_at DATETIME NULL  -- NULL by default until accepted
+);
 
 
 -- Activity Calendar
@@ -133,7 +142,6 @@ CREATE TABLE Reminders (
 CREATE TABLE UserProfiles (
   profile_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  activity_level NVARCHAR(50),
   profile_photo_url NVARCHAR(255)
 );
 
@@ -145,7 +153,8 @@ CREATE TABLE WorkoutPlans (
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
   exercise_name NVARCHAR(100),
   frequency NVARCHAR(50),
-  duration_minutes INT
+  duration_minutes INT,
+  activity_level NVARCHAR(50)
 );
 
 -- Daily Log Tracker
@@ -240,12 +249,10 @@ INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 (1, 'Check blood sugar level', '2025-06-07 08:00:00', 0),
 (1, 'Refill prescription at pharmacy', '2025-06-09 10:00:00', 0);
 
-INSERT INTO UserProfiles (user_id, activity_level, profile_photo_url)
+INSERT INTO UserProfiles (user_id, profile_photo_url)
 VALUES 
-  (1, 'High', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043459/samples/man-portrait.jpg'),
-  (2, 'Low', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043451/samples/people/boy-snow-hoodie.jpg');
-
-
+  (1, 'http://example.com/img3.jpg'),
+  (2, 'http://example.com/img4.jpg');
 
 INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)
 VALUES 
@@ -269,6 +276,28 @@ VALUES
 
 (3, 'Walking Club', 'Gentle group walk around the reservoir', 'MacRitchie Reservoir Entrance',
  '2025-08-23', '2025-08-23 07:00:00', '2025-08-23 08:30:00', '1,2,6');
+
+ INSERT INTO EventInvitations (event_id, invitee_id, status, sent_at, accepted_at)
+VALUES
+-- Activity 1 Invitations
+(1, 2, 'pending', GETDATE(), NULL),
+(1, 3, 'accepted', GETDATE(), '2025-08-05 10:00:00'),
+(1, 4, 'rejected', GETDATE(), NULL),
+
+-- Activity 2 Invitations
+(2, 1, 'accepted', GETDATE(), '2025-08-06 09:30:00'),
+(2, 4, 'accepted', GETDATE(), '2025-08-06 10:00:00'),
+
+-- Activity 3 Invitations
+(3, 1, 'pending', GETDATE(), NULL),
+(3, 2, 'accepted', GETDATE(), '2025-08-07 08:15:00'),
+(3, 6, 'pending', GETDATE(), NULL),
+
+-- Activity 4 Invitations
+(4, 1, 'accepted', GETDATE(), '2025-08-08 18:00:00'),
+(4, 2, 'accepted', GETDATE(), '2025-08-08 18:10:00'),
+(4, 3, 'pending', GETDATE(), NULL);
+
 
 
 INSERT INTO Friendships (sender_id, receiver_id, status) VALUES

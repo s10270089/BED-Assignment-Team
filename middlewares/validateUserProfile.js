@@ -5,7 +5,7 @@ const schema = Joi.object({
   user_id: Joi.number().integer().positive().required(),
   name: Joi.string().max(100).optional(),
   birthday: Joi.date().less('now').iso().optional(),
-  activity_level: Joi.string().valid('low', 'medium', 'high').required(),
+  password: Joi.string().min(6).optional(),
   profile_photo_url: Joi.string().uri().allow('').optional(),
 });
 
