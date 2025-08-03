@@ -11,8 +11,9 @@ CREATE TABLE Users (
   birthday DATE,
   weight float,
   height float,
-  profile_photo_url NVARCHAR(255) NULL
+  profile_photo_url NVARCHAR(255) NULL,
   gender NVARCHAR(10),
+  google_id NVARCHAR(100),
 );
 
 -- Medication Manager
