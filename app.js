@@ -194,8 +194,12 @@ app.get("/test-cloudinary", (req, res) => {
 });
 
 // 🔹 Lee Meng – Workout Plan Organizer
-
+const workoutRoutes = require('./routes/workoutRoutes');
+app.use('/workouts', workoutRoutes);
 // 🔹 Lee Meng – Daily Log Tracker
+const dailylogRoutes = require('./routes/dailylogRoutes');
+app.use('/dailylogs', dailylogRoutes);
+
 // ---------------------------------------------------
 // Swagger API Documentation
 // ---------------------------------------------------

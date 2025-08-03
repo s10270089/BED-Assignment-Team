@@ -142,14 +142,30 @@ CREATE TABLE UserProfiles (
 -- Workout Plan Organizer
 -- (Lee Meng)
 CREATE TABLE WorkoutPlans (
-  plan_id INT PRIMARY KEY IDENTITY,
-  user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  exercise_name NVARCHAR(100),
-  frequency NVARCHAR(50),
-  duration_minutes INT,
-  activity_level NVARCHAR(50)
+    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+	  exercise_type NVARCHAR(100),
+    exercise_name NVARCHAR(100),
+	  frequency NVARCHAR(100),
+    activity_level NVARCHAR(50),
+    is_default BIT,
+    image_url NVARCHAR(MAX),
+    reps INT,
+    sets INT,
+    duration_minutes DECIMAL(3,1),
+    instructions NVARCHAR(MAX)
 );
 
+CREATE TABLE WorkoutTypes (
+exercise_type NVARCHAR(100),
+exercise_name NVARCHAR(100),
+frequency NVARCHAR(100),
+activity_level NVARCHAR(50),
+image_url NVARCHAR(MAX),
+reps INT,
+sets INT,
+duration_minutes DECIMAL(3,1),
+instructions NVARCHAR(MAX)
+);
 -- Daily Log Tracker
 -- (Lee Meng)
 CREATE TABLE DailyLogs (
