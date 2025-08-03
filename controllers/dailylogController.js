@@ -52,8 +52,6 @@ async function updateReflectionController(req, res) {
 
         const result = await dailylogModel.updateLogReflection(user_id, log_date, reflection);
         
-        console.log('Update result:', result);
-        
         if (result) {
             res.status(200).json({
                 success: true,
