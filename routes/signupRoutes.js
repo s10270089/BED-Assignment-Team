@@ -1,30 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const { registerUser, updateUserDetails } = require("../controllers/signupController");
 
-const { registerUser } = require("../controllers/signupController");
-const validateSignup = require("../middlewares/validateSignup");
+// Step 1: Register user (basic info)
+router.post("/", registerUser);
 
-/**
- * @swagger
- * /signup:
- *   post:
- *     summary: Register a new user
- *     tags: [Signup]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name: { type: string }
- *               email: { type: string }
- *               password: { type: string }
- *               birthday: { type: string, format: date }
- *     responses:
- *       201:
- *         description: User registered
- */
-router.post("/", validateSignup, registerUser);
+// Step 2: Update user details (birthday, height, weight, etc.)
+router.patch("/:userId", updateUserDetails);
 
+// Note: Cloudinary upload is handled in the frontend, no backend upload route needed.
 module.exports = router;

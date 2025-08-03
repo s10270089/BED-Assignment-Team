@@ -16,6 +16,10 @@ async function fetchDashboardData() {
     // Set username
     document.getElementById("username").innerText = data.userInfo.name;
 
+    // Set User Profile Photo
+    const profilePhoto = data.userInfo.profile_photo_url || 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043451/samples/people/boy-snow-hoodie.jpg'; // Fallback image if none available
+    document.getElementById("profilePhoto").src = profilePhoto;
+
     // Set BMI
     document.getElementById("bmiValue").innerText = `Your BMI is: ${data.userInfo.bmi}`;
     document.getElementById("bmiCategory").innerText = `Category: ${determineBMICategory(data.userInfo.bmi)}`;
@@ -30,20 +34,20 @@ async function fetchDashboardData() {
 
     // Set Upcoming Events
     const eventsList = document.getElementById("eventsList");
-    eventsList.innerHTML = data.upcomingEvents.map(event => {
-      const eventDate = new Date(event.event_start_time);
-      const formattedDate = eventDate.getFullYear() ? eventDate.toLocaleDateString() : 'Invalid Date';
-      return `
-        <li>${event.title} - ${formattedDate}</li>
-      `;
-    }).join('');
-
-
+    eventsList.innerHTML = data.upcomingEvents.map(event => `
+      <li>${event.title} - ${new Date(event.event_start_time).toLocaleDateString()}</li>
+    `).join('');
 
     // Set Reminders
     const remindersList = document.getElementById("remindersList");
     remindersList.innerHTML = data.reminders.map(reminder => `
       <li>${reminder.message} - ${new Date(reminder.reminder_time).toLocaleDateString()}</li>
+    `).join('');
+
+    // Set Appointments
+    const appointmentsList = document.getElementById("appointmentsList");
+    appointmentsList.innerHTML = data.appointments.map(appointment => `
+      <li>${appointment.doctor_name} - ${new Date(appointment.appointment_date).toLocaleDateString()} at ${new Date(appointment.appointment_date).toLocaleTimeString()}</li>
     `).join('');
 
   } catch (err) {

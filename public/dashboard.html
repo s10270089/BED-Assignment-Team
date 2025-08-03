@@ -47,8 +47,9 @@
   <main id="dashboard">
     <div class="dashboard-container">
       <!-- User Info Section -->
-      <section id="user-info">
+      <section id="user-info" class="dashboard-card">
         <p>Hello, <span id="username"></span></p>
+        <img id="profilePhoto" src="" alt="Profile Photo" class="profile-icon">
       </section>
 
       <!-- BMI Section -->
@@ -78,6 +79,12 @@
       <section id="reminders" class="dashboard-card">
         <h3>Reminders</h3>
         <ul id="remindersList"></ul>
+      </section>
+
+      <!-- Appointments Section -->
+      <section id="appointments" class="dashboard-card">
+        <h3>Upcoming Appointments</h3>
+        <ul id="appointmentsList"></ul>
       </section>
     </div>
   </main>

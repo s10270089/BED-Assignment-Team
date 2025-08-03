@@ -9,8 +9,10 @@ CREATE TABLE Users (
   email NVARCHAR(100) UNIQUE NOT NULL,
   password_hash NVARCHAR(255) NOT NULL,
   birthday DATE,
-  weight float ,
-  height float 
+  weight float,
+  height float,
+  profile_photo_url NVARCHAR(255) NULL
+  gender NVARCHAR(10),
 );
 
 -- Medication Manager
@@ -82,9 +84,6 @@ CREATE TABLE Events (
   event_end_time DATETIME,
   invitees NVARCHAR(255)
 );
-
-
-
 
 -- Activity Calendar
 -- (Yoshi)

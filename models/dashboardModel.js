@@ -1,6 +1,15 @@
 const sql = require('mssql');
 const dbConfig = require('../dbConfig');
 
+// Fetch user profile photo URL and gender
+exports.getUserProfile = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT profile_photo_url, gender FROM Users WHERE user_id = @user_id');
+  return result.recordset[0] || null;
+};
+
 exports.getUsername = async (userId) => {
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
@@ -57,4 +66,26 @@ exports.getReminders = async (userId) => {
       WHERE user_id = @user_id
     `);
   return result.recordset;
+};
+
+exports.getAppointments = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query(`
+      SELECT appointment_date, doctor_name, purpose, status 
+      FROM Appointments 
+      WHERE user_id = @user_id 
+      ORDER BY appointment_date ASC
+    `);
+  return result.recordset;
+};
+
+
+exports.getUserDetails = async (userId) => {
+  const pool = await sql.connect(dbConfig);
+  const result = await pool.request()
+    .input('user_id', sql.Int, userId)
+    .query('SELECT height, weight, gender FROM Users WHERE user_id = @user_id');
+  return result.recordset[0]; // { height, weight, gender }
 };

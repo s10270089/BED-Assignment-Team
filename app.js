@@ -11,7 +11,7 @@ const sql = require("mssql");
 const path = require("path");
 const swaggerUi = require("swagger-ui-express");
 const swaggerFile = require("./swagger-output.json");
-
+const fileUpload = require('express-fileupload');
 // ---------------------------------------------------
 // Create Express App
 // ---------------------------------------------------
@@ -23,9 +23,11 @@ const PORT = process.env.PORT || 3000;
 // ---------------------------------------------------
 const cors = require("cors");
 app.use(cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Use express-fileupload middleware
+app.use(fileUpload());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
