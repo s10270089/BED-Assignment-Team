@@ -1,0 +1,21 @@
+<!-- public/google-success.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Login Redirect</title>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      window.location.href = "index.html"; // or "dashboard.html"
+    } else {
+      alert("Google login failed.");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

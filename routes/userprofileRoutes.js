@@ -3,24 +3,16 @@ const router = express.Router();
 const userprofileController = require('../controllers/userprofileController');
 const validateUserProfile = require('../middlewares/validateUserProfile');
 
+// Get all user profiles (no auth needed for now)
 router.get('/', userprofileController.getAllUserProfiles);
 
-// Get exercise recommendations (must come before /:id routes to avoid conflicts)
-router.get('/recommendations/exercise', userprofileController.getExerciseRecommendations);
-
-// Get user profile by ID
+// Get user profile by ID (no auth needed for now)
 router.get('/:id', userprofileController.getUserProfileById);
 
-// Get user profile with recommendations
-router.get('/:id/recommendations', userprofileController.getUserProfileWithRecommendations);
+// Update user profile (WITH authentication)
+router.put('/:id', userprofileController.verifyToken, validateUserProfile, userprofileController.updateUserProfile);
 
-// Create user profile
-router.post('/', validateUserProfile, userprofileController.createUserProfile);
-
-// Update user profile
-router.put('/:id', validateUserProfile, userprofileController.updateUserProfile);
-
-// Delete user profile
-router.delete('/:id', userprofileController.deleteUserProfile);
+// Delete user profile (WITH authentication)
+router.delete('/:id', userprofileController.verifyToken, userprofileController.deleteUserProfile);
 
 module.exports = router;

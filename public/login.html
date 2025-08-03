@@ -66,6 +66,15 @@
       transform: scale(1.02);
     }
 
+    .google-btn {
+      background-color: #db4437;
+      margin-top: 12px;
+    }
+
+    .google-btn:hover {
+      background-color: #c23321;
+    }
+
     .signup-link {
       text-align: center;
       margin-top: 20px;
@@ -115,8 +124,18 @@
 
     <button type="submit">Login</button>
 
+    <button type="button" class="google-btn" onclick="googleLogin()">
+      Login with Google
+    </button>
+
     <div class="signup-link">
       Don’t have an account? <a href="signup.html">Sign up here!</a>
+    </div>
+
+    <div style="text-align:center; margin-top: 20px;">
+      <a href="/auth/google">
+        <img src="https://developers.google.com/identity/images/btn_google_signin_light_normal_web.png" alt="Sign in with Google" />
+      </a>
     </div>
 
     <div class="error" id="errorMsg"></div>
@@ -154,6 +173,19 @@
       errorMsg.textContent = "Unable to connect to server.";
     }
   });
+
+  function googleLogin() {
+    window.location.href = "/auth/google";
+  }
+
+  // ✅ NEW: Check if Google token is in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const googleToken = urlParams.get('token');
+
+  if (googleToken) {
+    localStorage.setItem("token", googleToken);
+    window.location.replace("index.html"); // or medications.html or dashboard.html
+  }
 </script>
 
 </body>

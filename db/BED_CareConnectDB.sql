@@ -131,7 +131,6 @@ CREATE TABLE Reminders (
 CREATE TABLE UserProfiles (
   profile_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  activity_level NVARCHAR(50),
   profile_photo_url NVARCHAR(255)
 );
 
@@ -143,7 +142,8 @@ CREATE TABLE WorkoutPlans (
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
   exercise_name NVARCHAR(100),
   frequency NVARCHAR(50),
-  duration_minutes INT
+  duration_minutes INT,
+  activity_level NVARCHAR(50)
 );
 
 -- Daily Log Tracker
@@ -238,12 +238,10 @@ INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES
 (1, 'Check blood sugar level', '2025-06-07 08:00:00', 0),
 (1, 'Refill prescription at pharmacy', '2025-06-09 10:00:00', 0);
 
-INSERT INTO UserProfiles (user_id, activity_level, profile_photo_url)
+INSERT INTO UserProfiles (user_id, profile_photo_url)
 VALUES 
-  (1, 'High', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043459/samples/man-portrait.jpg'),
-  (2, 'Low', 'https://res.cloudinary.com/dqnoqh0hi/image/upload/v1738043451/samples/people/boy-snow-hoodie.jpg');
-
-
+  (1, 'http://example.com/img3.jpg'),
+  (2, 'http://example.com/img4.jpg');
 
 INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)
 VALUES 

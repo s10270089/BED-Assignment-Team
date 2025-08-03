@@ -70,6 +70,48 @@ web_modules/
 .env.*
 !.env.example
 
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build directories
+build/
+dist/
+
+# Upload directories (if any)
+uploads/
+public/uploads/
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -137,6 +179,3 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-
-#.env
-.env

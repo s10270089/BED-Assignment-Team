@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require("passport");
 const router = express.Router();
 
 const { loginUser } = require("../controllers/loginController");
@@ -26,5 +27,16 @@ const validateLogin = require("../middlewares/validateLogin");
  *         description: Invalid credentials
  */
 router.post("/", validateLogin, loginUser);
+
+// Google login
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback", passport.authenticate("google", { session: false, failureRedirect: "/login.html" }),
+  (req, res) => {
+    // Google login success → redirect to frontend with token
+    const token = req.user.token;
+    res.redirect(`/login.html?token=${token}`);
+  }
+);
 
 module.exports = router;
