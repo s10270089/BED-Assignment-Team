@@ -77,7 +77,7 @@
   <span class="label">Upcoming</span> 
   (<span class="count" id="count-upcoming">0</span>)
 </h3>
-<div class="task-list  hidden" id="list-upcoming"></div>
+<div class="task-list hidden" id="list-upcoming"></div>
 
   <div class="task-input">
     <input type="text" id="new-task-message" placeholder="New reminder message..." />
@@ -94,8 +94,9 @@
 
 
 <script>
+    // Ensuring the code runs after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', async function () {
-    
+
       const user_id = localStorage.getItem("user_id");
       const token = localStorage.getItem('token');
 
@@ -105,15 +106,15 @@
         return;
       }
 
+      // Load tasks panel and calendar
       try {
         await loadTasksPanel();  // Load tasks panel first
       } catch (error) {
         console.error('Error loading tasks panel:', error);
       }
-      // Set up the calendar
+
       const calendarEl = document.getElementById('calendar');
       try {
-        console.log('Token:', token);  // Verify that the token is correct
         const res = await fetch('/reminders', {
           method: 'GET',
           headers: {
@@ -137,7 +138,6 @@
           start: r.reminder_time,
           allDay: false,
         }));
-        console.log("Mapped events:", events);
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridDay',
@@ -153,10 +153,10 @@
             await fetch(`/reminders/${info.event.id}/update`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({ 
-                message: info.event.title, 
+              body: JSON.stringify({
+                message: info.event.title,
                 reminder_time: updatedTime,
-                is_completed: 0 
+                is_completed: 0
               })
             });
           },
@@ -185,7 +185,6 @@
           }
 
           const reminders = await res.json();
-          console.log("Fetched reminders:", reminders);
 
           const listPast = document.getElementById('list-past');
           const listToday = document.getElementById('list-today');
@@ -202,7 +201,6 @@
           listUpcoming.innerHTML = '';
 
           reminders.forEach(reminder => {
-            console.log(reminder);
             const date = new Date(reminder.reminder_time);
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -218,7 +216,6 @@
               </div>
             `;
 
-            // Strip time from both dates
             const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const tomorrow = new Date(today);
@@ -236,6 +233,7 @@
               listUpcoming.appendChild(taskEl);
               upcomingCount++;
             }
+
             document.getElementById('count-past').textContent = pastCount;
             document.getElementById('count-today').textContent = todayCount;
             document.getElementById('count-tomorrow').textContent = tomorrowCount;
@@ -247,25 +245,28 @@
               const id = this.getAttribute('data-id');
               const isCompleted = this.checked;
 
-              try {
-                // Find the original reminder data to preserve message & time
-                const original = reminders.find(r => r.reminder_id == id);
-                if (!original) throw new Error("Reminder not found in memory");
-
-                await fetch(`/reminders/${id}/update`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    message: original.message,
-                    reminder_time: original.reminder_time,
-                    is_completed: isCompleted ? 1 : 0
-                  })
-                });
-
-                await loadTasksPanel();  // Refresh display
-              } catch (err) {
-                console.error('Failed to update task status:', err);
+              const original = reminders.find(r => r.reminder_id == id);
+              if (!original) throw new Error("Reminder not found in memory");
+              try{
+                const res = await fetch(`/reminders/${id}`, {
+                method: 'PUT',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                 },
+                body: JSON.stringify({
+                  message: original.message,
+                  reminder_time: original.reminder_time,
+                  is_completed: isCompleted ? 1 : 0
+                })
+              });
+            } catch (err) {
+                console.error('Error updating reminder:', err);
+                alert('Failed to update reminder status');
+                return;
               }
+
+              await loadTasksPanel();  // Refresh display
             });
           });
 
@@ -307,7 +308,7 @@
 
             document.getElementById('new-task-message').value = '';
             document.getElementById('new-task-datetime').value = '';
-            await loadTasksPanel(); // Refresh the task panel after successful creation
+            await loadTasksPanel();  // Refresh the task panel after successful creation
 
           } catch (err) {
             console.error('Error creating reminder:', err);
@@ -315,8 +316,26 @@
           }
         });
       }
+
+      // Toggle task list visibility
+      document.querySelectorAll('.toggle-header').forEach(header => {
+        header.addEventListener('click', function () {
+          const targetId = this.getAttribute('data-target');
+          const list = document.getElementById(targetId);
+
+          if (!list) {
+            console.log(`No list found for target: ${targetId}`);
+            return;
+          }
+
+          list.classList.toggle('hidden');  // Toggle the 'hidden' class
+
+          const arrow = this.querySelector('.arrow');
+          const isCollapsed = list.classList.contains('hidden');
+          arrow.textContent = isCollapsed ? '▶' : '▼';  // Toggle the arrow symbol
+        });
+      });
     });
   </script>
-
 </body>
 </html>
