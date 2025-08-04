@@ -80,10 +80,14 @@
 <div class="task-list hidden" id="list-upcoming"></div>
 
   <div class="task-input">
-    <input type="text" id="new-task-message" placeholder="New reminder message..." />
-    <input type="datetime-local" id="new-task-datetime" />
+    <input type="text" id="new-event-title" placeholder="Event Title" />
+    <input type="text" id="new-event-description" placeholder="Event Description" />
+    <input type="text" id="new-event-location" placeholder="Location" />
+    <input type="datetime-local" id="new-event-start-datetime" />
+    <input type="datetime-local" id="new-event-end-datetime" />
+    <input type="text" id="new-event-invitees" placeholder="Invitees (comma separated user IDs)" />
     <button id="addNewEvent">Add Event</button>
-  </div>
+  </div>  
 </div>
 
   <!-- Calendar Panel -->
@@ -94,6 +98,7 @@
 
 
 <script>
+    let calendar;  // Global variable
 
     // Ensuring the code runs after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', async function () {
@@ -117,7 +122,7 @@
 
       const calendarEl = document.getElementById('calendar');
       try {
-        const res = await fetch('/reminders', {
+        const res = await fetch('/events', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -128,20 +133,26 @@
           throw new Error('Unauthorized request');
         }
 
-        const reminders = await res.json();
+        const data = await res.json();
+        const eventsData = data.events;  // <-- Extract events array
 
-        if (!Array.isArray(reminders)) {
-          throw new Error('Invalid response format. Expected an array of reminders.');
-        }
 
-        const events = reminders.map(r => ({
-          id: r.reminder_id,
-          title: r.message,
-          start: r.reminder_time,
+
+        const events = eventsData.map(e => ({
+          id: e.event_id,
+          title: e.title,
+          start: e.event_start_time,
+          end: e.event_end_time,
           allDay: false,
+          extendedProps: {
+            description: e.description,
+            location: e.location,
+            invitees: e.invitees
+          }
         }));
 
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridDay',
           headerToolbar: {
             left: 'prev,next today',
@@ -150,22 +161,41 @@
           },
           events,
           editable: true,
-          eventDrop: async function(info) {
-            const updatedTime = info.event.start.toISOString();
-            await fetch(`/reminders/${info.event.id}/update`, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                message: info.event.title,
-                reminder_time: updatedTime,
-                is_completed: 0
-              })
-            });
-          },
+          eventClick: function(info) {
+            const event = info.event;
+
+            // Corrected field IDs ⬇️
+            document.getElementById('new-event-title').value = event.title || '';
+            document.getElementById('new-event-description').value = event.extendedProps.description || '';
+            document.getElementById('new-event-location').value = event.extendedProps.location || '';
+            document.getElementById('new-event-start-datetime').value = event.start.toISOString().slice(0,16);
+            document.getElementById('new-event-end-datetime').value = event.end ? event.end.toISOString().slice(0,16) : '';
+//            document.getElementById('new-event-start-datetime').value = event.start;
+//            document.getElementById('new-event-end-datetime').value = event.end;
+            document.getElementById('new-event-invitees').value = event.extendedProps.invitees || '';
+
+            // Change Button Text
+            const addButton = document.getElementById('addNewEvent');
+            addButton.textContent = 'Update Event';
+            addButton.setAttribute('data-update-id', event.id);
+          }
+          // eventDrop: async function(info) {
+          //   const updatedTime = info.event.start.toISOString();
+          //   await fetch(`/events/${info.event.id}/update`, {
+          //     method: 'POST',
+          //     headers: {'Content-Type': 'application/json'},
+          //     body: JSON.stringify({
+          //       message: info.event.title,
+          //       reminder_time: updatedTime,
+          //       is_completed: 0
+          //     })
+          //   });
+          // },
         });
 
         calendar.render();
-        loadTasksPanel();
+        await refreshCalendar();
+
 
       } catch (err) {
         console.error('Error loading reminders:', err);
@@ -176,7 +206,7 @@
       async function loadTasksPanel() {
         let pastCount = 0, todayCount = 0, tomorrowCount = 0, upcomingCount = 0;
         try {
-          const res = await fetch('/reminders', {
+          const res = await fetch('/events', {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -186,148 +216,153 @@
             throw new Error('Unauthorized request');
           }
 
-          const reminders = await res.json();
+          const events = await res.json();
 
           const listPast = document.getElementById('list-past');
           const listToday = document.getElementById('list-today');
           const listTomorrow = document.getElementById('list-tomorrow');
           const listUpcoming = document.getElementById('list-upcoming');
-
+        
           const now = new Date();
-          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const tomorrow = new Date(today);
+          tomorrow.setDate(today.getDate() + 1);
+          //const now = new Date();
+          //const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          //const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
           listPast.innerHTML = '';
           listToday.innerHTML = '';
           listTomorrow.innerHTML = '';
           listUpcoming.innerHTML = '';
+          console.log("Events fetched:", events);
+          const eventarray = events.events;
 
-          reminders.forEach(reminder => {
-            const date = new Date(reminder.reminder_time);
+          eventarray.forEach(event => {
+            date = new Date(event.event_start_time);
+
+            /*
+            const formatter = new Intl.DateTimeFormat('en-SG', {
+              timeZone: 'Asia/Singapore',
+              year: 'numeric', month: '2-digit', day: '2-digit',
+              hour: '2-digit', minute: '2-digit', second: '2-digit',
+              hour12: false
+            });
+
+            date = formatter.format(date);  // Displays in Singapore Time (GMT+8)
+            console.log("Formatted date:", date);*/
+
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const taskEl = document.createElement('div');
-            taskEl.className = `task-item${reminder.is_completed ? ' completed' : ''}`;
+            //taskEl.className = `task-item${reminder.is_completed ? ' completed' : ''}`;
+            taskEl.className = `task-item`;
             taskEl.innerHTML = `
-              <div class="task-content">
-                <input type="checkbox" class="complete-toggle" data-id="${reminder.reminder_id}" ${reminder.is_completed ? 'checked' : ''} />
-                <span class="task-title">${reminder.message}</span>
+                <div class="task-content">
+                <span class="task-title">${event.title}</span>
                 <div class="task-meta">
-                  <span class="task-tag">${timeStr}</span>
+                    <span class="task-tag">${timeStr}</span>
                 </div>
-              </div>
+                </div>
             `;
 
             const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const tomorrow = new Date(today);
+            //const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            //const tomorrow = new Date(today);
             tomorrow.setDate(today.getDate() + 1);
             if (dateOnly < today) {
-              listPast.appendChild(taskEl);
-              pastCount++;
+                listPast.appendChild(taskEl);
+                pastCount++;
             } else if (dateOnly.getTime() === today.getTime()) {
-              listToday.appendChild(taskEl);
-              todayCount++;
+                listToday.appendChild(taskEl);
+                todayCount++;
             } else if (dateOnly.getTime() === tomorrow.getTime()) {
-              listTomorrow.appendChild(taskEl);
-              tomorrowCount++;
+                listTomorrow.appendChild(taskEl);
+                tomorrowCount++;
             } else {
-              listUpcoming.appendChild(taskEl);
-              upcomingCount++;
+                listUpcoming.appendChild(taskEl);
+                upcomingCount++;
             }
-
-            document.getElementById('count-past').textContent = pastCount;
-            document.getElementById('count-today').textContent = todayCount;
-            document.getElementById('count-tomorrow').textContent = tomorrowCount;
-            document.getElementById('count-upcoming').textContent = upcomingCount;
-          });
-
-          document.querySelectorAll('.complete-toggle').forEach(checkbox => {
-            checkbox.addEventListener('change', async function () {
-              const id = this.getAttribute('data-id');
-              const isCompleted = this.checked;
-
-              const original = reminders.find(r => r.reminder_id == id);
-              if (!original) throw new Error("Reminder not found in memory");
-              try{
-                const res = await fetch(`/reminders/${id}`, {
-                method: 'PUT',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                 },
-                body: JSON.stringify({
-                  message: original.message,
-                  reminder_time: original.reminder_time,
-                  is_completed: isCompleted ? 1 : 0
-                })
-              });
-            } catch (err) {
-                console.error('Error updating reminder:', err);
-                alert('Failed to update reminder status');
-                return;
-              }
-
-              await loadTasksPanel();  // Refresh display
             });
-          });
 
         } catch (err) {
           console.error('Error loading tasks panel', err);
         }
       }
 
-      // Add new reminder function
+      // Add new event function
       const addNewEvent = document.getElementById('addNewEvent');
       if (addNewEvent) {
         addNewEvent.addEventListener('click', async function () {
+          const eventId = addNewEvent.getAttribute('data-update-id');  // Check if updating
 
-          const message = document.getElementById('new-task-message').value.trim();
-          const datetime = document.getElementById('new-task-datetime').value;
-          const [datePart, timePart] = datetime.split('T');
+          const title = document.getElementById('new-event-title').value.trim();
+          const description = document.getElementById('new-event-description').value.trim();
+          const location = document.getElementById('new-event-location').value.trim();
+          const startDatetime = document.getElementById('new-event-start-datetime').value;
+          const endDatetime = document.getElementById('new-event-end-datetime').value;
+          const inviteesInput = document.getElementById('new-event-invitees').value.trim().split(',').map(id => id.trim());
+          const invitees = inviteesInput.toString();
 
-          if (!message || !datetime) {
-            alert('Please enter both a message and datetime.');
+          const [datePart, timePart] = startDatetime.split('T');
+
+          if (!title || !description || !location || !startDatetime || !endDatetime) {
+            alert('Please fill in all fields. (Invitees can be left empty)');
             return;
           }
 
           try {
-            const res = await fetch('/events', {
-              method: 'POST',
+            let url = '/events';
+            let method = 'POST';
+            if (eventId) {
+              url = `/events/${eventId}`;  // <-- Update route when editing
+              method = 'PUT';
+            }
+
+            const res = await fetch(url, {
+              method: method,
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
               },
               body: JSON.stringify({
-                
-                "user_id": "",
-                "title": "Tai Chi Demo",
-                "description": message,
-                "location": "Park Deck A",
-                "date": datePart,
-                "event_start_time": datetime,
-                "event_end_time": datetime,
-                "invitees": ""
-
+                user_id: "",  // You'll need to fill this in based on logged-in user
+                title: title,
+                description: description,
+                location: location,
+                date: datePart,
+                event_start_time: startDatetime,
+                event_end_time: endDatetime,
+                invitees: invitees
               })
             });
 
             if (!res.ok) {
               const error = await res.json();
               console.error('Error response:', error);
-              throw new Error(error.message || 'Failed to create event');
+              throw new Error(error.message || 'Failed to create/update event');
             }
 
-            document.getElementById('new-task-message').value = '';
-            document.getElementById('new-task-datetime').value = '';
-            await loadTasksPanel();  // Refresh the task panel after successful creation
+            // Reset form & state
+            document.getElementById('new-event-title').value = '';
+            document.getElementById('new-event-description').value = '';
+            document.getElementById('new-event-location').value = '';
+            document.getElementById('new-event-start-datetime').value = '';
+            document.getElementById('new-event-end-datetime').value = '';
+            document.getElementById('new-event-invitees').value = '';
+            addNewEvent.removeAttribute('data-update-id');
+            addNewEvent.textContent = 'Add Event';  // Reset button text after update
+
+            await loadTasksPanel();  // Refresh the task panel
+            await refreshCalendar();  // Refresh the calendar
 
           } catch (err) {
-            console.error('Error creating event:', err);
-            alert('Error adding event: ' + err.message);
+            console.error('Error creating/updating event:', err);
+            alert('Error adding/updating event: ' + err.message);
           }
         });
       }
+
 
       // Toggle task list visibility
       document.querySelectorAll('.toggle-header').forEach(header => {
@@ -347,6 +382,28 @@
           arrow.textContent = isCollapsed ? '▶' : '▼';  // Toggle the arrow symbol
         });
       });
+      async function refreshCalendar() {
+      const res = await fetch('/events', { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      const eventsData = data.events;
+
+      const formattedEvents = eventsData.map(e => ({
+        id: e.event_id,
+        title: e.title,
+        description: e.description,
+        location: e.location,
+        start: e.event_start_time,
+        end: e.event_end_time,
+        invitees: e.invitees,
+        allDay: false
+      }));
+
+//      console.log("Formatted events:", formattedEvents);
+
+      calendar.removeAllEvents();
+      calendar.addEventSource(formattedEvents);
+    }
+
     });
   </script>
 </body>

@@ -97,6 +97,7 @@ exports.createEvent = async (eventData) => {
 
   const startDateTimeObject = new Date(eventData.event_start_time); // UTC timing, not SG timing
   const endDateTimeObject = new Date(eventData.event_end_time); // UTC timing, not SG timing
+  console.log("startDateTimeObject:", eventData.event_start_time, "startDateTimeObject:", startDateTimeObject);
 
   await pool.request()
     .input("user_id", sql.Int, user_id)

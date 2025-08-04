@@ -208,6 +208,8 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 // ---------------------------------------------------
 // Google OAuth Routes
 // ---------------------------------------------------
+const authRoutes = require('./routes/loginRoutes'); // <-- Make sure this is correct path
+app.use('/auth', authRoutes);
 
 // ---------------------------------------------------
 // Start Server
