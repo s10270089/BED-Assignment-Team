@@ -73,9 +73,8 @@ exports.update = async (record_id, record, user_id) => {
 // Remove a health record by record_id
 exports.remove = async (record_id, user_id) => {
   const pool = await sql.connect(dbConfig);
-  const result = await pool.request()
-    .input('record_id', sql.Int, record_id)  // Changed 'id' to 'record_id'
+  await pool.request()
+    .input('record_id', sql.Int, record_id)
     .input('user_id', sql.Int, user_id)
     .query('DELETE FROM HealthRecords WHERE record_id = @record_id AND user_id = @user_id');
-  return result.rowsAffected[0];
 };

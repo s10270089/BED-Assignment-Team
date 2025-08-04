@@ -150,39 +150,40 @@ CREATE TABLE UserProfiles (
 
 -- Workout Plan Organizer
 -- (Lee Meng)
-CREATE TABLE WorkoutUser (
-user_id INT FOREIGN KEY REFERENCES Users(user_id),
-exercise_type NVARCHAR(100),
-exercise_name NVARCHAR(100),
-rest_duration float,
-image_url NVARCHAR(MAX),
-reps INT,
-sets INT,
-duration_minutes float,
-instructions NVARCHAR(MAX),
-Benefits NVARCHAR(MAX),
+CREATE TABLE WorkoutPlans (
+    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+	  exercise_type NVARCHAR(100),
+    exercise_name NVARCHAR(100),
+	  frequency NVARCHAR(100),
+    activity_level NVARCHAR(50),
+    is_default BIT,
+    image_url NVARCHAR(MAX),
+    reps INT,
+    sets INT,
+    duration_minutes DECIMAL(3,1),
+    instructions NVARCHAR(MAX)
 );
 
 CREATE TABLE WorkoutTypes (
 exercise_type NVARCHAR(100),
 exercise_name NVARCHAR(100),
-rest_duration float,
+frequency NVARCHAR(100),
 activity_level NVARCHAR(50),
 image_url NVARCHAR(MAX),
 reps INT,
 sets INT,
-duration_minutes float,
-instructions NVARCHAR(MAX),
-Benefits NVARCHAR(MAX),
-recommended BIT
+duration_minutes DECIMAL(3,1),
+instructions NVARCHAR(MAX)
 );
+
 -- Daily Log Tracker
 -- (Lee Meng)
 CREATE TABLE DailyLogs (
   log_id INT PRIMARY KEY IDENTITY,
   user_id INT FOREIGN KEY REFERENCES Users(user_id),
-  exercises NVARCHAR(255),
-  reflection NVARCHAR(Max),
+  exercise_done NVARCHAR(100),
+  duration_minutes INT,
+  reflection NVARCHAR(255),
   log_date DATE
 );
 
@@ -257,6 +258,35 @@ INSERT INTO Medications (user_id, name, dosage, time, frequency) VALUES
 
 (6, 'Multivitamins', '1 tablet', '8am', '1'),        -- Wong Ah Ma
 (6, 'Iron Supplement', '325mg', '9am, 9pm', '2');
+
+INSERT INTO BusSearchHistory (user_id, bus_stop_code)
+VALUES
+(1, '83139'),  -- Opp Ngee Ann Poly
+(1, '44089'),  -- Opp Jurong East Int
+(1, '75009');  -- Yishun Int
+
+-- For search_id = 1 (83139)
+INSERT INTO BusSearchResults (search_id, service_no, estimated_arrival, load)
+VALUES
+(1, '184', '2025-08-03 21:10:00', 'SDA'),
+(1, '75', '2025-08-03 21:15:00', 'SEA'),
+(1, '151', '2025-08-03 21:18:00', 'LSD');
+
+-- For search_id = 2 (44089)
+INSERT INTO BusSearchResults (search_id, service_no, estimated_arrival, load)
+VALUES
+(2, '97', '2025-08-03 21:05:00', 'SEA'),
+(2, '105', '2025-08-03 21:07:00', 'SDA');
+
+-- For search_id = 3 (75009)
+INSERT INTO BusSearchResults (search_id, service_no, estimated_arrival, load)
+VALUES
+(3, '858', '2025-08-03 21:12:00', 'LSD');
+
+INSERT INTO BusFavourites (user_id, bus_stop_code, bus_stop_name)
+VALUES
+(1, '83139', 'Opp Ngee Ann Poly'),
+(1, '44089', 'Opp Jurong East Int');
 
 
 INSERT INTO Reminders (user_id, message, reminder_time, is_completed) VALUES

@@ -75,7 +75,7 @@ const signupRoute = require("./routes/signupRoutes");
 app.use("/signup", signupRoute);
 
 const loginRoute = require("./routes/loginRoutes");
-app.use("/auth", loginRoute); // POST /login
+app.use("/login", loginRoute); // POST /login
 
 // 🔹 Braden – Bus Arrival Info (LTA API Integration)
 const busRoutes = require("./routes/busRoutes");
