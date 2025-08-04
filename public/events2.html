@@ -8,6 +8,66 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
   <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+  <!-- <style>
+    /* ====== Buttons Styling ====== */
+    #addNewEvent {
+      background-color: #007bff;  /* Bootstrap Primary Blue */
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #addNewEvent[data-update-id] {
+      background-color: #28a745;  /* Bootstrap Success Green */
+    }
+
+    #deleteEvent {
+      background-color: #dc3545;  /* Bootstrap Danger Red */
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* ====== FullCalendar Event Content Styling ====== */
+    .fc-event-title {
+      font-weight: bold;
+    }
+
+    .fc-event-location,
+    .fc-event-desc {
+      font-size: 0.75em;
+      color: white;
+      line-height: 1.2;
+    }
+
+    /* Optional: Hover effect for buttons */
+    #addNewEvent:hover,
+    #deleteEvent:hover {
+      opacity: 0.9;
+    }
+
+    /* Task input area spacing */
+    .task-input input,
+    .task-input button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* General button reset */
+    button {
+      font-family: inherit;
+      font-size: inherit;
+    }
+  </style> -->
 </head>
 <body>
   <header>
@@ -87,6 +147,8 @@
     <input type="datetime-local" id="new-event-end-datetime" />
     <input type="text" id="new-event-invitees" placeholder="Invitees (comma separated user IDs)" />
     <button id="addNewEvent">Add Event</button>
+    <button id="cancelEditEvent" style="display: none;">Cancel Edit</button>
+    <button id="deleteEvent" style="display: none;">Delete Event</button>
   </div>  
 </div>
 
@@ -96,8 +158,17 @@
   </div>
 </div>
 
-
 <script>
+function formatDateLocal(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
     let calendar;  // Global variable
 
     // Ensuring the code runs after the DOM is fully loaded
@@ -136,8 +207,6 @@
         const data = await res.json();
         const eventsData = data.events;  // <-- Extract events array
 
-
-
         const events = eventsData.map(e => ({
           id: e.event_id,
           title: e.title,
@@ -151,6 +220,8 @@
           }
         }));
 
+//        console.log("Events data fetched for calendar:", eventsData);
+//        alert("Events data fetched for calendar: " + JSON.stringify(events, null, 2));
 
         calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'timeGridDay',
@@ -161,6 +232,30 @@
           },
           events,
           editable: true,
+
+          eventContent: function(arg) {
+              const viewType = arg.view.type;  // 'dayGridMonth', 'timeGridWeek', etc.
+              const title = arg.event.title;
+              const description = arg.event.extendedProps.description;
+              const location = arg.event.extendedProps.location;
+            // Only show location & description in Week & Day view
+            if (viewType === 'dayGridMonth') {
+              // Month View: Only show title
+              alert("Month View: Only show title");
+              return { html: `<div class="fc-event-title">${title}</div>` };
+            } else {
+              // Week/Day View: Show Title, Location, Description
+              return {
+                html: `
+                  <div class="fc-event-title">${title}</div>
+                  <div class="fc-event-location">${location || ''}</div>
+                  <div class="fc-event-desc">${description || ''}</div>
+                `
+              };
+            }
+            return { html: innerHTML };
+          },
+
           eventClick: function(info) {
             const event = info.event;
 
@@ -168,8 +263,15 @@
             document.getElementById('new-event-title').value = event.title || '';
             document.getElementById('new-event-description').value = event.extendedProps.description || '';
             document.getElementById('new-event-location').value = event.extendedProps.location || '';
-            document.getElementById('new-event-start-datetime').value = event.start.toISOString().slice(0,16);
-            document.getElementById('new-event-end-datetime').value = event.end ? event.end.toISOString().slice(0,16) : '';
+            startDateTime = new Date(event.start);
+            endDateTime = event.end ? new Date(event.end) : null;
+
+            //alert("startDateTime: " + startDateTime + ", endDateTime: " + endDateTime);
+
+            // Set the datetime-local input values
+
+            document.getElementById('new-event-start-datetime').value = formatDateLocal(event.start);
+            document.getElementById('new-event-end-datetime').value = event.end ? formatDateLocal(event.end) : '';
 //            document.getElementById('new-event-start-datetime').value = event.start;
 //            document.getElementById('new-event-end-datetime').value = event.end;
             document.getElementById('new-event-invitees').value = event.extendedProps.invitees || '';
@@ -178,7 +280,12 @@
             const addButton = document.getElementById('addNewEvent');
             addButton.textContent = 'Update Event';
             addButton.setAttribute('data-update-id', event.id);
-          }
+//            alert("Event ID: " + event.id + ", Title: " + event.title);
+
+            // Show Cancel and Delete buttons
+            document.getElementById('cancelEditEvent').style.display = 'inline-block';
+            document.getElementById('deleteEvent').style.display = 'inline-block';
+          },
           // eventDrop: async function(info) {
           //   const updatedTime = info.event.start.toISOString();
           //   await fetch(`/events/${info.event.id}/update`, {
@@ -191,6 +298,19 @@
           //     })
           //   });
           // },
+          eventContent: function(arg) {
+            const title = arg.event.title;
+            const description = arg.event.extendedProps.description || '';
+            const location = arg.event.extendedProps.location || '';
+
+            return {
+              html: `
+                <div class="fc-event-title">${title}</div>
+                <div class="fc-event-location" style="font-size: 0.75em;">📍 ${location}</div>
+                <div class="fc-event-desc" style="font-size: 0.75em;">📝 ${description}</div>
+              `
+            };
+          }
         });
 
         calendar.render();
@@ -239,18 +359,9 @@
           const eventarray = events.events;
 
           eventarray.forEach(event => {
-            date = new Date(event.event_start_time);
+            date = new Date(event.event_start_time.replace("T", " ")); // Convert to local time
 
-            /*
-            const formatter = new Intl.DateTimeFormat('en-SG', {
-              timeZone: 'Asia/Singapore',
-              year: 'numeric', month: '2-digit', day: '2-digit',
-              hour: '2-digit', minute: '2-digit', second: '2-digit',
-              hour12: false
-            });
-
-            date = formatter.format(date);  // Displays in Singapore Time (GMT+8)
-            console.log("Formatted date:", date);*/
+            //alert("Event Date: " + date);
 
             const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -303,6 +414,8 @@
           const endDatetime = document.getElementById('new-event-end-datetime').value;
           const inviteesInput = document.getElementById('new-event-invitees').value.trim().split(',').map(id => id.trim());
           const invitees = inviteesInput.toString();
+
+          //console.log("startDatetime:", startDatetime, "endDatetime:", endDatetime);
 
           const [datePart, timePart] = startDatetime.split('T');
 
@@ -397,6 +510,70 @@
         invitees: e.invitees,
         allDay: false
       }));
+      
+
+      document.getElementById('cancelEditEvent').addEventListener('click', function() {
+        // Clear form fields
+        document.getElementById('new-event-title').value = '';
+        document.getElementById('new-event-description').value = '';
+        document.getElementById('new-event-location').value = '';
+        document.getElementById('new-event-start-datetime').value = '';
+        document.getElementById('new-event-end-datetime').value = '';
+        document.getElementById('new-event-invitees').value = '';
+
+        // Reset button text and remove update ID
+        const addButton = document.getElementById('addNewEvent');
+        addButton.textContent = 'Add Event';
+        addButton.removeAttribute('data-update-id');
+
+        // Hide Cancel and Delete buttons
+        document.getElementById('cancelEditEvent').style.display = 'none';
+        document.getElementById('deleteEvent').style.display = 'none';
+      });
+
+
+      document.getElementById('deleteEvent').addEventListener('click', async function() {
+        const eventId = document.getElementById('addNewEvent').getAttribute('data-update-id');
+        if (!eventId) {
+            alert("No event selected to delete.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to delete this event?")) {
+      
+        return;
+        }
+
+        console.log("Deleting event with ID:", eventId);
+
+        try {
+            const res = await fetch(`/events/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || 'Failed to delete event');
+            }
+
+            // Clear and reset form after deletion
+            document.getElementById('cancelEditEvent').click();
+
+            await loadTasksPanel();  // Refresh task panel
+            await refreshCalendar(); // Refresh calendar view
+
+        } catch (err) {
+            console.error('Error deleting event:', err);
+            alert('Failed to delete event: ' + err.message);
+        }
+      });
+
+      //      console.log("Formatted events:", formattedEvents);
+      //      console.log("Calendar instance:", calendar);
+
 
 //      console.log("Formatted events:", formattedEvents);
 

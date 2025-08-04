@@ -26,7 +26,11 @@ exports.getByUserId = async (user_id) => {
 
 //update event
 exports.updateEvent = async (event_id, updatedData) => {
-  const { title, description, location, date, eventstarttime, eventendtime, invitees } = updatedData;
+  const { title, description, location, date, event_start_time, event_end_time, invitees } = updatedData;
+
+  const startDateTimeObject = new Date(updatedData.event_start_time); // UTC timing, not SG timing
+  const endDateTimeObject = new Date(updatedData.event_end_time); // UTC timing, not SG timing
+  console.log("startDateTimeObject:", updatedData.event_start_time, "endDateTimeObject:", startDateTimeObject);
 
   const pool = await sql.connect(dbConfig);
   await pool.request()
@@ -35,8 +39,8 @@ exports.updateEvent = async (event_id, updatedData) => {
     .input("description", sql.NVarChar(255), description)
     .input("location", sql.NVarChar(100), location)
     .input("date", sql.Date, date)
-    .input("event_start_time", sql.DateTime, eventstarttime)
-    .input("event_end_time", sql.DateTime, eventendtime)
+    .input("event_start_time", sql.DateTime, startDateTimeObject)
+    .input("event_end_time", sql.DateTime, endDateTimeObject)
     .input("invitees", sql.NVarChar(255), invitees)
     .query(`
       UPDATE Events
@@ -49,6 +53,7 @@ exports.updateEvent = async (event_id, updatedData) => {
           invitees = @invitees
       WHERE event_id = @event_id
     `);
+
 };
 
 //delete event
@@ -95,9 +100,9 @@ exports.createEvent = async (eventData) => {
   
   const pool = await sql.connect(dbConfig);
 
-  const startDateTimeObject = new Date(eventData.event_start_time); // UTC timing, not SG timing
-  const endDateTimeObject = new Date(eventData.event_end_time); // UTC timing, not SG timing
-  console.log("startDateTimeObject:", eventData.event_start_time, "startDateTimeObject:", startDateTimeObject);
+  const startDateTimeObject = new Date(eventData.event_start_time.replace("T", " ")); // local time
+  const endDateTimeObject = new Date(eventData.event_end_time.replace("T", " ")); // local time
+  console.log("startDateTime:", eventData.event_start_time, "startDateTimeObject:", startDateTimeObject);
 
   await pool.request()
     .input("user_id", sql.Int, user_id)

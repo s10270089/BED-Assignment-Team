@@ -52,6 +52,10 @@ exports.updateEvent = async (req, res) => {
   const event_id = req.params.event_id;
   const updatedData = req.body;
 
+console.log(req.params);
+
+//  console.log("Updating event with ID:", event_id, "with data:", updatedData);
+
   try {
     await eventModel.updateEvent(event_id, updatedData);
     res.status(200).json({ message: "Event updated successfully." });
