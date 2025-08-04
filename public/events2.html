@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareConnect</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <img src="./assets/CareConnectblue.png" alt="CareConnect Logo" class="logo">
+      <nav>
+        <ul class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li class="dropdown">
+            <a href="#features">Features</a>
+            <ul class="dropdown-menu">
+              <li><a href="./medications.html">Medication Manager</a></li>
+              <li><a href="./bus.html">Live Bus Tracker</a></li>
+              <li><a href="./login.html">User Login &amp; Signup</a></li>
+              <li><a href="./shopping-list.html">Shopping List Manager</a></li>
+              <li><a href="./emergencycontact.html">Emergency Quick-Dial</a></li>
+              <li><a href="./checklist.html">Checklist Creator</a></li>
+              <li><a href="./event-planner.html">Event Planner</a></li>
+              <li><a href="./calendar.html">Activity Calendar</a></li>
+              <li><a href="./dashboard.html">Overview Dashboard</a></li>
+              <li><a href="./health-records.html">Health Records</a></li>
+              <li><a href="./reminder.html">Reminders</a></li>
+              <li><a href="./translation.html">Auto-Translation</a></li>
+              <li><a href="./doctor-login.html">Doctor &amp; Caretaker Login</a></li>
+              <li><a href="./profile.html">User Profile Manager</a></li>
+              <li><a href="./workout.html">Workout Plan Organizer</a></li>
+              <li><a href="./daily-log.html">Daily Log Tracker</a></li>
+            </ul>
+          </li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="./signup.html"><span class="material-symbols-outlined">account_circle</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+
+<body>
+<div class="reminders-page">
+  <!-- Tasks Panel -->
+<div class="tasks-panel">
+  <h2>Tasks</h2>
+<h3 class="toggle-header" data-label="Past" data-target="list-past">
+  <span class="arrow">▶</span> 
+  <span class="label">Past</span> 
+  (<span class="count" id="count-past">0</span>)
+</h3>
+<div class="task-list hidden" id="list-past"></div>
+
+<h3 class="toggle-header" data-label="Today" data-target="list-today">
+  <span class="arrow">▶</span> 
+  <span class="label">Today</span> 
+  (<span class="count" id="count-today">0</span>)
+</h3>
+<div class="task-list hidden" id="list-today"></div>
+
+<h3 class="toggle-header" data-label="Tomorrow" data-target="list-tomorrow">
+  <span class="arrow">▶</span> 
+  <span class="label">Tomorrow</span> 
+  (<span class="count" id="count-tomorrow">0</span>)
+</h3>
+<div class="task-list hidden" id="list-tomorrow"></div>
+
+<h3 class="toggle-header" data-label="Upcoming" data-target="list-upcoming">
+  <span class="arrow">▶</span> 
+  <span class="label">Upcoming</span> 
+  (<span class="count" id="count-upcoming">0</span>)
+</h3>
+<div class="task-list hidden" id="list-upcoming"></div>
+
+  <div class="task-input">
+    <input type="text" id="new-task-message" placeholder="New reminder message..." />
+    <input type="datetime-local" id="new-task-datetime" />
+    <button id="addNewEvent">Add Event</button>
+  </div>
+</div>
+
+  <!-- Calendar Panel -->
+  <div class="calendar-panel">
+    <div id="calendar"></div>
+  </div>
+</div>
+
+
+<script>
+
+    // Ensuring the code runs after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', async function () {
+
+      const userid = localStorage.getItem('user_id');
+      const token = localStorage.getItem('token');
+      console.log("user: ", userid);
+
+      if (!token) {
+        alert('You need to be logged in to access reminders.');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Load tasks panel and calendar
+      try {
+        await loadTasksPanel();  // Load tasks panel first
+      } catch (error) {
+        console.error('Error loading tasks panel:', error);
+      }
+
+      const calendarEl = document.getElementById('calendar');
+      try {
+        const res = await fetch('/reminders', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error('Unauthorized request');
+        }
+
+        const reminders = await res.json();
+
+        if (!Array.isArray(reminders)) {
+          throw new Error('Invalid response format. Expected an array of reminders.');
+        }
+
+        const events = reminders.map(r => ({
+          id: r.reminder_id,
+          title: r.message,
+          start: r.reminder_time,
+          allDay: false,
+        }));
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'timeGridDay',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          },
+          events,
+          editable: true,
+          eventDrop: async function(info) {
+            const updatedTime = info.event.start.toISOString();
+            await fetch(`/reminders/${info.event.id}/update`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                message: info.event.title,
+                reminder_time: updatedTime,
+                is_completed: 0
+              })
+            });
+          },
+        });
+
+        calendar.render();
+        loadTasksPanel();
+
+      } catch (err) {
+        console.error('Error loading reminders:', err);
+        alert('Failed to load reminders');
+      }
+
+      // Load tasks panel
+      async function loadTasksPanel() {
+        let pastCount = 0, todayCount = 0, tomorrowCount = 0, upcomingCount = 0;
+        try {
+          const res = await fetch('/reminders', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+
+          if (!res.ok) {
+            throw new Error('Unauthorized request');
+          }
+
+          const reminders = await res.json();
+
+          const listPast = document.getElementById('list-past');
+          const listToday = document.getElementById('list-today');
+          const listTomorrow = document.getElementById('list-tomorrow');
+          const listUpcoming = document.getElementById('list-upcoming');
+
+          const now = new Date();
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+          listPast.innerHTML = '';
+          listToday.innerHTML = '';
+          listTomorrow.innerHTML = '';
+          listUpcoming.innerHTML = '';
+
+          reminders.forEach(reminder => {
+            const date = new Date(reminder.reminder_time);
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const taskEl = document.createElement('div');
+            taskEl.className = `task-item${reminder.is_completed ? ' completed' : ''}`;
+            taskEl.innerHTML = `
+              <div class="task-content">
+                <input type="checkbox" class="complete-toggle" data-id="${reminder.reminder_id}" ${reminder.is_completed ? 'checked' : ''} />
+                <span class="task-title">${reminder.message}</span>
+                <div class="task-meta">
+                  <span class="task-tag">${timeStr}</span>
+                </div>
+              </div>
+            `;
+
+            const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            if (dateOnly < today) {
+              listPast.appendChild(taskEl);
+              pastCount++;
+            } else if (dateOnly.getTime() === today.getTime()) {
+              listToday.appendChild(taskEl);
+              todayCount++;
+            } else if (dateOnly.getTime() === tomorrow.getTime()) {
+              listTomorrow.appendChild(taskEl);
+              tomorrowCount++;
+            } else {
+              listUpcoming.appendChild(taskEl);
+              upcomingCount++;
+            }
+
+            document.getElementById('count-past').textContent = pastCount;
+            document.getElementById('count-today').textContent = todayCount;
+            document.getElementById('count-tomorrow').textContent = tomorrowCount;
+            document.getElementById('count-upcoming').textContent = upcomingCount;
+          });
+
+          document.querySelectorAll('.complete-toggle').forEach(checkbox => {
+            checkbox.addEventListener('change', async function () {
+              const id = this.getAttribute('data-id');
+              const isCompleted = this.checked;
+
+              const original = reminders.find(r => r.reminder_id == id);
+              if (!original) throw new Error("Reminder not found in memory");
+              try{
+                const res = await fetch(`/reminders/${id}`, {
+                method: 'PUT',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                 },
+                body: JSON.stringify({
+                  message: original.message,
+                  reminder_time: original.reminder_time,
+                  is_completed: isCompleted ? 1 : 0
+                })
+              });
+            } catch (err) {
+                console.error('Error updating reminder:', err);
+                alert('Failed to update reminder status');
+                return;
+              }
+
+              await loadTasksPanel();  // Refresh display
+            });
+          });
+
+        } catch (err) {
+          console.error('Error loading tasks panel', err);
+        }
+      }
+
+      // Add new reminder function
+      const addNewEvent = document.getElementById('addNewEvent');
+      if (addNewEvent) {
+        addNewEvent.addEventListener('click', async function () {
+
+          const message = document.getElementById('new-task-message').value.trim();
+          const datetime = document.getElementById('new-task-datetime').value;
+          const [datePart, timePart] = datetime.split('T');
+
+          if (!message || !datetime) {
+            alert('Please enter both a message and datetime.');
+            return;
+          }
+
+          try {
+            const res = await fetch('/events', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                
+                "user_id": "",
+                "title": "Tai Chi Demo",
+                "description": message,
+                "location": "Park Deck A",
+                "date": datePart,
+                "event_start_time": datetime,
+                "event_end_time": datetime,
+                "invitees": ""
+
+              })
+            });
+
+            if (!res.ok) {
+              const error = await res.json();
+              console.error('Error response:', error);
+              throw new Error(error.message || 'Failed to create event');
+            }
+
+            document.getElementById('new-task-message').value = '';
+            document.getElementById('new-task-datetime').value = '';
+            await loadTasksPanel();  // Refresh the task panel after successful creation
+
+          } catch (err) {
+            console.error('Error creating event:', err);
+            alert('Error adding event: ' + err.message);
+          }
+        });
+      }
+
+      // Toggle task list visibility
+      document.querySelectorAll('.toggle-header').forEach(header => {
+        header.addEventListener('click', function () {
+          const targetId = this.getAttribute('data-target');
+          const list = document.getElementById(targetId);
+
+          if (!list) {
+            console.log(`No list found for target: ${targetId}`);
+            return;
+          }
+
+          list.classList.toggle('hidden');  // Toggle the 'hidden' class
+
+          const arrow = this.querySelector('.arrow');
+          const isCollapsed = list.classList.contains('hidden');
+          arrow.textContent = isCollapsed ? '▶' : '▼';  // Toggle the arrow symbol
+        });
+      });
+    });
+  </script>
+</body>
+</html>

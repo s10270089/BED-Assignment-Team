@@ -88,8 +88,15 @@ exports.getByExactDate = async (date) => {
 
 //create event
 exports.createEvent = async (eventData) => {
-  const { user_id, title, description, location, date, eventstarttime, eventendtime, invitees } = eventData;
+  const { user_id, title, description, location, date, event_start_time, event_end_time, invitees } = eventData;
+
+  console.log("eventData:", eventData);
+  console.log("eventstarttime:", eventData.event_start_time, "eventendtime:", eventData.event_end_time);
+  
   const pool = await sql.connect(dbConfig);
+
+  const startDateTimeObject = new Date(eventData.event_start_time); // UTC timing, not SG timing
+  const endDateTimeObject = new Date(eventData.event_end_time); // UTC timing, not SG timing
 
   await pool.request()
     .input("user_id", sql.Int, user_id)
@@ -97,8 +104,8 @@ exports.createEvent = async (eventData) => {
     .input("description", sql.NVarChar(255), description)
     .input("location", sql.NVarChar(100), location)
     .input("date", sql.Date, date)
-    .input("event_start_time", sql.DateTime, eventstarttime)
-    .input("event_end_time", sql.DateTime, eventendtime)
+    .input("event_start_time", sql.DateTime, startDateTimeObject)  
+    .input("event_end_time", sql.DateTime, endDateTimeObject)  
     .input("invitees", sql.NVarChar(255), invitees)
     .query(`
       INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)

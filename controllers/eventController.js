@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const eventModel = require("../models/eventModel");
 
 //get all events
@@ -122,8 +123,27 @@ exports.getEventsByExactDate = async (req, res) => {
 exports.createEvent = async (req, res) => {
   const eventData = req.body;
 
-  if (!eventData.user_id || !eventData.title || !eventData.event_time) {
-    return res.status(400).json({ message: "user_id, title, and event_time are required." });
+  // Ensure the user_id is extracted from the JWT token
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Token missing or invalid" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    eventData.user_id = req.user.user_id;  // Set user_id from the decoded token
+  } catch (err) {
+    res.status(403).json({ error: "Invalid token" });
+  }
+
+  console.log("Creating event with data:", eventData);
+
+  if (!eventData.user_id || !eventData.title || !eventData.event_start_time || !eventData.event_end_time) {
+    return res.status(400).json({ message: "user_id, title, and event_start/end_time are required." });
   }
 
   try {
