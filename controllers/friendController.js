@@ -1,9 +1,23 @@
 const friendModel = require("../models/friendModel");
+const jwt = require('jsonwebtoken');
 
+
+
+// Helper for integer param validation
+function isPositiveInt(val) {
+  return !isNaN(val) && Number.isInteger(Number(val)) && Number(val) > 0;
+}
 
 exports.getFriends = async (req, res) => {
+  user = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
+  const userId = user.user_id;
+  console.log("User ID from token:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ error: "Invalid userId or unauthorised" });
+  }
   try {
-    const friends = await friendModel.getFriends(req.params.userId);
+    const friends = await friendModel.getFriends(userId);
     res.json(friends);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -11,17 +25,30 @@ exports.getFriends = async (req, res) => {
 };
 
 exports.getIncomingRequests = async (req, res) => {
+    user = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
+    const userId = user.user_id;
+    console.log("User ID from token:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ error: "Invalid userId parameter." });
+  }
   try {
-    const requests = await friendModel.getIncomingRequests(req.params.userId);
+    const requests = await friendModel.getIncomingRequests(userId);
     res.json(requests);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+
 exports.getOutgoingRequests = async (req, res) => {
+ user = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
+  const userId = user.user_id;
+  if (!userId) {
+    return res.status(400).json({ error: "Invalid userId parameter." });
+  }
   try {
-    const requests = await friendModel.getOutgoingRequests(req.params.userId);
+    const requests = await friendModel.getOutgoingRequests(userId);
     res.json(requests);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -29,18 +56,35 @@ exports.getOutgoingRequests = async (req, res) => {
 };
 
 exports.sendRequest = async (req, res) => {
-  const { senderId, receiverId } = req.body;
+   user = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);  
+  const senderId = user.user_id;
+  console.log("REC ID from token:", req.params.receiverId);
+  const receiverId = parseInt(req.params.receiverId);
+  console.log("Sender ID from token:", senderId, "Receiver ID from params:", receiverId);
+  if (!isPositiveInt(senderId) || !isPositiveInt(receiverId)) {
+    return res.status(400).json({ error: "senderId and receiverId must be positive integers." });
+  }
+  if (senderId === receiverId) {
+    return res.status(400).json({ error: "Cannot send request to yourself." });
+  }
+
   try {
     await friendModel.sendFriendRequest(senderId, receiverId);
     res.json({ message: "Friend request sent." });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (err.message.includes("already exists")) {
+      res.status(409).json({ error: err.message }); // Conflict
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 };
 
-
 exports.acceptFriendRequestById = async (req, res) => {
   const { friendshipId } = req.params;
+  if (!isPositiveInt(friendshipId)) {
+    return res.status(400).json({ error: "Invalid friendshipId parameter." });
+  }
 
   try {
     const affected = await friendModel.updateFriendshipStatusById(parseInt(friendshipId), 'accepted');
@@ -58,6 +102,9 @@ exports.acceptFriendRequestById = async (req, res) => {
 
 exports.rejectFriendRequestById = async (req, res) => {
   const { friendshipId } = req.params;
+  if (!isPositiveInt(friendshipId)) {
+    return res.status(400).json({ error: "Invalid friendshipId parameter." });
+  }
 
   try {
     const affected = await friendModel.deleteFriendshipRequestById(parseInt(friendshipId));
@@ -73,10 +120,11 @@ exports.rejectFriendRequestById = async (req, res) => {
   }
 };
 
-
-
 exports.getFriendshipId = async (req, res) => {
   const { senderId, receiverId } = req.params;
+  if (!isPositiveInt(senderId) || !isPositiveInt(receiverId)) {
+    return res.status(400).json({ error: "senderId and receiverId must be positive integers." });
+  }
 
   try {
     const data = await friendModel.getFriendshipId(parseInt(senderId), parseInt(receiverId));
@@ -93,6 +141,9 @@ exports.getFriendshipId = async (req, res) => {
 
 exports.removeFriendById = async (req, res) => {
   const { friendshipId } = req.params;
+  if (!isPositiveInt(friendshipId)) {
+    return res.status(400).json({ error: "Invalid friendshipId parameter." });
+  }
 
   try {
     const affected = await friendModel.removeFriendById(parseInt(friendshipId));

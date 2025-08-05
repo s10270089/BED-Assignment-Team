@@ -17,6 +17,7 @@ exports.getFriends = async (userId) => {
 };
 
 exports.getIncomingRequests = async (userId) => {
+  console.log("Fetching incoming requests for userId:", userId);
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
     .input("userId", sql.Int, userId)
@@ -44,6 +45,23 @@ exports.getOutgoingRequests = async (userId) => {
 
 exports.sendFriendRequest = async (senderId, receiverId) => {
   const pool = await sql.connect(dbConfig);
+
+  // Check if a friendship or pending request already exists
+  const existing = await pool.request()
+    .input("senderId", sql.Int, senderId)
+    .input("receiverId", sql.Int, receiverId)
+    .query(`
+      SELECT * FROM Friendships
+      WHERE 
+        (sender_id = @senderId AND receiver_id = @receiverId)
+        OR 
+        (sender_id = @receiverId AND receiver_id = @senderId)
+    `);
+
+  if (existing.recordset.length > 0) {
+    throw new Error("A friendship or pending request already exists.");
+  }
+  //otherwisse, create new request
   await pool.request()
     .input("senderId", sql.Int, senderId)
     .input("receiverId", sql.Int, receiverId)
@@ -106,5 +124,5 @@ exports.getFriendshipId = async (senderId, receiverId) => {
          OR (sender_id = @receiverId AND receiver_id = @senderId)
     `);
   
-  return result.recordset[0]; // returns { friendship_id: X } or undefined
+  return result.recordset[0]; // returns { friendship_id: X } or undefined
 };

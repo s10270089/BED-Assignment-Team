@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="friends-page">
+    <h1 id="welcome-user-mssg">Welcome, User</h1>
+
+    <h2>Friends List</h2>
+    <ul id="friendsList"></ul>
+
+    <h2>Incoming Requests</h2>
+    <ul id="incomingRequests"></ul>
+
+    <h2>Outgoing Requests</h2>
+    <ul id="outgoingRequests"></ul>
+
+    <h2>Send Friend Request</h2>
+    <div id="sendRequestSection">
+      <input type="number" id="receiverIdInput" placeholder="Enter Receiver ID" />
+      <button onclick="sendFriendRequest()">Send Request</button>
+    </div>
+  </div>
+
+  <script src="./js/friends.js"></script>
+</body>
+</html>

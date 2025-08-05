@@ -794,3 +794,70 @@ ul li {
     gap: 10px;
   }
 }
+
+
+/* yoshi test */
+
+.friends-page {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f8ff; /* Alice Blue */
+    color: #2f4f4f; /* Dark Slate Gray */
+    padding: 2rem;
+    max-width: 800px;
+    margin: auto;
+}
+
+.friends-page h1 {
+    color: #2b7a78;
+    border-bottom: 2px solid #2b7a78;
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+.friends-page h2 {
+    color: #205375;
+    margin-top: 2rem;
+    border-left: 5px solid #3aafa9;
+    padding-left: 0.6rem;
+}
+
+.friends-page ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.friends-page li {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.friends-page button {
+    margin-left: 8px;
+    padding: 5px 12px;
+    background-color: #3aafa9;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.friends-page button:hover {
+    background-color: #2b7a78;
+}
+
+.friends-page input[type="number"] {
+    padding: 6px;
+    width: 160px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.friends-page #sendRequestSection {
+    margin-top: 2rem;
+}
