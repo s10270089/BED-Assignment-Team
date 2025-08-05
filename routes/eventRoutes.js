@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const eventController = require("../controllers/eventController");
 
+
+router.get('/user/:user_id', eventController.getEventsForAuthenticatedUser);
+
+
 /**
  * @swagger
  * /events:
@@ -17,6 +21,7 @@ const eventController = require("../controllers/eventController");
  *         description: No events found
  */
 router.get("/", eventController.getAllEvents);
+
 
 /**
  * @swagger

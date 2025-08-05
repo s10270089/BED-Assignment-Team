@@ -25,6 +25,34 @@ exports.getAllEvents = async (req, res) => {
   }
 };
 
+//get authenticated user's events
+exports.getEventsForAuthenticatedUser = async (req, res) => {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  let user;
+
+  try {
+    user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid token" });
+  }
+
+  const userId = user.user_id;
+
+  try {
+    const events = await eventModel.getByUserId(userId);  // Filter by user_id
+    return res.status(200).json({ events });
+  } catch (err) {
+    console.error("Error fetching user events:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+
 //get event by id
 
 exports.getEventById = async (req, res) => {
@@ -79,14 +107,51 @@ console.log(req.params);
 exports.deleteEvent = async (req, res) => {
   const event_id = req.params.event_id;
 
+  const authHeader = req.headers["authorization"];
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Token missing or invalid" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
   try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+  } catch (err) {
+    return res.status(403).json({ error: "Invalid token" });
+  }
+
+  try {
+    // 1. Get Event from DB
+    const event = await eventModel.getById(event_id);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    const googleEventId = event.google_id;
+    const tokens = await getGoogleTokens(req.user.user_id);
+
+    // 2. If Google Event ID exists, delete from Google Calendar
+    if (googleEventId && tokens) {
+      try {
+        await removeEventsFromGoogleCalendar(tokens, googleEventId);
+        console.log("Deleted from Google Calendar:", googleEventId);
+      } catch (googleError) {
+        console.error("Failed to delete from Google Calendar:", googleError.message);
+        // Optional: You may decide whether to proceed deleting from DB if Google Calendar deletion fails.
+      }
+    }
+
+    // 3. Delete Event from DB
     await eventModel.deleteEvent(event_id);
+
     return res.status(200).json({ message: "Event deleted successfully." });
   } catch (err) {
     console.error("Error deleting event:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 //search for event by name
 
@@ -136,9 +201,7 @@ exports.getEventsByExactDate = async (req, res) => {
 exports.createEvent = async (req, res) => {
   const eventData = req.body;
 
-  // Ensure the user_id is extracted from the JWT token
   const authHeader = req.headers["authorization"];
-
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Token missing or invalid" });
   }
@@ -148,7 +211,7 @@ exports.createEvent = async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-    eventData.user_id = req.user.user_id;  // Set user_id from the decoded token
+    eventData.user_id = req.user.user_id;
   } catch (err) {
     return res.status(403).json({ error: "Invalid token" });
   }
@@ -157,8 +220,6 @@ exports.createEvent = async (req, res) => {
   const tokens = await getGoogleTokens(req.user.user_id);
   console.log("Tokens retrieved:", tokens);
 
-
-
   console.log("Creating event with data:", eventData);
 
   if (!eventData.user_id || !eventData.title || !eventData.event_start_time || !eventData.event_end_time) {
@@ -166,84 +227,89 @@ exports.createEvent = async (req, res) => {
   }
 
   try {
-    await eventModel.createEvent(eventData);
-    this.addEventToGoogeCalendar(tokens, eventData, eventData.user_id);
+    const event_id = await eventModel.createEvent(eventData);
+
+    // Await and handle Google Calendar Sync Errors
+    try {
+      const eventGoogleId = await addEventToGoogleCalendar(tokens, eventData);
+      console.log("Event added to Google Calendar with ID:", eventGoogleId, "type:", typeof(eventGoogleId));
+      if (typeof(eventGoogleId) === 'string') {
+        console.log("Event added to Google Calendar with ID:", eventGoogleId);
+        // Optionally, you can store the Google event ID in your database if needed
+        await eventModel.updateGoogleEventId(event_id, eventGoogleId);
+      }
+    } catch (googleError) {
+      console.error("Failed to sync event with Google Calendar:", googleError.message);
+      // Optional: return res.status(500) here if you want to block event creation when Google Calendar fails.
+    }
+
     return res.status(201).json({ message: "Event created successfully." });
+
   } catch (err) {
     console.error("Error creating event:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 };
 
-exports.addEventToGoogeCalendar = async (tokens, eventInput, user_id) => {
 
-    try {
-      // Ensure user is authenticated and has Google credentials
+async function addEventToGoogleCalendar(tokens, eventInput) {
+  try {
+    const { title, description, location, event_start_time, event_end_time } = eventInput;
+
+    const { google } = require('googleapis');
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      'http://localhost:3000/auth/google/callback'
+    );
+
+    oauth2Client.setCredentials({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      token_type: 'Bearer',
+    });
+
+    await oauth2Client.getAccessToken(); // Ensure token is valid
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    const startDateTimeISO = new Date(event_start_time).toISOString();
+    const endDateTimeISO = new Date(event_end_time).toISOString();
+
+    const event = {
+      summary: title,
+      description: description,
+      location: location,
+      start: {
+        dateTime: startDateTimeISO,
+        timeZone: 'UTC',
+      },
+      end: {
+        dateTime: endDateTimeISO,
+        timeZone: 'UTC',
+      },
+    };
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      resource: event,
+    });
+
+    console.log('Event added to Google Calendar:', response.data);
+    return response.data.id;
 
 
-      const { title, description, location, date, event_start_time, event_end_time, invitees } = eventInput;
-
-      // assuming your token has all the right fields
-      const { google } = require('googleapis');
-      console.log("AT:", tokens.access_token, "RT:", tokens.refresh_token);
-      const oauth2Client = new google.auth.OAuth2(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_CLIENT_SECRET,
-        'http://localhost:3000/auth/google/callback'
-      );
-
-      oauth2Client.setCredentials({
-        access_token: tokens.access_token,  // ← Access Token
-        refresh_token: tokens.refresh_token, // ← Refresh Token
-        scope: 'https://www.googleapis.com/auth/calendar',
-        token_type: 'Bearer',
-      });
-
-      await oauth2Client.getAccessToken();  // Ensures token is valid / refreshed
-
-      const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-      const startDateTimeISO = new Date(event_start_time).toISOString();
-      const endDateTimeISO = new Date(event_end_time).toISOString();
-
-
-      const event = {
-        summary : title,
-        description: description,
-        location: location,
-        start: {
-          dateTime: startDateTimeISO, // Ensure this is in ISO format
-          timeZone: 'UTC'
-        },
-        end: {
-          dateTime: endDateTimeISO, // Ensure this is in ISO format
-          timeZone: 'UTC'
-        },
-        //attendees: invitees ? invitees.split(',').map(email => ({ email })) : [], // Convert comma-separated emails to array
-
-
-        // You might want to add other properties like location, attendees, etc.
-      };
-
-      const response = await calendar.events.insert({
-        calendarId: 'primary',
-        resource: event,
-      });
-
-      // return res.status(200).json({ message: 'Event added to Google Calendar', event: response.data });
-
-    } catch (error) {
-      console.error('Error adding event to Google Calendar:', error.message);
-
-      if (error.response && error.response.data) {
-        console.error('Google API Error Details:', JSON.stringify(error.response.data, null, 2));
-      } else {
-        console.error('No response data from Google API error');
-      }
-
-      res.status(500).json({ message: 'Failed to add event to Google Calendar', error: error.message });
+  } catch (error) {
+    console.error('Error adding event to Google Calendar:', error.message);
+    if (error.response && error.response.data) {
+      console.error('Google API Error Details:', JSON.stringify(error.response.data, null, 2));
+    } else {
+      console.error('No response data from Google API error');
     }
-      };
+    throw new Error('Failed to add event to Google Calendar');
+  }
+}
 
 
 exports.acceptInvitation = async (req, res) => {
@@ -273,3 +339,44 @@ exports.rejectInvitation = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+async function removeEventsFromGoogleCalendar(
+  tokens,
+  eventId
+) {
+  try {
+    const { google } = require('googleapis');
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      'http://localhost:3000/auth/google/callback'
+    );
+
+    oauth2Client.setCredentials({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      token_type: 'Bearer',
+    });
+
+    await oauth2Client.getAccessToken(); // Ensure token is valid
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    await calendar.events.delete({
+      calendarId: 'primary',
+      eventId: eventId,
+    });
+
+    console.log('Event deleted from Google Calendar:', eventId);
+  } catch (error) {
+    console.error('Error deleting event from Google Calendar:', error.message);
+    throw new Error('Failed to delete event from Google Calendar');
+  }
+}
+
+
+
+
+
+exports.addEventToGoogleCalendar = addEventToGoogleCalendar;

@@ -104,7 +104,7 @@ exports.createEvent = async (eventData) => {
   const endDateTimeObject = new Date(eventData.event_end_time.replace("T", " ")); // local time
   console.log("startDateTime:", eventData.event_start_time, "startDateTimeObject:", startDateTimeObject);
 
-  await pool.request()
+  const result = await pool.request()
     .input("user_id", sql.Int, user_id)
     .input("title", sql.NVarChar(100), title)
     .input("description", sql.NVarChar(255), description)
@@ -115,8 +115,10 @@ exports.createEvent = async (eventData) => {
     .input("invitees", sql.NVarChar(255), invitees)
     .query(`
       INSERT INTO Events (user_id, title, description, location, date, event_start_time, event_end_time, invitees)
+      OUTPUT INSERTED.event_id
       VALUES (@user_id, @title, @description, @location, @date, @event_start_time, @event_end_time, @invitees)
     `);
+  return result.recordset[0].event_id; // returns 1 if inserted successfully
 };
 
 exports.updateInvitationStatus = async (invitationId, status) => {
@@ -133,3 +135,15 @@ exports.updateInvitationStatus = async (invitationId, status) => {
 
   return result.rowsAffected[0]; // returns 1 if updated, 0 if not found
 };
+
+exports.updateGoogleEventId = async (eventId, googleEventId) => {
+  const pool = await sql.connect(dbConfig);
+  await pool.request()
+    .input("event_id", sql.Int, eventId)
+    .input("google_id", sql.NVarChar(255), googleEventId)
+    .query(`
+      UPDATE Events
+      SET google_id = @google_id
+      WHERE event_id = @event_id
+    `);
+}

@@ -28,6 +28,12 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//testing middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log("Incoming Request:", req.method, req.url);
+  next();
+});
+
 // CORS configuration
 const cors = require("cors");
 app.use(cors());
