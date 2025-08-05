@@ -134,7 +134,7 @@ function formatDateLocal(date) {
 
       const calendarEl = document.getElementById('calendar');
       try {
-        const res = await fetch('/events', {
+        const res = await fetch('/events/user/', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

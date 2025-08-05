@@ -72,7 +72,8 @@ exports.getEventById = async (req, res) => {
 
 exports.getEventsByUserId = async (req, res) => {
   try {
-    const events = await eventModel.getByUserId(req.params.user_id);
+    const userId = jwt.verify(req.headers.authorization.split(" ")[1], process.env.JWT_SECRET).user_id;
+    const events = await eventModel.getByUserId(userId);
     if (events.length === 0) {
       return res.status(404).json({ message: "No events found for user." });
     }

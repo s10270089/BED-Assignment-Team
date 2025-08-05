@@ -17,6 +17,7 @@ exports.getById = async (event_id) => {
 };
 
 exports.getByUserId = async (user_id) => {
+  console.log("Fetching events for user_id:", user_id);
   const pool = await sql.connect(dbConfig);
   const result = await pool.request()
     .input("user_id", sql.Int, user_id)

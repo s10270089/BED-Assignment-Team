@@ -85,28 +85,8 @@ router.get("/date", eventController.getEventsByExactDate);
  *       404:
  *         description: Event not found
  */
-router.get("/:event_id", eventController.getEventById);
 
-/**
- * @swagger
- * /events/user/{user_id}:
- *   get:
- *     summary: Get events by user ID
- *     tags: [Events]
- *     parameters:
- *       - in: path
- *         name: user_id
- *         schema:
- *           type: integer
- *         required: true
- *         description: User ID
- *     responses:
- *       200:
- *         description: User's events retrieved successfully
- *       404:
- *         description: No events found for user
- */
-router.get("/user/:user_id", eventController.getEventsByUserId);
+router.get("/user/", eventController.getEventsByUserId);
 
 /**
  * @swagger
@@ -145,6 +125,28 @@ router.get("/user/:user_id", eventController.getEventsByUserId);
  *         description: Event created successfully
  *       400:
  *         description: Missing required fields
+ */
+
+router.get("/:event_id", eventController.getEventById);
+
+/**
+ * @swagger
+ * /events/user/{user_id}:
+ *   get:
+ *     summary: Get events by user ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User's events retrieved successfully
+ *       404:
+ *         description: No events found for user
  */
 router.post("/", eventController.createEvent);
 
