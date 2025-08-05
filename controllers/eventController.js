@@ -1,5 +1,14 @@
 const jwt = require("jsonwebtoken");
 const eventModel = require("../models/eventModel");
+const { getGoogleTokens } = require("../auth/googleAuth");
+// controllers/calendarController.js
+const { google } = require('googleapis');
+
+
+
+
+
+
 
 //get all events
 
@@ -9,10 +18,10 @@ exports.getAllEvents = async (req, res) => {
     if (events.length === 0) {
       return res.status(404).json({ message: "No events found." });
     }
-    res.status(200).json({ message: "Events retrieved successfully.", events });
+    return res.status(200).json({ message: "Events retrieved successfully.", events });
   } catch (err) {
     console.error("Error retrieving events:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -24,10 +33,10 @@ exports.getEventById = async (req, res) => {
     if (!event) {
       return res.status(404).json({ message: "Event not found." });
     }
-    res.status(200).json({ message: "Event retrieved successfully.", event });
+    return res.status(200).json({ message: "Event retrieved successfully.", event });
   } catch (err) {
     console.error("Error retrieving event:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -39,10 +48,10 @@ exports.getEventsByUserId = async (req, res) => {
     if (events.length === 0) {
       return res.status(404).json({ message: "No events found for user." });
     }
-    res.status(200).json({ message: "User's events retrieved successfully.", events });
+    return res.status(200).json({ message: "User's events retrieved successfully.", events });
   } catch (err) {
     console.error("Error retrieving user's events:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -58,10 +67,10 @@ console.log(req.params);
 
   try {
     await eventModel.updateEvent(event_id, updatedData);
-    res.status(200).json({ message: "Event updated successfully." });
+    return res.status(200).json({ message: "Event updated successfully." });
   } catch (err) {
     console.error("Error updating event:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -72,10 +81,10 @@ exports.deleteEvent = async (req, res) => {
 
   try {
     await eventModel.deleteEvent(event_id);
-    res.status(200).json({ message: "Event deleted successfully." });
+    return res.status(200).json({ message: "Event deleted successfully." });
   } catch (err) {
     console.error("Error deleting event:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -93,10 +102,10 @@ exports.searchEvents = async (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: "No events found matching the search." });
     }
-    res.status(200).json({ message: "Search successful.", events: results });
+    return res.status(200).json({ message: "Search successful.", events: results });
   } catch (err) {
     console.error("Error searching events:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -114,10 +123,10 @@ exports.getEventsByExactDate = async (req, res) => {
       return res.status(404).json({ message: "No events found on that date." });
     }
 
-    res.status(200).json({ message: "Events for date retrieved.", events });
+    return res.status(200).json({ message: "Events for date retrieved.", events });
   } catch (err) {
     console.error("Error retrieving events by date:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
@@ -141,8 +150,14 @@ exports.createEvent = async (req, res) => {
     req.user = decoded;
     eventData.user_id = req.user.user_id;  // Set user_id from the decoded token
   } catch (err) {
-    res.status(403).json({ error: "Invalid token" });
+    return res.status(403).json({ error: "Invalid token" });
   }
+
+  console.log("User ID from token:", req.user.user_id);
+  const tokens = await getGoogleTokens(req.user.user_id);
+  console.log("Tokens retrieved:", tokens);
+
+
 
   console.log("Creating event with data:", eventData);
 
@@ -152,12 +167,83 @@ exports.createEvent = async (req, res) => {
 
   try {
     await eventModel.createEvent(eventData);
-    res.status(201).json({ message: "Event created successfully." });
+    this.addEventToGoogeCalendar(tokens, eventData, eventData.user_id);
+    return res.status(201).json({ message: "Event created successfully." });
   } catch (err) {
     console.error("Error creating event:", err);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+exports.addEventToGoogeCalendar = async (tokens, eventInput, user_id) => {
+
+    try {
+      // Ensure user is authenticated and has Google credentials
+
+
+      const { title, description, location, date, event_start_time, event_end_time, invitees } = eventInput;
+
+      // assuming your token has all the right fields
+      const { google } = require('googleapis');
+      console.log("AT:", tokens.access_token, "RT:", tokens.refresh_token);
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        'http://localhost:3000/auth/google/callback'
+      );
+
+      oauth2Client.setCredentials({
+        access_token: tokens.access_token,  // ← Access Token
+        refresh_token: tokens.refresh_token, // ← Refresh Token
+        scope: 'https://www.googleapis.com/auth/calendar',
+        token_type: 'Bearer',
+      });
+
+      await oauth2Client.getAccessToken();  // Ensures token is valid / refreshed
+
+      const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+      const startDateTimeISO = new Date(event_start_time).toISOString();
+      const endDateTimeISO = new Date(event_end_time).toISOString();
+
+
+      const event = {
+        summary : title,
+        description: description,
+        location: location,
+        start: {
+          dateTime: startDateTimeISO, // Ensure this is in ISO format
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: endDateTimeISO, // Ensure this is in ISO format
+          timeZone: 'UTC'
+        },
+        //attendees: invitees ? invitees.split(',').map(email => ({ email })) : [], // Convert comma-separated emails to array
+
+
+        // You might want to add other properties like location, attendees, etc.
+      };
+
+      const response = await calendar.events.insert({
+        calendarId: 'primary',
+        resource: event,
+      });
+
+      // return res.status(200).json({ message: 'Event added to Google Calendar', event: response.data });
+
+    } catch (error) {
+      console.error('Error adding event to Google Calendar:', error.message);
+
+      if (error.response && error.response.data) {
+        console.error('Google API Error Details:', JSON.stringify(error.response.data, null, 2));
+      } else {
+        console.error('No response data from Google API error');
+      }
+
+      res.status(500).json({ message: 'Failed to add event to Google Calendar', error: error.message });
+    }
+      };
 
 
 exports.acceptInvitation = async (req, res) => {
@@ -167,10 +253,10 @@ exports.acceptInvitation = async (req, res) => {
     if (updated === 0) {
       return res.status(404).json({ error: 'Invitation not found or already processed' });
     }
-    res.status(200).json({ message: 'Invitation accepted' });
+    return res.status(200).json({ message: 'Invitation accepted' });
   } catch (err) {
     console.error('Error accepting invitation:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -181,9 +267,9 @@ exports.rejectInvitation = async (req, res) => {
     if (updated === 0) {
       return res.status(404).json({ error: 'Invitation not found or already processed' });
     }
-    res.status(200).json({ message: 'Invitation rejected' });
+    return res.status(200).json({ message: 'Invitation rejected' });
   } catch (err) {
     console.error('Error rejecting invitation:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

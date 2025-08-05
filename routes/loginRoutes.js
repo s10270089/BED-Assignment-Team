@@ -29,7 +29,12 @@ const validateLogin = require("../middlewares/validateLogin");
 router.post("/", validateLogin, loginUser);
 
 // Google login
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google", passport.authenticate("google", {
+  scope: ["profile", "email", "https://www.googleapis.com/auth/calendar"],
+  accessType: "offline",
+  prompt: "consent"
+}));
+
 
 router.get("/google/callback", passport.authenticate("google", { session: false, failureRedirect: "/login.html" }),
   (req, res) => {

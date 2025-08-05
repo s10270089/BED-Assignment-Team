@@ -19,6 +19,8 @@
     "express-fileupload": "^1.5.2",
     "express-session": "^1.18.2",
     "fullcalendar": "^6.1.18",
+    "googleapi": "^1.0.2",
+    "googleapis": "^154.1.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "method-override": "^3.0.0",
