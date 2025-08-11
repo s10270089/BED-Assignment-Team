@@ -83,6 +83,12 @@ DB_SERVER=<your_db_server>
 DB_PORT=1433  
 DB_NAME=<your_db_name>  
 JWT_SECRET=<your_jwt_secret>  
+GOOGLE_CLIENT_ID=<your_google_id>
+GOOGLE_CLIENT_SECRET=<your_google_secret>
+SESSION_SECRET=<your_session_secret>
+CLOUDINARY_CLOUD_NAME=<your_cloudinary_name>
+CLOUDINARY_API_KEY=<your_cloudinary_API>
+CLOUDINARY_API_SECRET=<your_cloudinary_secret>
 
 ## Database Setup
 In SSMS run:  
