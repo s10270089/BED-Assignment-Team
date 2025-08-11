@@ -27,16 +27,18 @@ exports.createReminder = async (reminder) => {
   console.log('Reminder created successfully!');
 };
 
-// In your model
-exports.updateReminder = async (reminder_id, reminder_time) => {
+exports.updateReminderTime = async (user_id, reminder_id, message, reminder_time, is_completed) => {
   const pool = await sql.connect(dbConfig);
   await pool.request()
       .input('reminder_id', sql.Int, reminder_id)
       .input('message', sql.NVarChar(255), message)
       .input('reminder_time', sql.DateTime, reminder_time)
       .input('is_completed', sql.Bit, is_completed ? 1 : 0)
-      .query(`UPDATE Reminders SET message = @message, reminder_time = @reminder_time, is_completed = @is_completed WHERE reminder_id = @reminder_id`);
-      
+      .query(`
+            UPDATE Reminders
+            SET message = @message, reminder_time = @reminder_time, is_completed = @is_completed
+            WHERE reminder_id = @reminder_id AND user_id = @user_id
+        `);      
       res.status(200).json({ success: true });
 }
 
@@ -52,7 +54,7 @@ exports.updateReminder = async (reminder_id, message, reminder_time, is_complete
       SET message = @message, reminder_time = @reminder_time, is_completed = @is_completed 
       WHERE reminder_id = @reminder_id
     `);
-  return result.rowsAffected[0];  // Return how many rows were updated
+  return result.rowsAffected[0];
 };
 
 

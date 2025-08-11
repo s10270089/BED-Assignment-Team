@@ -27,6 +27,7 @@ A multi-module web application built for seniors to manage daily tasks, medicati
 - **Emergency Quick-Dial** : allows user to easily check and find emergency contacts and details
 - **Event Planner** & **Activity Calendar**  
 - **Overview Dashboard** (date, weather, upcoming)  
+- **Appointments**: set appointments
 - **Health Records** (BP logs, notes)  
 - **Reminders** (create/edit/delete)  
 - **Auto-Translation** of input  
@@ -45,7 +46,7 @@ A multi-module web application built for seniors to manage daily tasks, medicati
 - **Validation**: `joi`  
 - **Front-end**: static HTML/CSS/JS (served from `/public`)  
 - **FullCalendar javascript API** : Interactive drag & drop calendar interface for reminders
-
+- **Cloudinary API**: easy to access database for image uploadds
 ---
 
 ## Prerequisites

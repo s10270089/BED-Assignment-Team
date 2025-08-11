@@ -151,7 +151,7 @@
             const updatedTime = info.event.start.toISOString();
             await fetch(`/reminders/${info.event.id}/update`, {
               method: 'POST',
-              headers: {'Content-Type': 'application/json'},
+              headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
               body: JSON.stringify({
                 message: info.event.title,
                 reminder_time: updatedTime,

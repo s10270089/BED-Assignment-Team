@@ -63,38 +63,80 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Submit new appointment form
+    // Keep track of the appointment currently being edited
+    let editingAppointmentId = null;
+
+    // Edit appointment
+    async function editAppointment(id) {
+        try {
+            const res = await fetch(`/appointments/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) throw new Error("Failed to fetch appointment");
+
+            const appointment = await res.json();
+
+            // Fill the form with the existing appointment data
+            document.getElementById("appointmentDate").value = appointment.appointment_date.split("T")[0] + "T" + appointment.appointment_date.split("T")[1].slice(0,5);
+            document.getElementById("doctorName").value = appointment.doctor_name;
+            document.getElementById("purpose").value = appointment.purpose;
+
+            // Set editing mode
+            editingAppointmentId = id;
+
+            // Change submit button text
+            document.getElementById("submitBtn").textContent = "Update Appointment";
+
+        } catch (err) {
+            console.error("Error loading appointment for edit:", err);
+            alert("Failed to load appointment details");
+        }
+    }
+
+    // Modify form submission to handle both create and update
     document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        if (!user_id) {
-            alert("User ID is missing. Please login again.");
-            return;
-        }
 
         const appointmentDate = document.getElementById("appointmentDate").value;
         const doctorName = document.getElementById("doctorName").value;
         const purpose = document.getElementById("purpose").value;
 
         try {
-            const res = await fetch('/appointments', {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json", 
-                    Authorization: `Bearer ${token}` 
+            let url = '/appointments';
+            let method = 'POST';
+            let bodyData = {
+                user_id: user_id,
+                appointment_date: appointmentDate,
+                doctor_name: doctorName,
+                purpose: purpose
+            };
+
+            // If in editing mode, switch to PUT
+            if (editingAppointmentId) {
+                url = `/appointments/${editingAppointmentId}`;
+                method = 'PUT'; // or PATCH, depending on your backend
+            }
+
+            const res = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    appointment_date: appointmentDate, 
-                    doctor_name: doctorName, 
-                    purpose: purpose 
-                })
+                body: JSON.stringify(bodyData)
             });
 
-            if (!res.ok) throw new Error("Create failed");
+            if (!res.ok) throw new Error(`${method} failed`);
 
-            loadAppointments();  // Reload the appointments after successful creation
+            // Reset form and mode
+            editingAppointmentId = null;
+            document.getElementById("submitBtn").textContent = "Add Appointment";
+            document.getElementById("appointmentForm").reset();
+
+            loadAppointments(); // Reload table
         } catch (err) {
-            alert("Failed to create appointment.");
+            alert("Failed to save appointment.");
             console.error(err);
         }
     });
@@ -118,11 +160,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Edit appointment (currently no functionality here - it's just a placeholder)
-    function editAppointment(id) {
-        console.log(`Editing appointment with ID: ${id}`);
-        // Implement actual editing functionality here
-    }
-
+    
     loadAppointments();  // Load appointments on page load
 });
